@@ -4,10 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {} from "cmdk";
 import { Check, ChevronsUpDown, Loader, Plus, Trash, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import FileUploaderWrapper from "~/app/_components/_/FileUploaderWrapper";
 import { Button } from "~/components/ui/button";
 import {
   Command,
@@ -35,7 +34,7 @@ import {
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { Separator } from "~/components/ui/separator";
 import { toast } from "~/hooks/use-toast";
-import { useUploadFile } from "~/hooks/useUploadthing";
+// import { useUploadFile } from "~/hooks/useUploadthing";
 import { cn } from "~/lib/utils";
 import { VEHICLE_CATEGORY } from "~/lib/vehicle-category";
 import { vehicleTypeEnum } from "~/server/db/schema";
@@ -85,17 +84,17 @@ const Wrapper = ({
 
   const [files, setFiles] = useState<File[] | null>([]);
 
-  const { uploadFiles, progresses, uploadedFile, isUploading } =
-    useUploadFile("imageUploader");
+  // const { uploadFiles, progresses, uploadedFile, isUploading } =
+  //   useUploadFile("imageUploader");
 
-  useEffect(() => {
-    if (uploadedFile && uploadedFile.length > 0) {
-      form.setValue(
-        "images",
-        uploadedFile.map((e) => e.url),
-      );
-    }
-  }, [uploadedFile]);
+  // useEffect(() => {
+  //   if (uploadedFile && uploadedFile.length > 0) {
+  //     form.setValue(
+  //       "images",
+  //       uploadedFile.map((e) => e.url),
+  //     );
+  //   }
+  // }, [uploadedFile]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -183,9 +182,9 @@ const Wrapper = ({
                           updatedImages.splice(i, 1);
                           setPastImages(updatedImages);
                         }}
-                        className="absolute right-2 top-2 z-10 flex size-5 items-center justify-center rounded-sm border border-border bg-white shadow-sm"
+                        className="border-border absolute right-2 top-2 z-10 flex size-5 items-center justify-center rounded-sm border bg-white shadow-sm"
                       >
-                        <X className="size-3 stroke-destructive duration-200 ease-in-out" />
+                        <X className="stroke-destructive size-3 duration-200 ease-in-out" />
                       </div>
                     </div>
                   ))}
@@ -193,14 +192,14 @@ const Wrapper = ({
               )}
 
               <div className="mb-4">
-                <FileUploaderWrapper
+                {/* <FileUploaderWrapper
                   files={files}
                   setFiles={setFiles}
                   onFileUpload={uploadFiles}
                   uploadedFile={uploadedFile}
                   isUploading={isUploading}
                   progresses={progresses}
-                />
+                /> */}
               </div>
             </div>
             <div className="flex-[3] space-y-6">

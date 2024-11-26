@@ -1,8 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
-import FileUploaderWrapper from "~/app/_components/_/FileUploaderWrapper";
+import { useState } from "react";
 import { Label } from "~/components/ui/label";
-import { useUploadFile } from "~/hooks/useUploadthing";
+// import { useUploadFile } from "~/hooks/useUploadthing";
 import useBusinessFormContext from "../hooks/useBusinessFormContext";
 
 const ShopImages = () => {
@@ -10,17 +9,17 @@ const ShopImages = () => {
 
   const [files, setFiles] = useState<File[] | null>([]);
 
-  const { uploadFiles, progresses, uploadedFile, isUploading } =
-    useUploadFile("imageUploader");
+  // const { uploadFiles, progresses, uploadedFile, isUploading } =
+  //   useUploadFile("imageUploader");
 
-  useEffect(() => {
-    if (uploadedFile && uploadedFile.length > 0) {
-      form.setValue(
-        "images",
-        uploadedFile.map((e) => e.url),
-      );
-    }
-  }, [uploadedFile]);
+  // useEffect(() => {
+  //   if (uploadedFile && uploadedFile.length > 0) {
+  //     form.setValue(
+  //       "images",
+  //       uploadedFile.map((e) => e.url),
+  //     );
+  //   }
+  // }, [uploadedFile]);
 
   return (
     <div className="space-y-6">
@@ -46,14 +45,14 @@ const ShopImages = () => {
         ))}
       </div>
 
-      <FileUploaderWrapper
+      {/* <FileUploaderWrapper
         files={files}
         onFileUpload={uploadFiles}
         setFiles={setFiles}
         uploadedFile={uploadedFile}
         isUploading={isUploading}
         progresses={progresses}
-      />
+      /> */}
     </div>
   );
 };

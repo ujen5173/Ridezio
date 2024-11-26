@@ -5,19 +5,23 @@ import Wrapper from "./wrapper";
 const VehicleCreatePage = async ({
   searchParams,
 }: {
-  searchParams: { edit: string } | undefined;
+  searchParams: Promise<{ edit: string | undefined }>;
 }) => {
+  const { edit } = await searchParams;
+
   let data: GetSingleVehicleType = undefined;
+
   const businessVehicles = await api.business.allowedVehicles();
-  if (searchParams?.edit) {
-    data = await api.vehicle.getSingle({ id: searchParams.edit });
+
+  if (edit) {
+    data = await api.vehicle.getSingle({ id: edit });
   }
 
   return (
     <Wrapper
       allowedVehicles={businessVehicles ?? []}
       editData={data}
-      type={searchParams?.edit ? "edit" : "new"}
+      type={edit ? "edit" : "new"}
     />
   );
 };

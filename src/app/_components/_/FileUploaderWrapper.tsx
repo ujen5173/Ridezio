@@ -2,20 +2,10 @@
 
 "use client";
 
-import { Loader } from "lucide-react";
-import Image from "next/image";
 import { type DropzoneOptions } from "react-dropzone";
-import { buttonVariants } from "~/components/ui/button";
-import {
-  FileInput,
-  FileUploader,
-  FileUploaderContent,
-  FileUploaderItem,
-} from "~/components/ui/file-uploader";
 import { toast } from "~/hooks/use-toast";
 import { convertMultipleToWebP, webpBase64ToFile } from "~/lib/image";
-import { cn } from "~/lib/utils";
-import { type UploadedFile } from "~/types";
+// import { type UploadedFile } from "~/types";
 
 export const defaultDropzone = {
   accept: {
@@ -72,7 +62,7 @@ const FileUploaderWrapper = ({
   files,
   setFiles,
   onFileUpload,
-  uploadedFile,
+  // uploadedFile,
   isUploading,
   progresses,
 }: {
@@ -80,75 +70,74 @@ const FileUploaderWrapper = ({
   files: File[] | null;
   setFiles: React.Dispatch<React.SetStateAction<File[] | null>>;
   onFileUpload: (files: File[]) => void;
-  uploadedFile: UploadedFile[] | undefined;
+  // uploadedFile: UploadedFile[] | undefined;
   isUploading: boolean;
   progresses: number;
 }) => {
-  return (
-    <FileUploader
-      value={files}
-      onValueChange={(e) =>
-        fileuploaderFunc({ files: e, setFiles, cb: onFileUpload })
-      }
-      dropzoneOptions={dropzone}
-    >
-      <FileInput>
-        <div className="flex h-72 w-full flex-col items-center justify-center rounded-md border bg-background hover:bg-slate-100">
-          <p className="font-medium text-gray-700">Drop files here</p>
-          <p className="text-xs italic text-gray-600">
-            (Max {dropzone.maxFiles} files, {dropzone.maxSize} each)
-          </p>
-          <p className="text-xs italic text-gray-600">
-            Accepted types: {dropzone.accept?.["image/*"]?.join(", ")}
-          </p>
-        </div>
-      </FileInput>
-      <FileUploaderContent className="flex flex-row items-end gap-2">
-        {files?.map((file, i) => (
-          <FileUploaderItem
-            key={i}
-            removeFile={!((uploadedFile ?? []).length > 0)}
-            index={i}
-            disabled={isUploading}
-            className="size-20 overflow-hidden rounded-md p-0"
-            aria-roledescription={`file ${i + 1} containing ${file.name}`}
-          >
-            {isUploading && (
-              <div className="absolute inset-0 bg-slate-900/20">
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
-                  <Loader className="animate-spin text-white duration-1500" />
-                </div>
-              </div>
-            )}
-            <Image
-              src={URL.createObjectURL(file)}
-              alt={file.name}
-              height={80}
-              width={80}
-              className="w-20 object-cover p-0"
-            />
-          </FileUploaderItem>
-        ))}
+  return null;
+  // <FileUploader
+  //   value={files}
+  //   onValueChange={(e) =>
+  //     fileuploaderFunc({ files: e, setFiles, cb: onFileUpload })
+  //   }
+  //   dropzoneOptions={dropzone}
+  // >
+  //   <FileInput>
+  //     <div className="flex h-72 w-full flex-col items-center justify-center rounded-md border bg-background hover:bg-slate-100">
+  //       <p className="font-medium text-gray-700">Drop files here</p>
+  //       <p className="text-xs italic text-gray-600">
+  //         (Max {dropzone.maxFiles} files, {dropzone.maxSize} each)
+  //       </p>
+  //       <p className="text-xs italic text-gray-600">
+  //         Accepted types: {dropzone.accept?.["image/*"]?.join(", ")}
+  //       </p>
+  //     </div>
+  //   </FileInput>
+  //   <FileUploaderContent className="flex flex-row items-end gap-2">
+  //     {files?.map((file, i) => (
+  //       <FileUploaderItem
+  //         key={i}
+  //         removeFile={!((uploadedFile ?? []).length > 0)}
+  //         index={i}
+  //         disabled={isUploading}
+  //         className="size-20 overflow-hidden rounded-md p-0"
+  //         aria-roledescription={`file ${i + 1} containing ${file.name}`}
+  //       >
+  //         {isUploading && (
+  //           <div className="absolute inset-0 bg-slate-900/20">
+  //             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
+  //               <Loader className="animate-spin text-white duration-1500" />
+  //             </div>
+  //           </div>
+  //         )}
+  //         <Image
+  //           src={URL.createObjectURL(file)}
+  //           alt={file.name}
+  //           height={80}
+  //           width={80}
+  //           className="w-20 object-cover p-0"
+  //         />
+  //       </FileUploaderItem>
+  //     ))}
 
-        {(files ?? []).length > 0 && (
-          <span
-            className={cn(
-              "gap-2",
-              buttonVariants({
-                variant: "outline",
-                size: "sm",
-              }),
-            )}
-          >
-            {isUploading && <Loader className="animate-spin" size={15} />}
-            <label className="inline-block">
-              {isUploading ? `Uploading ${progresses}%` : "Upload"}
-            </label>
-          </span>
-        )}
-      </FileUploaderContent>
-    </FileUploader>
-  );
+  //     {(files ?? []).length > 0 && (
+  //       <span
+  //         className={cn(
+  //           "gap-2",
+  //           buttonVariants({
+  //             variant: "outline",
+  //             size: "sm",
+  //           }),
+  //         )}
+  //       >
+  //         {isUploading && <Loader className="animate-spin" size={15} />}
+  //         <label className="inline-block">
+  //           {isUploading ? `Uploading ${progresses}%` : "Upload"}
+  //         </label>
+  //       </span>
+  //     )}
+  //   </FileUploaderContent>
+  // </FileUploader>
 };
 
 export default FileUploaderWrapper;
