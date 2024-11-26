@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 76 100% 61%;
+    --primary-foreground: 273 76% 11%;
+    --secondary: 333 71% 51%;
+    --secondary-foreground: 327 73% 97%;
+    --tertiary: 273 76% 11%;
+    --tertiary-foreground: 250 100% 98%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 350 89% 60%;
+    --destructive-foreground: 356 100% 97%;
+    --border: 213 27% 84%;
+    --input: 0 0% 89.8%;
+    --ring: 333 71% 51%;
+    --radius: 0.7rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 6% 90%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    --color-2: 255 92% 76%;
+    --color-3: 142 69% 58%;
+    --color-4: 213 94% 68%;
+
+    --car: 0 72% 51%;
+    --e-car: 0 72% 51%;
+    --bike: 142 76% 36%;
+    --cycle: 221 83% 53%;
+    --e-cycle: 221 83% 53%;
+    --scooter: 333 71% 51%;
+  }
+  .dark {
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+a {
+  outline: none;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.chart-blur-bottom {
+  background: rgb(255, 255, 255);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 1) 100%
+  );
+}
+
+.chart-blur-right {
+  background: rgb(255, 255, 255);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 1) 100%
+  );
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.4) 19%,
+      rgba(0, 0, 0, 0) 45.98%
+    ),
+    linear-gradient(rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 16.41%),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%),
+    url("/main-bg-1.webp");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.overlay-mobile {
+  position: absolute;
+  inset: 0;
+  background-image: url("/background-pattern.png");
+  background-color: #f8fafc9a;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.react-datepicker__month-container {
+  @apply w-full border-none;
+}
+
+.react-datepicker__header.react-datepicker__header--custom {
+  @apply bg-white p-0;
+}
+
+.react-datepicker {
+  border: 0 !important;
+}
+
+.react-datepicker__day-names {
+  margin-bottom: 0 !important;
+  @apply grid grid-cols-7 gap-1;
+}
+
+.react-datepicker__day-name {
+  width: 100% !important;
+}
+.react-datepicker__week {
+  @apply grid grid-cols-7 gap-1;
+}
+
+.react-datepicker__day {
+  width: 100% !important;
+  @apply rounded-md p-2 text-center;
+}
+
+.react-datepicker__day--disabled,
+.react-datepicker__month-text--disabled,
+.react-datepicker__quarter-text--disabled,
+.react-datepicker__year-text--disabled {
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+}
+
+.react-datepicker__day--today {
+  background: hsl(var(--secondary)) !important;
+  color: hsl(var(--secondary-foreground)) !important;
+}
+
+.disabled-day {
+  color: hsl(var(--destructive-foreground)) !important;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
