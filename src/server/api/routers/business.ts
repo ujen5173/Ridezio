@@ -670,7 +670,7 @@ export const businessRouter = createTRPCRouter({
       }
     }),
 
-  getBookingsDetails: protectedProcedure
+  getBookingsDetails: publicProcedure
     .input(
       z.object({
         businessId: z.string(),
@@ -682,6 +682,8 @@ export const businessRouter = createTRPCRouter({
         .select({ vehicleTypes: businesses.availableVehicleTypes })
         .from(businesses)
         .where(eq(businesses.id, input.businessId));
+
+      console.log({ vehicleTypes });
 
       if (!vehicleTypes) {
         throw new TRPCError({

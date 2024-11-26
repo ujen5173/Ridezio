@@ -37,7 +37,7 @@ import {
 import { Separator } from "~/components/ui/separator";
 import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/hooks/use-toast";
-// import { useUploadFile } from "~/hooks/useUploadthing";
+import { useUploadFile } from "~/hooks/useUploadthing";
 import useWindowDimensions from "~/hooks/useWindowDimensions";
 import { cn } from "~/lib/utils";
 import { type GetBookingsType } from "~/server/api/routers/business";
@@ -71,6 +71,11 @@ const Bookings: React.FC<BookingsProps> = ({
 
   const [selectedVehicleType, setSelectedVehicleType] = useState<string>(
     Object.keys(bookingsDetails.vehicleTypes)[0]!,
+  );
+
+  const { isUploading, progresses, uploadFiles, uploadedFile } = useUploadFile(
+    "imageUploader",
+    {},
   );
 
   const [selectedVehicleSubType, setSelectedVehicleSubType] =
@@ -224,28 +229,28 @@ const Bookings: React.FC<BookingsProps> = ({
       return;
     }
 
-    // if (!uploadedFile?.[0]?.url) {
-    //   toast({
-    //     title: "Upload Payment Screenshot",
-    //     description: "Please upload payment screenshot to confirm booking",
-    //   });
-    //   return;
-    // }
+    if (!uploadedFile?.[0]?.url) {
+      toast({
+        title: "Upload Payment Screenshot",
+        description: "Please upload payment screenshot to confirm booking",
+      });
+      return;
+    }
 
-    // const startDate = date.from;
-    // const endDate = date.to;
+    const startDate = date.from;
+    const endDate = date.to;
 
-    // const booking = {
-    //   vehicleId: selectedVehicleId,
-    //   startDate,
-    //   totalPrice: getSelectedVehiclePrice(),
-    //   endDate,
-    //   inventory: quantity,
-    //   paymentScreenshot: uploadedFile?.[0]?.url,
-    //   note: message,
-    // };
+    const booking = {
+      vehicleId: selectedVehicleId,
+      startDate,
+      totalPrice: getSelectedVehiclePrice(),
+      endDate,
+      inventory: quantity,
+      paymentScreenshot: uploadedFile?.[0]?.url,
+      note: message,
+    };
 
-    // await mutateAsync(booking);
+    await mutateAsync(booking);
 
     setOpen(false);
     setShowQR(false);
@@ -275,9 +280,6 @@ const Bookings: React.FC<BookingsProps> = ({
 
   const { width } = useWindowDimensions();
 
-  // const { isUploading, progresses, uploadFiles, uploadedFile } =
-  //   useUploadFile("imageUploader");
-
   return (
     <Dialog
       open={open}
@@ -298,8 +300,8 @@ const Bookings: React.FC<BookingsProps> = ({
       >
         {!showQR ? (
           <>
-            <DialogHeader className="border-border flex-none border-b pb-2">
-              <DialogTitle className="text-foreground text-center text-lg font-medium">
+            <DialogHeader className="flex-none border-b border-border pb-2">
+              <DialogTitle className="text-center text-lg font-medium text-foreground">
                 Reserve a Vehicle
               </DialogTitle>
             </DialogHeader>
@@ -317,7 +319,7 @@ const Bookings: React.FC<BookingsProps> = ({
                             key={type}
                             className={`relative cursor-pointer rounded-md bg-[#f1f0f5] p-4 text-slate-800 transition-all hover:bg-slate-200 ${
                               selectedVehicleType === type
-                                ? "ring-secondary ring-2"
+                                ? "ring-2 ring-secondary"
                                 : ""
                             }`}
                             onClick={() => {
@@ -515,7 +517,7 @@ const Bookings: React.FC<BookingsProps> = ({
                     </Button>
                   </div>
                   {date?.from && date?.to && (
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-sm text-muted-foreground">
                       Maximum available: {getMaxAllowedQuantity()} vehicles
                     </p>
                   )}
@@ -631,7 +633,7 @@ const Bookings: React.FC<BookingsProps> = ({
             </div>
 
             <div className="w-full space-y-4">
-              <div className="border-border flex gap-2 rounded-md border px-4 py-2 shadow-sm">
+              <div className="flex gap-2 rounded-md border border-border px-4 py-2 shadow-sm">
                 <div className="flex flex-1 items-center">
                   <p className="text-base font-medium text-slate-600">
                     {paymentMethod}: {paymentId}
@@ -656,7 +658,7 @@ const Bookings: React.FC<BookingsProps> = ({
               <div className="space-y-2">
                 <Label>Upload Payment Screenshot</Label>
                 <div className="relative">
-                  {/* <Input
+                  <Input
                     max="1"
                     pattern="image/*"
                     id="picture"
@@ -668,18 +670,18 @@ const Bookings: React.FC<BookingsProps> = ({
                     }}
                     type="file"
                     className="leading-[2.5!important]"
-                  /> */}
-                  {/* {isUploading && (
+                  />
+                  {isUploading && (
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-white">
                       <span className="text-xs text-secondary">{`Uploading... ${progresses}%`}</span>
                     </div>
-                  )} */}
+                  )}
                 </div>
               </div>
 
               <div className="flex justify-end gap-4">
                 <Button
-                  // disabled={isUploading}
+                  disabled={isUploading}
                   variant="outline"
                   onClick={() => setShowQR(false)}
                 >
@@ -687,16 +689,16 @@ const Bookings: React.FC<BookingsProps> = ({
                 </Button>
                 <Button
                   variant="primary"
-                  // disabled={isUploading || status === "pending"}
+                  disabled={isUploading || status === "pending"}
                   onClick={async () => {
                     await handleConfirmBooking();
                   }}
                 >
-                  {/* {isUploading
+                  {isUploading
                     ? "Uploading File..."
                     : status === "pending"
                       ? "Confirming Booking..."
-                      : "Confirm Booking"} */}
+                      : "Confirm Booking"}
                 </Button>
               </div>
             </div>

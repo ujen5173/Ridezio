@@ -131,7 +131,7 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     className={cn(
                       path === item.url
-                        ? "text-primary-500 block border border-border bg-white shadow-sm hover:bg-slate-50"
+                        ? "text-primary-500 flex border border-border bg-white shadow-sm hover:bg-slate-50"
                         : "text-slate-600",
                     )}
                     onClick={() => {

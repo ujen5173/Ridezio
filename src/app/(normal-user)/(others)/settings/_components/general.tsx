@@ -4,6 +4,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type Session } from "next-auth";
 import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useUser } from "~/app/_components/contexts/root";
@@ -19,6 +20,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { toast } from "~/hooks/use-toast";
+import { useUploadFile } from "~/hooks/useUploadthing";
 import { type userRoleEnum } from "~/server/server.types";
 import { api } from "~/trpc/react";
 
@@ -74,23 +76,25 @@ const GeneralSettings = ({
     });
   }
 
-  // const { uploadFiles, progresses, uploadedFile, isUploading } =
-  //   useUploadFile("imageUploader");
+  const { uploadFiles, progresses, uploadedFile, isUploading } = useUploadFile(
+    "imageUploader",
+    {},
+  );
 
-  // useEffect(() => {
-  //   if (uploadedFile) {
-  //     toast({
-  //       title: "Image uploaded",
-  //       description: "Image uploaded successfully",
-  //     });
-  //   }
-  // }, [uploadedFile]);
+  useEffect(() => {
+    if (uploadedFile) {
+      toast({
+        title: "Image uploaded",
+        description: "Image uploaded successfully",
+      });
+    }
+  }, [uploadedFile]);
 
-  // useEffect(() => {
-  //   if (uploadedFile && uploadedFile.length > 0 && uploadedFile[0]?.url) {
-  //     form.setValue("image", uploadedFile[0].url);
-  //   }
-  // }, [uploadedFile, form]);
+  useEffect(() => {
+    if (uploadedFile && uploadedFile.length > 0 && uploadedFile[0]?.url) {
+      form.setValue("image", uploadedFile[0].url);
+    }
+  }, [uploadedFile, form]);
 
   return (
     <div>
@@ -124,10 +128,14 @@ const GeneralSettings = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="image">Profile</Label>
-            {/* <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <div
                 style={{
-                  backgroundImage: `url(${uploadedFile ? (uploadedFile[0]?.url ?? user.image) : (user.image ?? "")})`,
+                  backgroundImage: `url(${
+                    uploadedFile?.[0]?.url
+                      ? uploadedFile[0].url
+                      : (user.image ?? "")
+                  })`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }}
@@ -147,8 +155,8 @@ const GeneralSettings = ({
                   {isUploading ? `Uploading ${progresses}%` : "Upload"}
                 </label>
               </Button>
-            </div> */}
-            {/* <input
+            </div>
+            <input
               accept={"image/png, image/jpeg, image/jpg"}
               type="file"
               hidden
@@ -160,7 +168,7 @@ const GeneralSettings = ({
                   void uploadFiles(Array.from(files));
                 }
               }}
-            /> */}
+            />
           </div>
           <div>
             <FormField
@@ -189,8 +197,8 @@ const GeneralSettings = ({
           </div>
           <div className="mt-10 flex justify-start gap-2">
             <Button
-              // disabled={status === "pending" || isUploading}
-              // type="submit"
+              disabled={status === "pending" || isUploading}
+              type="submit"
               onClick={() => onSubmit(form.getValues())}
               variant={"primary"}
             >

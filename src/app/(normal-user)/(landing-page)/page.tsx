@@ -3,12 +3,15 @@ import HeroSection from "~/app/_components/_/HeroSection";
 import PopularShops from "~/app/_components/_/PopularShops";
 import UpcomingEvent from "~/app/_components/_/UpcomingEvent";
 import { Button } from "~/components/ui/button";
+import { api } from "~/trpc/server";
 
 const Home = async () => {
+  const popularShopsData = await api.business.getPopularShops();
+
   return (
     <>
       <HeroSection />
-      <PopularShops />
+      <PopularShops popularShopsData={popularShopsData} />
       {/* <Shops /> */}
       <UpcomingEvent />
 

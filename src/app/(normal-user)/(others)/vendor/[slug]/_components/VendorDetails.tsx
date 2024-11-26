@@ -38,6 +38,8 @@ const VendorDetails = () => {
       },
     );
 
+  console.log({ bookingsDetails });
+
   const [imageOrientation, setImageOrientation] = useState<
     "horizontal" | "vertical"
   >("vertical");

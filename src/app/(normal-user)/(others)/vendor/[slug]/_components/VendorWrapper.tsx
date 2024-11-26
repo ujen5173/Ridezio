@@ -23,8 +23,6 @@ export const VendorContext = createContext<{
 });
 
 const VendorWrapper = ({ data }: { data: GetVendorType }) => {
-  console.log({ data });
-
   const [isVisible, setIsVisible] = useState(false);
   const [open, setOpen] = useState(false);
 

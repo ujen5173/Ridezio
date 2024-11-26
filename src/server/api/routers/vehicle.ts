@@ -4,7 +4,7 @@ import slugify from "slugify";
 import { z } from "zod";
 import { slugifyDefault } from "~/lib/helpers";
 import { businesses, vehicles, vehicleTypeEnum } from "~/server/db/schema";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const vehicleRouter = createTRPCRouter({
   create: protectedProcedure
@@ -108,7 +108,7 @@ export const vehicleRouter = createTRPCRouter({
     }
   }),
 
-  getBusinessVehicles: protectedProcedure
+  getBusinessVehicles: publicProcedure
     .input(
       z.object({
         slug: z.string(),

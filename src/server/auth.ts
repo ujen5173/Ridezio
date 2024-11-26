@@ -81,7 +81,7 @@ export const authOptions: NextAuthOptions = {
       token.id = token.sub;
 
       if (trigger === "signUp" && user) {
-        const roleCookie = (await cookies()).get("role")?.value;
+        const roleCookie = cookies().get("role")?.value;
 
         if (roleCookie) {
           token.role = roleCookie;
@@ -98,7 +98,7 @@ export const authOptions: NextAuthOptions = {
               .where(eq(users.id, existingUser.id));
           }
 
-          (await cookies()).set("role", "", { maxAge: -1, path: "/" });
+          cookies().set("role", "", { maxAge: -1, path: "/" });
         }
       }
 

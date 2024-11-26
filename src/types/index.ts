@@ -1,4 +1,4 @@
-// import { type ClientUploadedFileData } from "uploadthing/types";
+import { type ClientUploadedFileData } from "uploadthing/types";
 import { type vehicleTypeEnum } from "~/server/db/schema";
 
 export type VehicleUse = "rental" | "sale" | "both";
@@ -41,4 +41,4 @@ export interface Slide {
   availableVehicleTypes: (typeof vehicleTypeEnum.enumValues)[number][];
 }
 
-// export type UploadedFile<T = unknown> = ClientUploadedFileData<T>;
+export type UploadedFile<T = unknown> = ClientUploadedFileData<T>;

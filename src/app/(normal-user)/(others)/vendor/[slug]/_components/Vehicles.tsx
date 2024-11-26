@@ -21,6 +21,7 @@ const Vehicles = () => {
         slug: slug as string,
       },
       {
+        refetchOnWindowFocus: false,
         enabled: !!slug,
       },
     );

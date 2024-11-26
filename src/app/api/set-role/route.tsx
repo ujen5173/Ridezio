@@ -6,7 +6,7 @@ export const POST = async (req: NextRequest) => {
 
   const cookieData = request.role ?? "USER";
 
-  (await cookies()).set("role", cookieData);
+  cookies().set("role", cookieData);
 
   return Response.json({ message: "Role set" });
 };

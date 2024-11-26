@@ -1,9 +1,9 @@
 import "~/styles/globals.css";
 
-// import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
-// import { extractRouterConfig } from "uploadthing/server";
-// import { ourFileRouter } from "~/app/api/uploadthing/core";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { type Metadata } from "next";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "~/app/api/uploadthing/core";
 import { Toaster } from "~/components/ui/toaster";
 import { getServerAuthSession } from "~/server/auth";
 import { TRPCReactProvider } from "~/trpc/react";
@@ -25,7 +25,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={bricolage.className}>
-        {/* <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} /> */}
+        <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
         <TRPCReactProvider>
           <HydrateClient>
             <RootContext session={session}>{children}</RootContext>

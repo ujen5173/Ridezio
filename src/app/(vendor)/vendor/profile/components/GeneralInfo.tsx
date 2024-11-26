@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { buttonVariants } from "~/components/ui/button";
 import {
   FormControl,
   FormField,
@@ -11,6 +12,8 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import MultipleSelector from "~/components/ui/multi-select";
 import { InputTags as TagsInput } from "~/components/ui/tags-input";
+import { useUploadFile } from "~/hooks/useUploadthing";
+import { cn } from "~/lib/utils";
 import { vehicleTypeEnum } from "~/server/db/schema";
 import useBusinessFormContext from "../hooks/useBusinessFormContext";
 
@@ -27,25 +30,25 @@ const OPTIONS: Option[] = vehicleTypeEnum.enumValues.map((value) => ({
 const GeneralInfo = () => {
   const { form } = useBusinessFormContext();
 
-  // const {
-  //   uploadFiles: logoUploadFiles,
-  //   progresses: logoProgresses,
-  //   uploadedFile: logoUploadedFile,
-  //   isUploading: isLogoUploading,
-  // } = useUploadFile("imageUploader");
+  const {
+    uploadFiles: logoUploadFiles,
+    progresses: logoProgresses,
+    uploadedFile: logoUploadedFile,
+    isUploading: isLogoUploading,
+  } = useUploadFile("imageUploader", {});
 
   const [logo, setLogo] = useState<string | null>(form.getValues("logo"));
 
-  // useEffect(() => {
-  //   if (
-  //     logoUploadedFile &&
-  //     logoUploadedFile.length > 0 &&
-  //     logoUploadedFile[0]?.url
-  //   ) {
-  //     setLogo(logoUploadedFile[0].url);
-  //     form.setValue("logo", logoUploadedFile[0].url);
-  //   }
-  // }, [logoUploadedFile, isLogoUploading]);
+  useEffect(() => {
+    if (
+      logoUploadedFile &&
+      logoUploadedFile.length > 0 &&
+      logoUploadedFile[0]?.url
+    ) {
+      setLogo(logoUploadedFile[0].url);
+      form.setValue("logo", logoUploadedFile[0].url);
+    }
+  }, [logoUploadedFile, isLogoUploading]);
 
   return (
     <>
@@ -73,15 +76,15 @@ const GeneralInfo = () => {
       <div className="space-y-2">
         <Label htmlFor="image">Logo</Label>
         <div className="flex items-center gap-2">
-          {/* <div
+          <div
             style={{
               backgroundImage: `url(${logo})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
             className="size-16 rounded-full border border-slate-200 bg-slate-100"
-          ></div> */}
-          {/* <button
+          ></div>
+          <button
             disabled={isLogoUploading}
             type="button"
             className={cn(
@@ -98,9 +101,9 @@ const GeneralInfo = () => {
             >
               {isLogoUploading ? `Uploading ${logoProgresses}%` : "Upload"}
             </label>
-          </button> */}
+          </button>
         </div>
-        {/* <input
+        <input
           accept={"image/png, image/jpeg, image/jpg"}
           type="file"
           hidden
@@ -110,7 +113,7 @@ const GeneralInfo = () => {
             console.log({ files });
             if (files) void logoUploadFiles(Array.from(files));
           }}
-        /> */}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">

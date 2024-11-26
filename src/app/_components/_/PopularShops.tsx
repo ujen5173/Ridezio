@@ -10,22 +10,17 @@ import {
   type CarouselApi,
 } from "~/components/ui/carousel";
 import { cn } from "~/lib/utils";
-import { api as trpc } from "~/trpc/react";
+import { type GetPopularShops } from "~/server/api/routers/business";
 import VendorCard from "./VendorCard";
 
-const PopularShops = () => {
+const PopularShops = ({
+  popularShopsData,
+}: {
+  popularShopsData: GetPopularShops;
+}) => {
   const [api, setApi] = useState<CarouselApi | undefined>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
-
-  const { data: initialData } = trpc.business.getPopularShops.useQuery(
-    undefined,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
-
-  console.log({ popularShops: initialData });
 
   useEffect(() => {
     if (!api) return;
@@ -70,7 +65,7 @@ const PopularShops = () => {
             opts={{ align: "start" }}
           >
             <CarouselContent>
-              {initialData?.map((shop, index) => (
+              {popularShopsData?.map((shop, index) => (
                 <CarouselItem
                   key={index}
                   className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4"
@@ -80,11 +75,6 @@ const PopularShops = () => {
               ))}
             </CarouselContent>
           </Carousel>
-
-          {/* <Button className="gap-1" variant="outline">
-            <Map size={18} className="text-slate-600" />
-            Explore Shops Around you
-          </Button> */}
         </div>
       </div>
     </section>
