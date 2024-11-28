@@ -2,10 +2,16 @@
 
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
+import { notFound } from "next/navigation";
 import { createContext, useEffect, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { Button } from "~/components/ui/button";
-import { type GetVendorType } from "~/server/api/routers/business";
+import { toast } from "~/hooks/use-toast";
+import {
+  type GetBookingsType,
+  type GetVendorType,
+} from "~/server/api/routers/business";
+import Bookings from "./Bookings";
 import Faqs from "./Faqs";
 import Locations from "./Locations";
 import Vehicles from "./Vehicles";
@@ -22,7 +28,13 @@ export const VendorContext = createContext<{
   },
 });
 
-const VendorWrapper = ({ data }: { data: GetVendorType }) => {
+const VendorWrapper = ({
+  data,
+  bookingsDetails,
+}: {
+  bookingsDetails: GetBookingsType | null;
+  data: GetVendorType;
+}) => {
   const [isVisible, setIsVisible] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -43,6 +55,16 @@ const VendorWrapper = ({ data }: { data: GetVendorType }) => {
     };
   }, []);
 
+  if (bookingsDetails === null) {
+    toast({
+      title: "Vendor Not Found",
+      description:
+        "Unable to get vendor bookings details. Please try again later.",
+    });
+
+    notFound();
+  }
+
   return (
     <VendorContext.Provider
       value={{
@@ -52,6 +74,16 @@ const VendorWrapper = ({ data }: { data: GetVendorType }) => {
       }}
     >
       <main className="relative w-full">
+        {bookingsDetails !== null && (
+          <Bookings
+            paymentId={data?.phoneNumbers[0] ?? ""}
+            paymentMethod={"PhonePay"}
+            open={open}
+            setOpen={setOpen}
+            bookingsDetails={bookingsDetails}
+          />
+        )}
+
         {/* Share Button */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}

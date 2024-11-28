@@ -9,6 +9,7 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "~/components/ui/carousel";
+import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
 import { type GetPopularShops } from "~/server/api/routers/business";
 import VendorCard from "./VendorCard";
@@ -16,7 +17,7 @@ import VendorCard from "./VendorCard";
 const PopularShops = ({
   popularShopsData,
 }: {
-  popularShopsData: GetPopularShops;
+  popularShopsData: GetPopularShops | undefined;
 }) => {
   const [api, setApi] = useState<CarouselApi | undefined>();
   const [current, setCurrent] = useState(0);
@@ -29,8 +30,17 @@ const PopularShops = ({
     api.on("select", () => setCurrent(api.selectedScrollSnap()));
   }, [api]);
 
+  if (!popularShopsData) {
+    toast({
+      title: "Unable to get events",
+      description: "Please try again later",
+      variant: "destructive",
+    });
+    return;
+  }
+
   return (
-    <section className="w-full">
+    <section className="w-full bg-slate-50">
       <div className="mx-auto max-w-[1200px] px-4 py-16">
         <div className="mb-5 flex items-center justify-between gap-4">
           <h2 className={cn("text-2xl font-bold xs:text-3xl")}>

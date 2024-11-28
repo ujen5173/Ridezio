@@ -82,15 +82,6 @@ const GeneralSettings = ({
   );
 
   useEffect(() => {
-    if (uploadedFile) {
-      toast({
-        title: "Image uploaded",
-        description: "Image uploaded successfully",
-      });
-    }
-  }, [uploadedFile]);
-
-  useEffect(() => {
     if (uploadedFile && uploadedFile.length > 0 && uploadedFile[0]?.url) {
       form.setValue("image", uploadedFile[0].url);
     }
@@ -162,10 +153,14 @@ const GeneralSettings = ({
               hidden
               id="image"
               max={1}
-              onChange={(e) => {
+              onChange={async (e) => {
                 const files = e.target.files;
                 if (files) {
-                  void uploadFiles(Array.from(files));
+                  await uploadFiles(Array.from(files));
+                  toast({
+                    title: "Image uploaded",
+                    description: "Image uploaded successfully",
+                  });
                 }
               }}
             />

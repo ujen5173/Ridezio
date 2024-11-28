@@ -119,10 +119,13 @@ export const authOptions: NextAuthOptions = {
 
       const { picture, ...rest } = token;
 
+      console.log({ rest });
+
       return rest; // returns token without picture from the token
     },
 
     async session({ session, token }) {
+      console.log({ session });
       return {
         ...session,
         user: {

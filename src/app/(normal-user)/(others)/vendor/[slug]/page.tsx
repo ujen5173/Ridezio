@@ -19,10 +19,18 @@ const VendorPage = async ({
     slug: slug,
   });
 
+  let bookingDetails = null;
+
+  if (data) {
+    bookingDetails = await api.business.getBookingsDetails({
+      businessId: data.id,
+    });
+  }
+
   return (
     <>
       <HeaderHeight />
-      <VendorWrapper data={data} />
+      <VendorWrapper data={data} bookingsDetails={bookingDetails} />
     </>
   );
 };

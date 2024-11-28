@@ -10,6 +10,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { HydrateClient } from "~/trpc/server";
 import TailwindIndicator from "./_components/_/TailwindIndicator";
 import RootContext from "./_components/contexts/root";
+import { CSPostHogProvider } from "./providers";
 import { bricolage } from "./utils/font";
 import { constructMetadata } from "./utils/site";
 
@@ -21,6 +22,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerAuthSession();
+  console.log({ serverAuthSession: session });
 
   return (
     <html lang="en">
@@ -28,8 +30,10 @@ export default async function RootLayout({
         <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
         <TRPCReactProvider>
           <HydrateClient>
-            <RootContext session={session}>{children}</RootContext>
-            <Toaster />
+            <CSPostHogProvider>
+              <RootContext session={session}>{children}</RootContext>
+              <Toaster />
+            </CSPostHogProvider>
           </HydrateClient>
         </TRPCReactProvider>
         <TailwindIndicator />

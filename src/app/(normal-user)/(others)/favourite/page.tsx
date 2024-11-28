@@ -8,13 +8,13 @@ import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import VendorCard from "../../../_components/_/VendorCard";
 
-const Bookmarks = () => {
-  const { data, isLoading, error } = api.user.getBookmarks.useQuery();
+const Favourite = () => {
+  const { data, isLoading, error } = api.user.getFavourite.useQuery();
 
   useEffect(() => {
     if (error) {
       toast({
-        title: "Something went wrong while fetching bookmarks",
+        title: "Something went wrong while fetching Favourite",
         variant: "destructive",
       });
     }
@@ -26,7 +26,7 @@ const Bookmarks = () => {
       <section className="min-h-[50vh] w-full">
         <div className="container mx-auto px-4 py-12">
           <div className="mb-4">
-            <h1 className={cn("text-4xl font-semibold")}>Bookmarks</h1>
+            <h1 className={cn("text-4xl font-semibold")}>Favourite</h1>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -48,7 +48,7 @@ const Bookmarks = () => {
           {(data ?? []).length === 0 && (
             <div className="py-6">
               <p className="text-center text-lg font-semibold text-gray-500 md:text-xl">
-                No bookmarks added!
+                No Favourite added!
               </p>
             </div>
           )}
@@ -58,4 +58,4 @@ const Bookmarks = () => {
   );
 };
 
-export default Bookmarks;
+export default Favourite;

@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, desc, eq, getTableColumns } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~/server/db";
-import { bookmarks, businesses, users } from "~/server/db/schema";
+import { businesses, favourite, users } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const userRouter = createTRPCRouter({
@@ -13,23 +13,23 @@ export const userRouter = createTRPCRouter({
   bookmark: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const alreadyBookmarked = await ctx.db.query.bookmarks.findFirst({
+      const alreadyBookmarked = await ctx.db.query.favourite.findFirst({
         where: and(
-          eq(bookmarks.userId, ctx.session.user.id),
-          eq(bookmarks.businessId, input.id),
+          eq(favourite.userId, ctx.session.user.id),
+          eq(favourite.businessId, input.id),
         ),
       });
       if (alreadyBookmarked) {
         await ctx.db
-          .delete(bookmarks)
+          .delete(favourite)
           .where(
             and(
-              eq(bookmarks.userId, ctx.session.user.id),
-              eq(bookmarks.businessId, input.id),
+              eq(favourite.userId, ctx.session.user.id),
+              eq(favourite.businessId, input.id),
             ),
           );
       } else {
-        await ctx.db.insert(bookmarks).values({
+        await ctx.db.insert(favourite).values({
           userId: ctx.session.user.id,
           businessId: input.id,
         });
@@ -37,7 +37,7 @@ export const userRouter = createTRPCRouter({
       return true;
     }),
 
-  getBookmarks: protectedProcedure.query(async ({ ctx }) => {
+  getFavourite: protectedProcedure.query(async ({ ctx }) => {
     const result = await ctx.db
       .select({
         id: getTableColumns(businesses).id,
@@ -51,10 +51,10 @@ export const userRouter = createTRPCRouter({
         availableVehiclesTypes:
           getTableColumns(businesses).availableVehicleTypes,
       })
-      .from(bookmarks)
-      .where(eq(bookmarks.userId, ctx.session.user.id))
-      .rightJoin(businesses, eq(businesses.id, bookmarks.businessId))
-      .orderBy(desc(bookmarks.createdAt));
+      .from(favourite)
+      .where(eq(favourite.userId, ctx.session.user.id))
+      .rightJoin(businesses, eq(businesses.id, favourite.businessId))
+      .orderBy(desc(favourite.createdAt));
 
     return result;
   }),

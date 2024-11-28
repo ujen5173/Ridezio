@@ -1,0 +1,63 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #f4f4f5;
+}
+.container {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+.header {
+  background: linear-gradient(135deg, #e11d48, #f43f5e);
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+.content {
+  padding: 30px;
+  color: #333;
+}
+.booking-details {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 20px;
+}
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
+}
+.detail-row:last-child {
+  border-bottom: none;
+  margin: 0;
+  padding: 0;
+}
+.cta-button {
+  display: block;
+  width: 200px;
+  margin: 20px auto;
+  padding: 12px 20px;
+  background-color: #e11d48;
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.actions {
+  display: flex;
+  justify-content: end;
+}
+
+.actions .cta-button {
+  margin: 10px 0;
+}

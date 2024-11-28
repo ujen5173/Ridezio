@@ -1,3 +1,5 @@
+// TODO: Vehicle available status
+
 "use client";
 
 import {
@@ -13,11 +15,27 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { formatDate } from "date-fns";
-import { ChevronDown, Edit, Plus, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  Edit,
+  Expand,
+  Loader,
+  Plus,
+  RefreshCcw,
+  Trash2,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -25,6 +43,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 import { Skeleton } from "~/components/ui/skeleton";
 import {
   Table,
@@ -70,13 +89,13 @@ export const columns: ColumnDef<Vehicle>[] = [
       const image = row.getValue<string>("image");
 
       return (
-        <div className="w-max px-4">
+        <div className="px-4">
           <Image
             src={image}
             alt="Vehicle"
-            width={100}
-            height={200}
-            className="w-16 rounded-sm object-cover mix-blend-multiply"
+            width={500}
+            height={700}
+            className="h-auto w-28 max-w-prose rounded-sm object-cover"
           />
         </div>
       );
@@ -166,6 +185,76 @@ export const columns: ColumnDef<Vehicle>[] = [
       );
     },
   },
+  {
+    accessorKey: "status",
+    header: () => <div className="w-max break-keep px-4">Current Status</div>,
+    cell: ({ row }) => {
+      // Use useMemo or move formatter to component level to prevent hydration issues
+      const amount = row.getValue<number>("basePrice");
+      return <div className="w-max break-keep px-4 capitalize">Available</div>;
+    },
+  },
+  {
+    accessorKey: "features",
+    header: () => <div className="w-max break-keep px-4">Features</div>,
+    cell: ({ row }) => {
+      return (
+        <div className="px-4">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant={"outline"} size="sm">
+                <Expand size={13} className="mr-1 text-slate-600" />
+                Expand to view
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle className="text-xl">
+                  Features of{" "}
+                  <span className="font-semibold italic text-secondary underline underline-offset-2">
+                    {row.getValue<string>("name")}
+                  </span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="mb-2 border border-border">
+                {
+                  // row and value
+                  row
+                    .getValue<string>("features")
+                    .split(",")
+                    .map((feature) => (
+                      <div key={feature} className="grid grid-cols-2">
+                        {feature.split(": ").map((value, index) => (
+                          <div
+                            key={value}
+                            className={cn("border border-border p-2 text-xl", {
+                              "bg-slate-100": index % 2 === 0,
+                            })}
+                          >
+                            <Label>{value}</Label>
+                          </div>
+                        ))}
+                      </div>
+                    ))
+                }
+              </div>
+              <DialogFooter className="flex items-center">
+                <Link
+                  href={`/vendor/vehicles/add?edit=${row.getValue<string>("id")}`}
+                >
+                  <Button variant={"primary"}>
+                    <Edit size={18} className="mr-2" />
+                    Edit
+                  </Button>
+                </Link>
+                <Button variant={"outline"}>Cancel</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      );
+    },
+  },
 ];
 
 // This function is just to transform the data from the API to the format that the table expects
@@ -178,7 +267,9 @@ const transformApiData = (data: GetBusinessVehicleType = []): Vehicle[] =>
     basePrice: vehicle.basePrice,
     image: vehicle.images[0] ?? "",
     status: vehicle.inventory === 0 ? "Unavailable" : "available",
-    features: vehicle.features.map((feature) => feature.key).join(", "),
+    features: vehicle.features
+      .map((feature) => `${feature.key}: ${feature.value}`)
+      .join(", "),
     category: vehicle.category,
     createdAt: formatDate(new Date(vehicle.createdAt), "dd MMM, yyyy"),
   }));
@@ -187,6 +278,8 @@ const VehiclesTable = () => {
   const {
     data = [],
     isLoading,
+    refetch,
+    isRefetching,
     isError,
   } = api.vehicle.getVendorVehicles.useQuery();
 
@@ -237,7 +330,7 @@ const VehiclesTable = () => {
         </Link>
       </div>
 
-      <div className="flex items-center gap-4 py-4">
+      <div className="flex items-center justify-between gap-4 py-4">
         <Input
           placeholder="Filter names..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -246,32 +339,49 @@ const VehiclesTable = () => {
           }
           className="h-10 max-w-sm flex-1"
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="ml-auto gap-1">
-              Columns <ChevronDown className="text-slate-700" size={18} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="break-keep capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            onClick={() => {
+              void refetch();
+            }}
+            size="sm"
+            variant={"outline"}
+          >
+            {isRefetching ? (
+              <Loader size={15} className="mr-1 animate-spin text-slate-600" />
+            ) : (
+              <RefreshCcw size={15} className="mr-1 text-slate-600" />
+            )}
+            {isRefetching ? "Refreshing" : "Refresh"}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="primary" size="sm" className="ml-auto gap-1">
+                Columns <ChevronDown className="text-inherit" size={18} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="break-keep capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-md border">
@@ -301,13 +411,10 @@ const VehiclesTable = () => {
                   .map((_, index) => (
                     <TableRow key={index} className="h-14">
                       {columns.map((_, cellIndex) => (
-                        <TableCell key={`${index}-${cellIndex}`}>
+                        <TableCell key={`${index}-${cellIndex} px-4`}>
                           <Skeleton className="h-5 w-full" />
                         </TableCell>
                       ))}
-                      <TableCell className="">
-                        <Skeleton className="h-5 w-full" />
-                      </TableCell>
                     </TableRow>
                   ))}
               </>

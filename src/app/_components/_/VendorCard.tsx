@@ -106,18 +106,23 @@ const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
                 })}
               </div>
             </div>
-            <Separator
-              className={cn(
-                "mt-4",
-                separatorColor ?? "bg-pink-500",
-                separatorHeight ?? "h-1",
-              )}
-            />
-            <div className="py-2">
-              <span className="text-sm">
-                {shop.satisfiedCustomers}+ satisfied customers
-              </span>
-            </div>
+            {Math.floor((shop.satisfiedCustomers ?? 0) / 5) > 5 && (
+              <>
+                <Separator
+                  className={cn(
+                    "mt-4",
+                    separatorColor ?? "bg-pink-500",
+                    separatorHeight ?? "h-1",
+                  )}
+                />
+                <div className="py-2">
+                  <span className="text-sm">
+                    {Math.floor((shop.satisfiedCustomers ?? 0) / 5) * 5}+
+                    satisfied customers
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </Link>

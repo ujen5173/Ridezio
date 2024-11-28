@@ -11,6 +11,7 @@ const config = {
   experimental: {
     optimizeCss: true,
   },
+
   images: {
     remotePatterns: [
       {

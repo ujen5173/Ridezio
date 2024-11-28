@@ -18,8 +18,6 @@ import {
 } from "~/components/ui/carousel";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
-import { api as trpc } from "~/trpc/react";
-import Bookings from "./Bookings";
 import FavroiteButton from "./FavroiteButton";
 import { VendorContext } from "./VendorWrapper";
 
@@ -27,18 +25,6 @@ const VendorDetails = () => {
   const { open, setOpen, vendor } = useContext(VendorContext);
 
   const [api, setApi] = useState<CarouselApi>();
-  const { data: bookingsDetails, isLoading } =
-    trpc.business.getBookingsDetails.useQuery(
-      {
-        businessId: vendor?.id ?? "",
-      },
-      {
-        enabled: !!vendor?.id,
-        refetchOnWindowFocus: false,
-      },
-    );
-
-  console.log({ bookingsDetails });
 
   const [imageOrientation, setImageOrientation] = useState<
     "horizontal" | "vertical"
@@ -113,16 +99,6 @@ const VendorDetails = () => {
 
   return (
     <>
-      {!isLoading && bookingsDetails !== undefined && (
-        <Bookings
-          paymentId={vendor.phoneNumbers[0]!}
-          paymentMethod={"PhonePay"}
-          open={open}
-          setOpen={setOpen}
-          bookingsDetails={bookingsDetails}
-        />
-      )}
-
       <section className="px-4">
         <div className="mx-auto flex max-w-[1240px] flex-col gap-5 py-6 md:flex-row md:py-10 lg:gap-10">
           <div className="mx-auto flex h-fit w-full flex-col-reverse gap-0 sm:w-10/12 md:w-7/12 lg:flex-row lg:gap-2">
@@ -169,13 +145,15 @@ const VendorDetails = () => {
                 <CarouselNext />
                 <CarouselContent className="h-full">
                   {vendor.images.map((_, index) => (
-                    <CarouselItem key={index}>
+                    <CarouselItem key={index} className="relative">
+                      <div className="absolute inset-0 z-0 aspect-square animate-pulse rounded-md bg-slate-200"></div>
                       <Image
                         alt={`${vendor.name!}'s Images`}
                         width={950}
                         height={950}
+                        // priority
                         layout="cover"
-                        className="aspect-square rounded-lg object-cover"
+                        className="relative z-10 aspect-square rounded-md bg-transparent object-cover"
                         key={index}
                         src={_}
                       />

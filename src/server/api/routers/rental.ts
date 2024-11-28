@@ -8,6 +8,7 @@ import {
   vehicles,
 } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { sendBookingDetailsEmail } from "./email";
 
 export const rentalRouter = createTRPCRouter({
   rent: protectedProcedure
@@ -134,7 +135,7 @@ export const rentalRouter = createTRPCRouter({
         ) + 1;
 
       // Create rental record
-      const rental = await ctx.db
+      const [rental] = await ctx.db
         .insert(rentals)
         .values({
           businessId: vehicle.businessId,
@@ -151,6 +152,13 @@ export const rentalRouter = createTRPCRouter({
           paymentScreenshot: input.paymentScreenshot,
         })
         .returning();
+
+      if (rental) {
+        await sendBookingDetailsEmail({
+          session: ctx.session,
+          bookingId: rental.id,
+        });
+      }
 
       return rental;
     }),
@@ -201,12 +209,20 @@ export const rentalRouter = createTRPCRouter({
         });
       }
 
-      await ctx.db
+      const result = await ctx.db
         .update(rentals)
         .set({
           status: input.status,
         })
         .where(eq(rentals.id, input.orderId));
+
+      if (result) {
+        // Send email to user after change of status
+        // await sendBookingStatusEmail({
+        //   session: ctx.session,
+        //   bookingId: rental.id,
+        // });
+      }
 
       return true;
     }),

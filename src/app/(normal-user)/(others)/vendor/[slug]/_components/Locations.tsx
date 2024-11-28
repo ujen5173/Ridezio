@@ -13,7 +13,6 @@ import useVendorDetailsContext from "../hooks/useVendorDetails";
 
 const Locations = () => {
   const { vendor } = useVendorDetailsContext();
-  console.log({ vendor });
 
   return (
     <section>

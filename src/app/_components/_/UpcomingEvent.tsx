@@ -9,74 +9,12 @@ import {
   CarouselContent,
   CarouselItem,
 } from "~/components/ui/carousel";
+import { toast } from "~/hooks/use-toast";
+import { type EventSlide } from "~/lib/data";
 import { cn } from "~/lib/utils";
 import EventCard from "./EventCard";
 
-export type EventSlide = {
-  thumbnail: string;
-  title: string;
-  hostedBy: string;
-  date: string;
-  participants: number;
-  meetinglocation: string;
-  entryFee: number;
-  maxParticipants: number;
-};
-
-const slides: EventSlide[] = [
-  {
-    thumbnail: "/images/events/img-event-2.webp",
-    title: "Mountain Bike Ride to Sarangkot",
-    hostedBy: "Epic Mountain Bike",
-    date: "10/25/2024",
-    participants: 15,
-    meetinglocation: "Pokhara, Nepal",
-    entryFee: 700,
-    maxParticipants: 25,
-  },
-  {
-    thumbnail: "/images/events/img-event-3.jpg",
-    title: "Saddle Ride to Dhulikhel",
-    hostedBy: "Saddle Bike Store",
-    date: "11/01/2024",
-    participants: 10,
-    meetinglocation: "Bhaktapur, Nepal",
-    entryFee: 400,
-    maxParticipants: 18,
-  },
-  {
-    thumbnail: "/images/events/img-event-4.jpg",
-    title: "Himalayan Adventure to Shivapuri",
-    hostedBy: "Himalayan Single Track Pvt. Ltd",
-    date: "11/15/2024",
-    participants: 20,
-    meetinglocation: "Kathmandu, Nepal",
-    entryFee: 600,
-    maxParticipants: 30,
-  },
-  {
-    thumbnail: "/images/events/img-event-1.webp",
-    title: "Valley Ride through Patan",
-    hostedBy: "Valley Riders",
-    date: "10/28/2024",
-    participants: 18,
-    meetinglocation: "Lalitpur, Nepal",
-    entryFee: 550,
-    maxParticipants: 22,
-  },
-  {
-    thumbnail: "/images/events/img-event-3.jpg",
-    title: "Saddle Ride to Dhulikhel",
-    hostedBy: "Saddle Bike Store",
-    date: "11/01/2024",
-    participants: 10,
-    meetinglocation: "Bhaktapur, Nepal",
-    entryFee: 400,
-    maxParticipants: 18,
-  },
-];
-
-const UpcomingEvent = () => {
+const UpcomingEvent = ({ events }: { events: EventSlide[] | undefined }) => {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
@@ -88,8 +26,17 @@ const UpcomingEvent = () => {
     api.on("select", () => setCurrent(api.selectedScrollSnap()));
   }, [api]);
 
+  if (!events) {
+    toast({
+      title: "Unable to get events",
+      description: "Please try again later",
+      variant: "destructive",
+    });
+    return;
+  }
+
   return (
-    <section className="w-full bg-slate-50">
+    <section className="w-full">
       <div className="mx-auto max-w-[1200px] px-4 py-16">
         <div className="mb-5 flex items-center justify-between gap-4">
           <h2 className={cn("block text-2xl font-bold xs:hidden")}>
@@ -130,7 +77,7 @@ const UpcomingEvent = () => {
             opts={{ align: "start" }}
           >
             <CarouselContent>
-              {slides.map((event, index) => (
+              {events.map((event, index) => (
                 <CarouselItem
                   key={index}
                   className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4"

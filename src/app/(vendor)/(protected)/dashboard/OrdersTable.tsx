@@ -468,9 +468,9 @@ const OrdersTable = () => {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-48 text-center"
                   >
-                    No orders found.
+                    No orders yet.
                   </TableCell>
                 </TableRow>
               )}

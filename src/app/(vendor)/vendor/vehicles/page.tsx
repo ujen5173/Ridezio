@@ -3,6 +3,7 @@ import VehiclesTable from "./_components/VehiclesTable";
 
 const Vehicles = async () => {
   const business = await api.business.current();
+
   return (
     <section className="w-full px-6 py-4">
       {business?.vehiclesCount === 0 ? (

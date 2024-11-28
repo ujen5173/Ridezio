@@ -71,7 +71,7 @@ const items = [
   },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ slug }: { slug: string }) {
   const { toggleSidebar } = useSidebar();
   const router = useRouter();
   const path = usePathname();
@@ -84,7 +84,7 @@ export function AppSidebar() {
     },
     {
       title: "Visit your page",
-      url: "/vendor/profile",
+      url: `/vendor/${slug}`,
       icon: ExternalLink,
     },
   ];
@@ -93,7 +93,7 @@ export function AppSidebar() {
     <Sidebar className="bg-white">
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem className="flex items-center justify-between border-b border-border py-5">
+          <SidebarMenuItem className="flex items-center justify-between border-b border-border py-[1.1rem]">
             <div className="scale-x-90">
               <Logo tw="h-6 fill-secondary" />
             </div>
@@ -116,7 +116,7 @@ export function AppSidebar() {
               {sideBarExtraItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={item.url}>
+                    <Link target="_blank" href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>

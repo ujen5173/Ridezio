@@ -10,6 +10,7 @@ import {
 } from "~/server/api/trpc";
 import {
   businesses,
+  businessStatusEnum,
   rentals,
   users,
   vehicles,
@@ -66,6 +67,55 @@ const calculateDistance = (
   return R * c;
 };
 
+// Advanced input validation schema
+const VendorSearchInputSchema = z.object({
+  // Basic location info
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+
+  // Distance and filtering options
+  maxDistance: z.number().default(10), // km
+  minRating: z.number().min(0).max(5).optional(),
+
+  // Vehicle type filtering
+  vehicleTypes: z.array(z.enum(["car", "bike", "scooter"])).optional(),
+
+  // Pagination and sorting
+  limit: z.number().max(100).default(20),
+  offset: z.number().default(0),
+
+  // Additional filtering options
+  sellsGears: z.boolean().optional(),
+  status: z.enum(["active", "setup-incomplete"]).optional(),
+});
+
+// Haversine distance calculation (both for JS and SQL)
+function calculateHaversineDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRadians(lat1)) *
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+// Convert degrees to radians
+function toRadians(degrees: number): number {
+  return degrees * (Math.PI / 180);
+}
+
 export const businessRouter = createTRPCRouter({
   getStoreName: protectedProcedure.query(async ({ ctx }) => {
     const business = await ctx.db
@@ -77,11 +127,13 @@ export const businessRouter = createTRPCRouter({
 
     return business[0]?.name;
   }),
+
   current: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.query.businesses.findFirst({
       where: eq(businesses.ownerId, ctx.session.user.id),
     });
   }),
+
   // Get popular shops based on rating
   getPopularShops: publicProcedure.query(async ({ ctx }) => {
     return await ctx.db
@@ -105,6 +157,7 @@ export const businessRouter = createTRPCRouter({
       .orderBy(sql`(${businesses.rating} * ${businesses.ratingCount}) DESC`)
       .limit(8);
   }),
+
   getDashboardInfo: protectedProcedure.query(async ({ ctx }) => {
     const today = new Date();
     const endDate = new Date(today);
@@ -394,6 +447,74 @@ export const businessRouter = createTRPCRouter({
   }),
 
   // Search shops with location and availability
+  // TODO: add the bounding params instead of kmsgetVendorAroundLocation: publicProcedure
+  getVendorAroundLocation: publicProcedure
+    .input(VendorSearchInputSchema)
+    .query(async ({ ctx, input }) => {
+      try {
+        // Validate location for search
+        if (!input.lat || !input.lng) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Location coordinates are required",
+          });
+        }
+
+        // Define distance calculation as a reusable SQL fragment
+        const distanceCalculation = sql<number>`6371 * 2 * ASIN(
+        SQRT(
+          POWER(SIN((${input.lat} - (business.location->>'lat')::numeric) * PI()/180 / 2), 2) +
+          COS(${input.lat} * PI()/180) * COS((business.location->>'lat')::numeric * PI()/180) *
+          POWER(SIN((${input.lng} - (business.location->>'lng')::numeric) * PI()/180 / 2), 2)
+        )
+      )`;
+
+        // Main query to fetch vendors
+        const vendorsQuery = await ctx.db
+          .select({
+            id: businesses.id,
+            name: businesses.name,
+            slug: businesses.slug,
+            rating: businesses.rating,
+            location: businesses.location,
+            availableVehiclesTypes: businesses.availableVehicleTypes,
+            satisfiedCustomers: businesses.satisfiedCustomers,
+            images: businesses.images,
+          })
+          .from(businesses)
+          .where(and(sql`${distanceCalculation} <= ${input.maxDistance}`))
+          .orderBy(distanceCalculation)
+          .limit(input.limit)
+          .offset(input.offset);
+
+        // Count total matching vendors
+        const [countResult] = await ctx.db
+          .select({
+            total: sql<number>`COUNT(*)`,
+          })
+          .from(businesses)
+          .where(and(sql`${distanceCalculation} <= ${input.maxDistance}`));
+
+        return {
+          vendors: vendorsQuery,
+          total: countResult?.total ?? 0,
+          limit: input.limit,
+          offset: input.offset,
+        };
+      } catch (err) {
+        console.error("Vendor search error:", err);
+
+        if (err instanceof TRPCError) {
+          throw err;
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to search vendors",
+        });
+      }
+    }),
+
   search: publicProcedure
     .input(
       z.object({
@@ -641,11 +762,27 @@ export const businessRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
+        const business = await ctx.db.query.businesses.findFirst({
+          where: eq(businesses.ownerId, ctx.session.user.id),
+          columns: { id: true, status: true },
+        });
+
+        if (!business) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Vendor not found",
+          });
+        }
+
         const updatedBusiness = await ctx.db
           .update(businesses)
           .set({
             ...input,
             slug: slugify(input.name!, slugifyDefault),
+            status:
+              business.status === "setup-incomplete"
+                ? "active"
+                : business.status,
           })
           .where(eq(businesses.ownerId, ctx.session.user.id))
           .returning();
@@ -653,6 +790,7 @@ export const businessRouter = createTRPCRouter({
           .update(users)
           .set({ vendor_setup_complete: true })
           .where(eq(users.id, ctx.session.user.id));
+
         return updatedBusiness[0];
       } catch (error) {
         if (error instanceof z.ZodError) {
@@ -668,6 +806,32 @@ export const businessRouter = createTRPCRouter({
           message: "An unexpected error occurred",
         });
       }
+    }),
+
+  setBusinessStatus: protectedProcedure
+    .input(
+      z.object({
+        status: z.enum(businessStatusEnum.enumValues),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const business = await ctx.db.query.businesses.findFirst({
+        where: eq(businesses.ownerId, ctx.session.user.id),
+        columns: { id: true },
+      });
+
+      if (!business) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Vendor not found",
+        });
+      }
+
+      return await ctx.db
+        .update(businesses)
+        .set({ status: input.status })
+        .where(eq(businesses.ownerId, ctx.session.user.id))
+        .returning();
     }),
 
   getBookingsDetails: publicProcedure

@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, Bell, Menu } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button, buttonVariants } from "~/components/ui/button";
@@ -22,12 +23,11 @@ import {
 } from "~/components/ui/sheet";
 import { cn } from "~/lib/utils";
 import Logo from "~/svg/logo";
-import { useUser } from "../contexts/root";
 import LoginButton from "./LoginButton";
 import SignOut from "./signout";
 
 const Header = ({ pth = "/" }: { pth?: string }) => {
-  const { user: data } = useUser();
+  const { data } = useSession();
 
   const theme =
     pth === "/"
@@ -234,8 +234,8 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                       <Link href="/orders">
                         <DropdownMenuItem>Orders</DropdownMenuItem>
                       </Link>
-                      <Link href="/bookmarks">
-                        <DropdownMenuItem>Bookmarks</DropdownMenuItem>
+                      <Link href="/favourite">
+                        <DropdownMenuItem>Favourites</DropdownMenuItem>
                       </Link>
                       <Link href="/settings">
                         <DropdownMenuItem>Settings</DropdownMenuItem>

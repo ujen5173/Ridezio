@@ -32,6 +32,7 @@ export const businessStatusEnum = pgEnum("business_status", [
   "suspended",
   "active",
   "inactive",
+  "setup-incomplete",
   "closed",
   "de-active",
 ]);
@@ -140,7 +141,7 @@ export const businesses = createTable(
       >()
       .notNull()
       .default(sql`'{}'::json[]`),
-    status: businessStatusEnum("status").notNull().default("inactive"),
+    status: businessStatusEnum("status").notNull().default("setup-incomplete"),
     stripeAccountId: varchar("stripe_account_id", { length: 100 }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -153,7 +154,7 @@ export const businesses = createTable(
   }),
 );
 
-export const bookmarks = createTable(
+export const favourite = createTable(
   "bookmark",
   {
     userId: varchar("user_id", { length: 36 }).notNull(),
@@ -389,16 +390,16 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   accounts: many(accounts),
   sessions: many(sessions),
   rentals: many(rentals),
-  bookmarks: many(bookmarks),
+  favourite: many(favourite),
   business: one(businesses, {
     fields: [users.id],
     references: [businesses.ownerId],
   }),
 }));
 
-export const bookmarksRelations = relations(bookmarks, ({ one }) => ({
+export const favouriteRelations = relations(favourite, ({ one }) => ({
   business: one(users, {
-    fields: [bookmarks.businessId],
+    fields: [favourite.businessId],
     references: [users.id],
   }),
 }));
@@ -458,5 +459,5 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export type businessesType = InferInsertModel<typeof businesses>["faqs"];
 export type usersType = InferInsertModel<typeof users>;
 export type vehiclesType = InferInsertModel<typeof vehicles>;
-export type bookmarksType = InferInsertModel<typeof bookmarks>;
+export type favouriteType = InferInsertModel<typeof favourite>;
 export type rentalsType = InferInsertModel<typeof rentals>;

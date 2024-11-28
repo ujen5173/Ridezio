@@ -2,7 +2,7 @@ import { Calendar, Dot, IndianRupee, MapPin, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { bricolage } from "~/app/utils/font";
-import { type EventSlide } from "./UpcomingEvent";
+import { type EventSlide } from "~/lib/data";
 
 type Props = {
   event: EventSlide;

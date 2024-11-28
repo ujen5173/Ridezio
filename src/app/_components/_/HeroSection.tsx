@@ -144,7 +144,10 @@ const HeroSection = () => {
                   </span>
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 md:w-[400px]">
+              <PopoverContent
+                align="start"
+                className="w-full max-w-[400px] p-0 md:max-w-[550px]"
+              >
                 <Command>
                   <CommandInput
                     placeholder="Search location..."
@@ -160,6 +163,7 @@ const HeroSection = () => {
                       {locations?.map((location: Location) => (
                         <CommandItem
                           key={location.place_id}
+                          className="w-full"
                           value={location.display_name}
                           onSelect={(value) => {
                             setSelectedLocation(value);

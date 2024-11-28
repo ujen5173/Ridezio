@@ -8,6 +8,7 @@ import { Button } from "~/components/ui/button";
 import { searchedData } from "~/lib/data";
 import { cn } from "~/lib/utils";
 import { chakra_petch } from "../../../utils/font";
+import Filter from "./_components/Filter";
 import MapArea from "./_components/MapArea";
 
 const Search = () => {
@@ -60,7 +61,7 @@ const Search = () => {
             <HeaderHeight />
 
             {/* Keep the original content as is */}
-            <div className="mb-2">
+            <div className="mb-2 flex items-center justify-between gap-4">
               <span
                 className={cn(
                   "text-lg font-medium text-foreground",
@@ -69,6 +70,7 @@ const Search = () => {
               >
                 {searchedData.length} Results found in visible area
               </span>
+              <Filter />
             </div>
             <div className="grid grid-cols-1 gap-4 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
               {searchedData.map(({ lonlat, ...shop }) => (

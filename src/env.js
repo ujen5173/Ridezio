@@ -18,11 +18,18 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
     UPLOADTHING_TOKEN: z.string(),
+
+    USER: z.string().min(1),
+    PASS: z.string().min(1),
+
+    IPINFO_API_KEY: z.string(),
   },
 
   client: {
     NEXT_PUBLIC_APP_URL: z.string(),
     NEXT_PUBLIC_LOCATIONIQ_API_KEY: z.string(),
+    NEXT_PUBLIC_POSTHOG_KEY: z.string(),
+    NEXT_PUBLIC_POSTHOG_HOST: z.string(),
   },
 
   runtimeEnv: {
@@ -35,6 +42,11 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_LOCATIONIQ_API_KEY: process.env.NEXT_PUBLIC_LOCATIONIQ_API_KEY,
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
+    USER: process.env.USER,
+    PASS: process.env.PASS,
+    NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+    NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    IPINFO_API_KEY: process.env.IPINFO_API_KEY,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
