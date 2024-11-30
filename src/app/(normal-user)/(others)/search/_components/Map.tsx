@@ -5,7 +5,7 @@ import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet/dist/leaflet.css";
 import { Loader2 } from "lucide-react";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   MapContainer,
   Marker,
@@ -35,12 +35,13 @@ const BoundsHandler: React.FC<{
 }> = ({ setData, initialBounds }) => {
   const map = useMap();
   const isInitialLoadRef = useRef(true);
+  const [lastBounds, setLastBounds] = useState(initialBounds);
 
   useEffect(() => {
     // Set initial bounds without triggering a data fetch
     if (isInitialLoadRef.current) {
       const bounds = map.getBounds();
-      setData({
+      const newBounds = {
         northEast: {
           lat: bounds.getNorthEast().lat,
           lng: bounds.getNorthEast().lng,
@@ -49,24 +50,36 @@ const BoundsHandler: React.FC<{
           lat: bounds.getSouthWest().lat,
           lng: bounds.getSouthWest().lng,
         },
-      });
+      };
+      setData(newBounds);
+      setLastBounds(newBounds);
       isInitialLoadRef.current = false;
+      return;
     }
 
     const handleMoveEnd = () => {
-      // Only fetch data when the map is manually moved
-      if (!isInitialLoadRef.current) {
-        const bounds = map.getBounds();
-        setData({
-          northEast: {
-            lat: bounds.getNorthEast().lat,
-            lng: bounds.getNorthEast().lng,
-          },
-          southWest: {
-            lat: bounds.getSouthWest().lat,
-            lng: bounds.getSouthWest().lng,
-          },
-        });
+      const bounds = map.getBounds();
+      const newBounds = {
+        northEast: {
+          lat: bounds.getNorthEast().lat,
+          lng: bounds.getNorthEast().lng,
+        },
+        southWest: {
+          lat: bounds.getSouthWest().lat,
+          lng: bounds.getSouthWest().lng,
+        },
+      };
+
+      // Only fetch data if bounds have significantly changed
+      const boundsChanged =
+        Math.abs(newBounds.northEast.lat - lastBounds.northEast.lat) > 0.01 ||
+        Math.abs(newBounds.northEast.lng - lastBounds.northEast.lng) > 0.01 ||
+        Math.abs(newBounds.southWest.lat - lastBounds.southWest.lat) > 0.01 ||
+        Math.abs(newBounds.southWest.lng - lastBounds.southWest.lng) > 0.01;
+
+      if (boundsChanged) {
+        setData(newBounds);
+        setLastBounds(newBounds);
       }
     };
 
@@ -75,6 +88,35 @@ const BoundsHandler: React.FC<{
       map.off("moveend", handleMoveEnd);
     };
   }, [map, setData]);
+
+  return null;
+};
+
+const ComponentResize = () => {
+  const map = useMap();
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+
+  useEffect(() => {
+    // Delay initial resize
+    const timeoutId = setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+
+    // Create a resize observer to handle dynamic size changes
+    const container = map.getContainer();
+    resizeObserverRef.current = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    resizeObserverRef.current.observe(container);
+
+    // Cleanup
+    return () => {
+      clearTimeout(timeoutId);
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+      }
+    };
+  }, [map]);
 
   return null;
 };
@@ -92,7 +134,7 @@ const Map: React.FC<MapProps> = ({
         key={place.id ?? uuidv4()}
         position={[place.location.lat!, place.location.lng!]}
         icon={L.divIcon({
-          html: `<span class="block w-max px-4 py-2 bg-white text-slate-950 rounded-full text-md font-bold shadow">${place.name ?? "Places"}</span>`,
+          html: `<span class="block w-max px-4 py-2 bg-white text-slate-950 rounded-full text-xs sm:text-md font-medium shadow">${place.name ?? "Places"}</span>`,
           className: "custom-div-icon",
         })}
       />
@@ -128,6 +170,7 @@ const Map: React.FC<MapProps> = ({
       wheelPxPerZoomLevel={400}
       scrollWheelZoom={true}
     >
+      <ComponentResize />
       {isLoading && (
         <div className="absolute left-1/2 top-20 z-[999] flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-sm bg-white shadow-lg">
           <Loader2 className="size-6 animate-spin text-secondary" />

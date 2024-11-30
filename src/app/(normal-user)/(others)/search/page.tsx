@@ -1,7 +1,7 @@
 "use client";
 
 import { MapIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import VendorCard from "~/app/_components/_/VendorCard";
 import VendorCardLoading from "~/app/_components/_/VendorCardLoading";
@@ -22,13 +22,18 @@ export interface MapBounds {
 
 const Search = () => {
   const [places, setPlaces] = useState<GetSearchedShops>([]);
-  const [isLoading, setIsLoading] = useState(true); // Keep this as true initially
+  const [isLoading, setIsLoading] = useState(true);
   const [bounds, setBounds] = useState<MapBounds | null>(null);
+  const [showingArea, setShowingArea] = useState<"places" | "map" | "both">(
+    "both",
+  );
+  const [initialLoad, setInitialLoad] = useState(true);
 
   const {
     data: searchBusinesses,
     isLoading: isDataFetching,
     isError,
+    refetch,
   } = api.business.search.useQuery(
     {
       bounds: bounds!,
@@ -40,12 +45,19 @@ const Search = () => {
     },
   );
 
+  console.log({ bounds, searchBusinesses });
+
+  // Handle initial data loading and subsequent updates
   useEffect(() => {
+    if (initialLoad && bounds) {
+      setInitialLoad(false);
+    }
+
     if (!isDataFetching && searchBusinesses) {
       setPlaces(searchBusinesses);
       setIsLoading(false);
     }
-  }, [searchBusinesses, isDataFetching, setPlaces]);
+  }, [searchBusinesses, isDataFetching, bounds, initialLoad]);
 
   // Handle errors
   useEffect(() => {
@@ -59,33 +71,51 @@ const Search = () => {
     }
   }, [isError]);
 
-  const [showingArea, setShowingArea] = useState<"places" | "map" | "both">(
-    "places",
-  );
-
+  // Debounced resize handler with meaningful width change check
   useEffect(() => {
+    let lastWidth = window.innerWidth;
+    let timeoutId: NodeJS.Timeout;
+
     const handleResize = () => {
-      setShowingArea(window.innerWidth < 1024 ? "places" : "both");
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      timeoutId = setTimeout(() => {
+        const currentWidth = window.innerWidth;
+
+        if (Math.abs(currentWidth - lastWidth) > 50) {
+          setShowingArea(currentWidth < 1024 ? "map" : "both");
+          lastWidth = currentWidth;
+        }
+      }, 250);
     };
 
     // Initial check
     handleResize();
 
-    // Add event listener
     window.addEventListener("resize", handleResize);
 
-    // Cleanup
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, []);
+
+  // Memoized method to toggle area view
+  const toggleAreaView = useCallback(() => {
+    setShowingArea((prev) => (prev === "places" ? "map" : "places"));
   }, []);
 
   return (
     <>
       <section className="relative w-full">
-        <div className="fixed bottom-4 left-1/2 z-[100] block -translate-x-1/2 lg:hidden">
+        <div className="fixed bottom-4 left-1/2 z-[50] block -translate-x-1/2 lg:hidden">
           <Button
-            onClick={() =>
-              setShowingArea(showingArea === "places" ? "map" : "places")
-            }
+            disabled={isDataFetching}
+            onClick={toggleAreaView}
             variant={"black"}
             rounded={"full"}
           >
@@ -99,15 +129,16 @@ const Search = () => {
         <div className={cn("relative flex h-screen")}>
           <div
             className={cn(
-              "remove-scroll max-w-none overflow-auto border-r border-border lg:max-w-[600px] xl:max-w-[932px]",
-              showingArea === "map" ? "hidden" : "block w-full",
+              "remove-scroll max-w-none overflow-auto border-r border-border bg-white lg:max-w-[600px] xl:max-w-[932px]",
+              showingArea === "map"
+                ? "fixed left-0 top-0 -z-10 h-full w-full"
+                : "block w-full",
               showingArea === "both" ? "block" : "",
               "px-8 md:px-4",
             )}
           >
             <HeaderHeight />
 
-            {/* Keep the original content as is */}
             <div className="mb-2 flex items-center justify-between gap-4 py-4">
               <span
                 className={cn(
@@ -117,7 +148,9 @@ const Search = () => {
               >
                 {places.length} Results found in visible area
               </span>
-              <Filter />
+              <div className="hidden sm:block">
+                <Filter />
+              </div>
             </div>
             <ScrollArea className="">
               <div className="grid grid-cols-1 gap-4 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
@@ -148,8 +181,10 @@ const Search = () => {
           </div>
           <div
             className={cn(
-              "relative z-30 h-auto min-h-screen flex-1",
-              showingArea === "places" ? "hidden" : "block",
+              "relative z-30 h-auto min-h-screen flex-1 bg-white",
+              showingArea === "places"
+                ? "fixed left-0 top-0 -z-10 h-full w-full"
+                : "block",
               showingArea === "both" ? "block" : "",
             )}
           >

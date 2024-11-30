@@ -3,7 +3,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import { api } from "~/trpc/server";
 import VendorWrapper from "./_components/VendorWrapper";
-
 const VendorPage = async ({
   params,
 }: {

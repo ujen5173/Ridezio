@@ -36,6 +36,7 @@
 ✅ - orders will only be accessed by user
 🟢 - change location api [IDEA DROPED]
 ⚠️ - fix the fucking huge chunk of re-renders in the setup vendor paged
+   - migrate to google maps asap
    - search based on vehicle name.
    - search header in all pages except the home page
    - order in the images of the vendor page

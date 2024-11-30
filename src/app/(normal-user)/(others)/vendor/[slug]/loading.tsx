@@ -7,13 +7,13 @@ const Loading = () => {
       <HeaderHeight />
       <section className="px-4">
         <div className="mx-auto flex max-w-[1240px] flex-col gap-5 py-6 md:flex-row md:py-10 lg:gap-10">
-          <div className="mx-auto flex h-auto max-h-[522px] w-full flex-col-reverse gap-4 sm:w-10/12 md:w-7/12 lg:flex-row">
+          <div className="mx-auto flex h-auto max-h-[522px] min-h-96 w-full flex-col-reverse gap-4 sm:w-10/12 md:w-7/12 lg:flex-row">
             <div className="hidden h-full space-y-4 lg:block">
               <Skeleton className="size-28" />
               <Skeleton className="size-28" />
             </div>
-            <div className="relative h-auto flex-1">
-              <Skeleton className="h-full w-full" />
+            <div className="relative h-full flex-1">
+              <Skeleton className="h-full min-h-96 w-full lg:min-h-0" />
             </div>
           </div>
           <div className="flex flex-1 flex-col">
@@ -39,7 +39,7 @@ const Loading = () => {
             </div>
           </div>
         </div>
-      </section>{" "}
+      </section>
     </>
   );
 };

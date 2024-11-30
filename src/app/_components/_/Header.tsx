@@ -159,11 +159,12 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                 <div className="flex items-center gap-4">
                   <Button
                     variant={"ghost"}
-                    className={
+                    className={cn(
+                      "hidden sm:flex",
                       pth === "/"
                         ? "hover:bg-slate-100/20"
-                        : "hover:bg-slate-600/20"
-                    }
+                        : "hover:bg-slate-600/20",
+                    )}
                     size="icon"
                   >
                     <Bell
@@ -182,7 +183,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                   )}
                   <DropdownMenu>
                     <div className="flex items-center gap-2">
-                      <div>
+                      <div className="hidden sm:block">
                         <span className={cn(theme, "text-sm font-semibold")}>
                           {data.user.name}
                         </span>
@@ -208,7 +209,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                       <div>
                         <DropdownMenuLabel>
                           <div className="">
-                            <div>
+                            <div className="hidden sm:block">
                               <span>{data.user.name}</span>
                             </div>
                             <div className="">
@@ -238,7 +239,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                 <>
                   <div className="flex items-center justify-end md:hidden">
                     <LoginButton>
-                      <Button variant={"outline"} size="sm">
+                      <Button variant={"primary"} size="default">
                         Login / Sign up
                       </Button>
                     </LoginButton>
