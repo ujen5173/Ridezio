@@ -64,7 +64,7 @@ const GeneralInfo = () => {
                   {...field}
                   placeholder="ABC Rental Store"
                   autoComplete="off"
-                  value={field.value ?? undefined}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />
@@ -110,7 +110,6 @@ const GeneralInfo = () => {
           id="logo"
           onChange={(e) => {
             const files = e.target.files;
-            console.log({ files });
             if (files) void logoUploadFiles(Array.from(files));
           }}
         />

@@ -7,10 +7,9 @@ const SignOut = () => {
   return (
     <DropdownMenuItem
       onClick={() => {
-        void signOut();
-        setTimeout(() => {
+        void signOut().then(() => {
           window.location.href = "/";
-        }, 50);
+        });
       }}
       className={cn("hover:bg-destructive hover:text-destructive-foreground")}
     >

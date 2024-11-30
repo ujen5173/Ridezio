@@ -37,16 +37,33 @@ export type CurrentBusinessType = NonNullable<
 
 export const formSchema = z.object({
   id: z.string(),
-  name: z.string().nullable(),
+  name: z
+    .string()
+    .min(2, {
+      message: "Business name must be at least 2 characters",
+    })
+    .max(50),
   location: z.object({
     map: z.string().url(),
-    lat: z.number(),
-    lng: z.number(),
-    address: z.string().min(2).max(50),
-    city: z.string().min(2).max(50),
+    lat: z.number().min(1, { message: "Enter your business latitude" }),
+    lng: z.number().min(1, { message: "Enter your business longitude" }),
+    address: z
+      .string()
+      .min(2, { message: "Add Address of you business" })
+      .max(50),
+    city: z.string().min(2, { message: "Enter City name" }).max(50),
   }),
-  sellGears: z.boolean(),
-  phoneNumbers: z.array(z.string().min(10).max(15)),
+  sellGears: z.boolean().default(false),
+  phoneNumbers: z
+    .array(
+      z
+        .string()
+        .min(9, { message: "Enter a valid Number" })
+        .max(15, { message: "Enter a valid Number" }),
+    )
+    .nonempty({
+      message: "Enter at least one phone number",
+    }),
   businessHours: z.record(
     z.string().min(2).max(50),
     z
@@ -56,7 +73,9 @@ export const formSchema = z.object({
       })
       .nullable(),
   ),
-  availableVehicleTypes: z.array(z.enum(vehicleTypeEnum.enumValues)),
+  availableVehicleTypes: z.array(z.enum(vehicleTypeEnum.enumValues)).nonempty({
+    message: "Enter at least one vehicle Type",
+  }),
   logo: z.string().url().nullable(),
   faqs: z.array(
     z.object({
@@ -83,8 +102,10 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: "onBlur",
     defaultValues: {
       ...business,
+      name: business.name ?? "",
       businessHours: WEEK_DAYS.reduce(
         (acc, day) => ({
           ...acc,
@@ -96,12 +117,21 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const isValid = await form.trigger();
+    console.log("Form Errors:", form.formState.errors);
+
+    if (!isValid) {
+      return; // Stop submission if form is invalid
+    }
+
     const result = {
       ...values,
       images: form.getValues("images"),
       logo: form.getValues("logo"),
     };
+
     setLoading(true);
+
     try {
       await mutateAsync(result);
 

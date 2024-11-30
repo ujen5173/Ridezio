@@ -104,31 +104,33 @@ const FileUploaderWrapper = ({
         </div>
       </FileInput>
       <FileUploaderContent className="flex flex-row items-end gap-2">
-        {files?.map((file, i) => (
-          <FileUploaderItem
-            key={i}
-            removeFile={!((uploadedFile ?? []).length > 0)}
-            index={i}
-            disabled={isUploading}
-            className="size-20 overflow-hidden rounded-md p-0"
-            aria-roledescription={`file ${i + 1} containing ${file.name}`}
-          >
-            {isUploading && (
-              <div className="absolute inset-0 bg-slate-900/20">
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
-                  <Loader className="animate-spin text-white duration-1500" />
+        {files?.map((file, i) => {
+          return (
+            <FileUploaderItem
+              key={i}
+              removeFile={!((uploadedFile ?? []).length > 0)}
+              index={i}
+              disabled={isUploading}
+              className="size-20 overflow-hidden rounded-md p-0"
+              aria-roledescription={`file ${i + 1} containing ${file.name}`}
+            >
+              {isUploading && (
+                <div className="absolute inset-0 bg-slate-900/20">
+                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
+                    <Loader className="animate-spin text-white duration-1500" />
+                  </div>
                 </div>
-              </div>
-            )}
-            <Image
-              src={URL.createObjectURL(file)}
-              alt={file.name}
-              height={80}
-              width={80}
-              className="w-20 object-cover p-0"
-            />
-          </FileUploaderItem>
-        ))}
+              )}
+              <Image
+                src={URL.createObjectURL(file)}
+                alt={file.name}
+                height={80}
+                width={80}
+                className="w-20 object-cover p-0"
+              />
+            </FileUploaderItem>
+          );
+        })}
 
         {(files ?? []).length > 0 && (
           <span

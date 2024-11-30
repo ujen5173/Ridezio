@@ -1,14 +1,25 @@
 "use client";
 
-import { Heart, Loader } from "lucide-react";
-import { useUser } from "~/app/_components/contexts/root";
+import { Heart, HeartCrack, Loader } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/hooks/use-toast";
 import { api } from "~/trpc/react";
 
 const FavroiteButton = ({ id }: { id: string }) => {
+  const { data: favroite, refetch } = api.user.favourite.useQuery(
+    {
+      vendor: id,
+    },
+    {
+      enabled: !!id,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    },
+  );
   const { mutateAsync, status } = api.user.bookmark.useMutation();
-  const { user: data } = useUser();
+  const { data } = useSession();
 
   return (
     <Button
@@ -16,6 +27,10 @@ const FavroiteButton = ({ id }: { id: string }) => {
         if (!!data?.user) {
           await mutateAsync({
             id,
+          });
+          void refetch();
+          toast({
+            title: `${favroite ? "Removed from" : "Added to"} favourites`,
           });
         } else {
           toast({
@@ -27,12 +42,25 @@ const FavroiteButton = ({ id }: { id: string }) => {
       className="w-full"
       variant={"outline-secondary"}
     >
-      {status === "pending" ? (
-        <Loader size={16} className="mr-2 animate-spin" />
+      {favroite ? (
+        <>
+          {status === "pending" ? (
+            <Loader size={16} className="mr-2 animate-spin" />
+          ) : (
+            <HeartCrack size={16} className="mr-2" />
+          )}
+          Remove from favourites
+        </>
       ) : (
-        <Heart size={16} className="mr-2" />
+        <>
+          {status === "pending" ? (
+            <Loader size={16} className="mr-2 animate-spin" />
+          ) : (
+            <Heart size={16} className="mr-2" />
+          )}
+          Add to favourites
+        </>
       )}
-      Add to Favroite
     </Button>
   );
 };

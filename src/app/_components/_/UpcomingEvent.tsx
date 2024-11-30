@@ -37,7 +37,7 @@ const UpcomingEvent = ({ events }: { events: EventSlide[] | undefined }) => {
 
   return (
     <section className="w-full">
-      <div className="mx-auto max-w-[1200px] px-4 py-16">
+      <div className="mx-auto max-w-[1440px] px-4 py-16">
         <div className="mb-5 flex items-center justify-between gap-4">
           <h2 className={cn("block text-2xl font-bold xs:hidden")}>
             Upcoming Events
@@ -80,7 +80,7 @@ const UpcomingEvent = ({ events }: { events: EventSlide[] | undefined }) => {
               {events.map((event, index) => (
                 <CarouselItem
                   key={index}
-                  className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4"
+                  className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
                 >
                   <EventCard event={event} />
                 </CarouselItem>

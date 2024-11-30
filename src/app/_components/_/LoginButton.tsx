@@ -4,6 +4,7 @@ import axios from "axios";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import React from "react";
+import { getAuthErrorMessage } from "~/app/utils/auth-errors";
 import { chakra_petch } from "~/app/utils/font";
 import { Button } from "~/components/ui/button";
 import {
@@ -19,6 +20,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent } from "~/components/ui/tabs";
+import { toast } from "~/hooks/use-toast";
 import { Icons } from "~/lib/Icons";
 import { cn } from "~/lib/utils";
 
@@ -27,7 +29,7 @@ const LoginButton = ({ children }: { children: React.ReactNode }) => {
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="py-12 sm:max-w-[655px]">
-        <Tabs defaultValue="normal-user" className="min-w-[400px]">
+        <Tabs defaultValue="normal-user" className="w-full sm:min-w-[400px]">
           <TabsContent value="normal-user" className="py-16">
             <div className="mx-auto max-w-[455px]">
               <div className="mb-8">
@@ -54,10 +56,18 @@ const LoginButton = ({ children }: { children: React.ReactNode }) => {
                         role: "USER",
                       });
 
-                      await signIn("google", {
+                      const result = await signIn("google", {
                         callbackUrl: "/",
                         redirect: true,
                       });
+
+                      if (result?.error) {
+                        toast({
+                          title: getAuthErrorMessage(result.error),
+                          variant: "destructive",
+                        });
+                        return;
+                      }
                     }}
                     variant={"outline"}
                   >
@@ -78,10 +88,19 @@ const LoginButton = ({ children }: { children: React.ReactNode }) => {
                       await axios.post("/api/set-role", {
                         role: "VENDOR",
                       });
-                      await signIn("google", {
+
+                      const result = await signIn("google", {
                         callbackUrl: "/vendor/profile",
                         redirect: true,
                       });
+
+                      if (result?.error) {
+                        toast({
+                          title: getAuthErrorMessage(result.error),
+                          variant: "destructive",
+                        });
+                        return;
+                      }
                     }}
                     variant={"outline"}
                   >

@@ -169,3 +169,7 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+.remove-scroll::-webkit-scrollbar {
+  display: none;
+}

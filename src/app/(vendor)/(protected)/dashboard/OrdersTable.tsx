@@ -13,7 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { formatDate } from "date-fns";
-import { Check, Plus, Trash } from "lucide-react";
+import { Check, Loader, Plus, RefreshCcw, Trash } from "lucide-react";
 import Image from "next/image";
 import * as React from "react";
 import Bookings from "~/app/(normal-user)/(others)/vendor/[slug]/_components/Bookings";
@@ -60,6 +60,7 @@ const OrdersTable = () => {
   const {
     data: ordersData = [],
     isLoading,
+    isRefetching,
     isError,
     refetch,
   } = api.business.getOrders.useQuery();
@@ -354,11 +355,12 @@ const OrdersTable = () => {
         refetchOnWindowFocus: false,
       },
     );
+
   const [open, setOpen] = React.useState(false);
 
   return (
     <div className="w-full">
-      {!isLoading && bookingsDetails !== undefined && (
+      {!bookingsDetailsLoading && bookingsDetails !== undefined && (
         <Bookings
           open={open}
           setOpen={setOpen}
@@ -382,7 +384,19 @@ const OrdersTable = () => {
               className="h-10 max-w-sm"
             />
           </div>
-          <div className="hidden sm:block">
+          <div className="hidden items-center gap-2 sm:flex">
+            <Button
+              variant={"outline"}
+              size="sm"
+              onClick={() => void refetch()}
+            >
+              {isRefetching ? (
+                <Loader size={16} className="mr-1 animate-spin" />
+              ) : (
+                <RefreshCcw size={16} className="mr-1" />
+              )}
+              {isRefetching ? "Refreshing" : "Refresh"}
+            </Button>
             <Button
               variant={"secondary"}
               size="sm"
@@ -417,7 +431,7 @@ const OrdersTable = () => {
               ))}
             </TableHeader>
             <TableBody className="p-4">
-              {isLoading ? (
+              {isLoading || isRefetching ? (
                 <>
                   {Array(4)
                     .fill("____")

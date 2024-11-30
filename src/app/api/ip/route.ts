@@ -13,10 +13,16 @@ export interface IpInfoResponse {
 
 export async function GET(request: Request): Promise<Response> {
   try {
-    const ipAddress =
-      request.headers.get("x-forwarded-for") ??
-      request.headers.get("remote-addr") ??
-      "124.41.204.21"; // Default to Kathmandu, Nepal
+    let ipAddress = "27.34.65.62";
+
+    if (env.NODE_ENV !== "development") {
+      ipAddress =
+        request.headers.get("x-forwarded-for") ??
+        request.headers.get("remote-addr") ??
+        "124.41.204.21"; // Default to Kathmandu, Nepal
+    }
+
+    console.log({ ipAddress, env: env.NODE_ENV });
 
     // Fetch location data from ipinfo.io API
     const response = await axios.get<IpInfoResponse>(

@@ -1,39 +1,18 @@
 "use client";
 
-import {
-  Dot,
-  Facebook,
-  Instagram,
-  Linkedin,
-  Twitter,
-  Youtube,
-} from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Balancer from "react-wrap-balancer";
 import { chakra_petch } from "~/app/utils/font";
 import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
 import { cn } from "~/lib/utils";
 import Logo from "~/svg/logo";
 
 const Footer = () => {
+  const { data: user } = useSession();
+
   return (
     <section className="w-full bg-tertiary">
       <div className="mx-auto max-w-[1440px] px-4">
@@ -58,8 +37,12 @@ const Footer = () => {
               className="w-full border-rose-500/20 bg-rose-500/20 text-slate-200 placeholder:text-slate-200 sm:w-96"
               placeholder="Your email address"
               type="email"
+              defaultValue={user?.user.email}
+              disabled={!!user}
             />
-            <Button variant={"secondary"}>Subscribe</Button>
+            <Button disabled={!!user} variant={"secondary"}>
+              {user ? "Already Subscribed" : "Subscribe"}
+            </Button>
           </div>
         </div>
 
@@ -152,15 +135,7 @@ const Footer = () => {
                       className="hover:text-slate-200 hover:underline"
                       href="/"
                     >
-                      Support
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="hover:text-slate-200 hover:underline"
-                      href="/"
-                    >
-                      Blog
+                      Start Renting
                     </Link>
                   </li>
                 </ul>
@@ -210,55 +185,10 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-8 py-10 md:flex-row">
-          <div className="text-center">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant={"outline"} disabled>
-                  रु Nepali Ruppee (NPR)
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Change Currency</DialogTitle>
-                  <DialogDescription>
-                    All prices wil be shown in the selected currency.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <Select>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select a Currency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="usd">USD</SelectItem>
-                        <SelectItem value="npr">NPR</SelectItem>
-                        <SelectItem value="euro">EURO</SelectItem>
-                        <SelectItem value="yen">YEN</SelectItem>
-                        <SelectItem value="won">WON</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <DialogFooter>
-                  <Button type="submit" variant={"secondary"}>
-                    Save changes
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          <ul className="flex flex-wrap items-center justify-center gap-4 text-sm text-slate-100 sm:flex-nowrap sm:justify-normal sm:gap-0">
-            <li>Terms of use</li>
-            <Dot className="hidden md:block" size={20} />
-            <li>Privacy Policy</li>
-            <Dot className="hidden md:block" size={20} />
-            <li>Cookie Policy</li>
-            <Dot className="hidden md:block" size={20} />
-            <li>© 2024 Velocit, Inc. All Rights Reserved.</li>
-          </ul>
+        <div className="flex items-center justify-center py-10">
+          <p className="text-sm text-slate-100">
+            © {new Date().getFullYear()} Velocit, Inc. All Rights Reserved.
+          </p>
         </div>
       </div>
     </section>

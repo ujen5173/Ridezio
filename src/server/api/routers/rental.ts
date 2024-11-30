@@ -1,10 +1,11 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, getTableColumns } from "drizzle-orm";
 import { z } from "zod";
 import {
   businesses,
   rentals,
   rentalStatusEnum,
+  users,
   vehicles,
 } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
@@ -50,8 +51,11 @@ export const rentalRouter = createTRPCRouter({
           inventory: vehicles.inventory,
           basePrice: vehicles.basePrice,
           businessId: vehicles.businessId,
+          ownerId: getTableColumns(businesses).ownerId,
         })
         .from(vehicles)
+        .leftJoin(businesses, eq(vehicles.businessId, businesses.id))
+        .leftJoin(users, eq(businesses.ownerId, users.id))
         .where(eq(vehicles.id, input.vehicleId))
         .then((results) => results[0]);
 
@@ -143,7 +147,10 @@ export const rentalRouter = createTRPCRouter({
           vehicleId: input.vehicleId,
           rentalStart: input.startDate,
           rentalEnd: input.endDate,
-          status: rentalStatusEnum.enumValues[0],
+          status:
+            ctx.session.user.id === vehicle.ownerId
+              ? "approved"
+              : rentalStatusEnum.enumValues[0],
           totalPrice: input.totalPrice,
           notes: input.notes,
           paymentMethod: input.paymentScreenshot ? "online" : "onsite",

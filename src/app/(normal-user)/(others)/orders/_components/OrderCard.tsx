@@ -1,34 +1,24 @@
 import { format } from "date-fns";
-import { Calendar, Dot, MapPin } from "lucide-react";
+import { Calendar, Dot, MapPin, Store } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
-import { type vehicleTypeEnum } from "~/server/db/schema";
+import { type GetUserOrdersType } from "~/server/api/routers/users";
 
-type OrderDetailProps = {
-  id: number;
-  name: string;
-  slug: string;
-  status: "completed" | "in-progress" | "cancelled" | "active";
-  location: string;
-  date: {
-    start: string;
-    end: string;
-  };
-  price: number;
-  inventory: number;
-  vehicle: (typeof vehicleTypeEnum.enumValues)[number];
-  bookedOn: string;
-};
-
-const OrderCard = ({ orderDetails }: { orderDetails: OrderDetailProps }) => {
+const OrderCard = ({
+  orderDetails,
+}: {
+  orderDetails: GetUserOrdersType[number];
+}) => {
   return (
     <div className="rounded-md border border-border p-6 shadow-md">
       <div className="mb-2 flex items-center justify-between gap-4">
-        <h1 className="line-clamp-1 text-2xl font-semibold">
-          <span className="text-slate-500">#{orderDetails.id} - </span>
-          {orderDetails.name}
+        <h1 className="line-clamp-1 text-2xl font-semibold text-slate-600">
+          <span className="text-slate-500">
+            #{orderDetails.id.slice(-4)} -{" "}
+          </span>
+          {orderDetails.vehicleName}
         </h1>
         <span
           className={cn(
@@ -37,42 +27,49 @@ const OrderCard = ({ orderDetails }: { orderDetails: OrderDetailProps }) => {
               "border-secondary/30 bg-secondary/10 text-secondary":
                 orderDetails.status === "completed",
               "border-blue-600/30 bg-blue-600/10 text-blue-600":
-                orderDetails.status === "in-progress",
+                orderDetails.status === "pending",
               "border-slate-600/30 bg-slate-600/10 text-slate-600":
                 orderDetails.status === "cancelled",
               "borer-green-600/30 bg-green-600/10 text-green-600":
-                orderDetails.status === "active",
+                orderDetails.status === "approved",
             },
           )}
         >
           {orderDetails.status}
         </span>
       </div>
+      <div className="mt-4 flex items-center gap-1 font-medium text-slate-600">
+        <Store size={20} className="text-slate-600" />
+        <p className="text-lg font-medium text-slate-600">
+          {orderDetails.vendorName}
+        </p>
+      </div>
       <div className="flex flex-wrap items-center gap-1 py-4">
         <div className="flex items-center gap-1 font-medium text-slate-600">
-          <MapPin size={20} className="text-slate-600" />
-          <span className="">{orderDetails.location}</span>
+          <MapPin size={20} className="capitalize text-slate-600" />
+          <span className="">{orderDetails.location?.address}</span>
         </div>
         <Dot size={20} className="text-foreground" />
         <div className="flex items-center gap-1 font-medium text-slate-600">
           <Calendar size={20} className="text-slate-600" />
           <span className="">
-            {format(orderDetails.date.start, "MMM d, yyyy")} -{" "}
+            {format(orderDetails.startDate, "MMM d, yyyy")} -{" "}
           </span>
           <span className="">
-            {format(orderDetails.date.end, "MMM d, yyyy")}
+            {format(orderDetails.endDate, "MMM d, yyyy")}
           </span>
         </div>
         <Dot size={20} className="text-foreground" />
         <div className="flex items-center gap-1 font-medium text-slate-600">
-          <span className="">रु. {orderDetails.price}/-</span>
+          <span className="">रु. {orderDetails.totalPrice}/-</span>
         </div>
       </div>
+
       <div className="border-b border-border pb-4">
         <h5 className="mb-2 text-lg text-slate-600">Vehicle:</h5>
         <div className="relative flex size-20 flex-col items-center justify-between rounded-md border border-border bg-slate-100 p-2">
           <div className="absolute -right-4 top-2 z-10 rounded-sm border border-border bg-white px-2 text-sm font-semibold text-slate-600 shadow-sm">
-            x{orderDetails.inventory}
+            x{orderDetails.quantity}
           </div>
           <Image
             alt="Vechile"
@@ -80,14 +77,14 @@ const OrderCard = ({ orderDetails }: { orderDetails: OrderDetailProps }) => {
             height={100}
             className="size-12 object-cover"
             src={
-              orderDetails.vehicle === "car"
+              orderDetails.type === "car"
                 ? "/images/vehicle/car.png"
-                : orderDetails.vehicle === "bike"
+                : orderDetails.type === "bike"
                   ? "/images/vehicle/bike.png"
                   : "/images/vehicle/bicycle.png"
             }
           />
-          <span className="text-xs capitalize">{orderDetails.vehicle}</span>
+          <span className="text-xs capitalize">{orderDetails.type}</span>
         </div>
       </div>
       <div className="flex items-center justify-between pt-4">
@@ -101,7 +98,7 @@ const OrderCard = ({ orderDetails }: { orderDetails: OrderDetailProps }) => {
           <Button variant={"outline"} size="sm">
             Report issue
           </Button>
-          <Link href={`/vendor/${orderDetails.slug}`}>
+          <Link href={`/vendor/${orderDetails.vendorSlug!}`}>
             <Button variant={"destructive"} size="sm">
               Order again
             </Button>

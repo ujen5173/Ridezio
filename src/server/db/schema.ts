@@ -201,12 +201,6 @@ export const vehicles = createTable(
         }[]
       >()
       .default(sql`'{}'::jsonb[]`),
-    unavailabilityDates: timestamp("unavailability_dates", {
-      mode: "date",
-    })
-      .array()
-      .notNull()
-      .default(sql`'{}'::timestamp[]`),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },

@@ -93,10 +93,12 @@ const LocationDetails = () => {
                 <Input
                   placeholder="27.7103"
                   {...field}
+                  onChange={(e) =>
+                    form.setValue("location.lat", Number(e.target.value))
+                  }
                   value={field.value}
                   id="lat"
                 />
-
                 <Button
                   className="absolute right-2 top-1/2 -translate-y-1/2"
                   variant={"outline"}
@@ -129,6 +131,9 @@ const LocationDetails = () => {
                 <Input
                   placeholder="85.3222"
                   {...field}
+                  onChange={(e) =>
+                    form.setValue("location.lng", Number(e.target.value))
+                  }
                   value={field.value}
                   id="lng"
                 />
@@ -137,10 +142,19 @@ const LocationDetails = () => {
                   variant={"outline"}
                   size={"sm"}
                   onClick={() => {
-                    navigator.geolocation.getCurrentPosition((position) => {
-                      form.setValue("location.lat", position.coords.latitude);
-                      form.setValue("location.lng", position.coords.longitude);
-                    });
+                    navigator.geolocation.getCurrentPosition(
+                      (position) => {
+                        form.setValue("location.lat", position.coords.latitude);
+                        form.setValue(
+                          "location.lng",
+                          position.coords.longitude,
+                        );
+                      },
+                      undefined,
+                      {
+                        enableHighAccuracy: true,
+                      },
+                    );
                   }}
                 >
                   Auto Detect

@@ -258,56 +258,65 @@ const Wrapper = ({
                                       No category found.
                                     </CommandEmpty>
                                     <CommandGroup>
-                                      {Object.entries(VEHICLE_CATEGORY).map(
-                                        ([type, categories], typeIndex) => (
-                                          <div key={type}>
-                                            <CommandItem
-                                              className="px-2 py-1.5 font-semibold uppercase text-slate-950"
-                                              disabled
-                                            >
-                                              {type}
-                                            </CommandItem>
-                                            {categories.map((category) => (
+                                      {Object.entries(VEHICLE_CATEGORY)
+                                        .filter((e) => {
+                                          if (allowedVehicles.length > 0) {
+                                            return allowedVehicles.includes(
+                                              e[0] as (typeof vehicleTypeEnum.enumValues)[number],
+                                            );
+                                          }
+                                          return true;
+                                        })
+                                        .map(
+                                          ([type, categories], typeIndex) => (
+                                            <div key={type}>
                                               <CommandItem
-                                                key={category}
-                                                value={category}
-                                                onSelect={() => {
-                                                  form.setValue(
-                                                    field.name,
-                                                    category,
-                                                  );
-                                                  form.setValue(
-                                                    "type",
-                                                    (category.includes(
-                                                      "Electric",
-                                                    )
-                                                      ? `e-${type}`
-                                                      : type) as (typeof vehicleTypeEnum.enumValues)[number],
-                                                  );
-                                                  setOpen(false);
-                                                }}
-                                                className="pl-4"
+                                                className="px-2 py-1.5 font-semibold uppercase text-slate-950"
+                                                disabled
                                               >
-                                                {category}
-                                                <Check
-                                                  className={cn(
-                                                    "ml-auto h-4 w-4",
-                                                    field.value === category
-                                                      ? "opacity-100"
-                                                      : "opacity-0",
-                                                  )}
-                                                />
+                                                {type}
                                               </CommandItem>
-                                            ))}
-                                            {typeIndex !==
-                                              Object.entries(VEHICLE_CATEGORY)
-                                                .length -
-                                                1 && (
-                                              <Separator className="my-1" />
-                                            )}
-                                          </div>
-                                        ),
-                                      )}
+                                              {categories.map((category) => (
+                                                <CommandItem
+                                                  key={category}
+                                                  value={category}
+                                                  onSelect={() => {
+                                                    form.setValue(
+                                                      field.name,
+                                                      category,
+                                                    );
+                                                    form.setValue(
+                                                      "type",
+                                                      (category.includes(
+                                                        "Electric",
+                                                      )
+                                                        ? `e-${type}`
+                                                        : type) as (typeof vehicleTypeEnum.enumValues)[number],
+                                                    );
+                                                    setOpen(false);
+                                                  }}
+                                                  className="pl-4"
+                                                >
+                                                  {category}
+                                                  <Check
+                                                    className={cn(
+                                                      "ml-auto h-4 w-4",
+                                                      field.value === category
+                                                        ? "opacity-100"
+                                                        : "opacity-0",
+                                                    )}
+                                                  />
+                                                </CommandItem>
+                                              ))}
+                                              {typeIndex !==
+                                                Object.entries(VEHICLE_CATEGORY)
+                                                  .length -
+                                                  1 && (
+                                                <Separator className="my-1" />
+                                              )}
+                                            </div>
+                                          ),
+                                        )}
                                     </CommandGroup>
                                   </CommandList>
                                 </ScrollArea>

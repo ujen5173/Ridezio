@@ -1,5 +1,5 @@
 import { type inferRouterOutputs, TRPCError } from "@trpc/server";
-import { and, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, not, sql } from "drizzle-orm";
 import slugify from "slugify";
 import { z, ZodError } from "zod";
 import { slugifyDefault } from "~/lib/helpers";
@@ -45,28 +45,6 @@ interface DailyData {
   orders: number;
 }
 
-// Helper function to calculate distance using Haversine formula
-const calculateDistance = (
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-) => {
-  const toRad = (x: number) => (x * Math.PI) / 180;
-  const R = 6371; // Earth's radius in km
-
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
-
 // Advanced input validation schema
 const VendorSearchInputSchema = z.object({
   // Basic location info
@@ -90,32 +68,26 @@ const VendorSearchInputSchema = z.object({
 });
 
 // Haversine distance calculation (both for JS and SQL)
-function calculateHaversineDistance(
+const calculateDistance = (
   lat1: number,
   lon1: number,
   lat2: number,
   lon2: number,
-): number {
-  const R = 6371; // Earth's radius in kilometers
-  const dLat = toRadians(lat2 - lat1);
-  const dLon = toRadians(lon2 - lon1);
+) => {
+  const toRad = (x: number) => (x * Math.PI) / 180;
+  const R = 6371; // Earth's radius in km
 
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRadians(lat1)) *
-      Math.cos(toRadians(lat2)) *
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
-
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
-}
-
-// Convert degrees to radians
-function toRadians(degrees: number): number {
-  return degrees * (Math.PI / 180);
-}
-
+};
 export const businessRouter = createTRPCRouter({
   getStoreName: protectedProcedure.query(async ({ ctx }) => {
     const business = await ctx.db
@@ -152,6 +124,7 @@ export const businessRouter = createTRPCRouter({
         and(
           sql`${businesses.rating} >= 0`,
           sql`${businesses.ratingCount} >= 0`,
+          eq(businesses.status, "active"),
         ),
       )
       .orderBy(sql`(${businesses.rating} * ${businesses.ratingCount}) DESC`)
@@ -430,7 +403,12 @@ export const businessRouter = createTRPCRouter({
       const [result] = await ctx.db
         .select()
         .from(businesses)
-        .where(eq(businesses.slug, input.slug));
+        .where(
+          and(
+            eq(businesses.slug, input.slug),
+            not(eq(businesses.status, "setup-incomplete")),
+          ),
+        );
 
       return result;
     }),
@@ -482,7 +460,12 @@ export const businessRouter = createTRPCRouter({
             images: businesses.images,
           })
           .from(businesses)
-          .where(and(sql`${distanceCalculation} <= ${input.maxDistance}`))
+          .where(
+            and(
+              eq(businesses.status, "active"),
+              sql`${distanceCalculation} <= ${input.maxDistance}`,
+            ),
+          )
           .orderBy(distanceCalculation)
           .limit(input.limit)
           .offset(input.offset);
@@ -519,90 +502,60 @@ export const businessRouter = createTRPCRouter({
     .input(
       z.object({
         query: z.string().optional(),
-        lat: z.number().optional(),
-        lng: z.number().optional(),
-        maxDistance: z.number().default(10), // km
+        bounds: z.object({
+          northEast: z.object({
+            lat: z.number(),
+            lng: z.number(),
+          }),
+          southWest: z.object({
+            lat: z.number(),
+            lng: z.number(),
+          }),
+        }),
         vehicleType: z.enum(vehicleTypeEnum.enumValues).optional(),
         hasAvailableVehicles: z.boolean().default(true),
       }),
     )
     .query(async ({ ctx, input }) => {
+      const { northEast, southWest } = input.bounds;
+
       const shops = await ctx.db
         .select({
           id: businesses.id,
           name: businesses.name,
-          location: businesses.location,
+          slug: businesses.slug,
           rating: businesses.rating,
-          ratingCount: businesses.ratingCount,
-          logo: businesses.logo,
-          availableVehicles: sql<number>`(
-            SELECT COUNT(*)::integer 
-            FROM VehicleRental_vehicle v 
-            WHERE v.business_id = ${businesses.id} 
-            AND v.is_available = true
-            ${input.vehicleType ? sql`AND v.type = ${input.vehicleType}` : sql``}
-          )`,
+          location: businesses.location,
+          availableVehiclesTypes: businesses.availableVehicleTypes,
+          satisfiedCustomers: businesses.satisfiedCustomers,
+          images: businesses.images,
         })
         .from(businesses)
         .where(
           and(
+            eq(businesses.status, "active"),
             input.query
               ? ilike(businesses.name, `%${input.query}%`)
-              : undefined,
-            input.hasAvailableVehicles
-              ? sql`EXISTS (
-                  SELECT 1 
-                  FROM VehicleRental_vehicle v 
-                  WHERE v.business_id = ${businesses.id} 
-                  AND v.is_available = true
-                  ${input.vehicleType ? sql`AND v.type = ${input.vehicleType}` : sql``}
-                )`
               : undefined,
           ),
         );
 
-      // Filter by distance if coordinates provided
-      if (input.lat && input.lng) {
-        return shops
-          .filter((shop) => {
-            const shopLocation = shop.location as {
-              lat: number;
-              lng: number;
-            };
-            const distance = calculateDistance(
-              input.lat!,
-              input.lng!,
-              shopLocation.lat,
-              shopLocation.lng,
-            );
-            return distance <= input.maxDistance;
-          })
-          .sort((a, b) => {
-            const aLocation = a.location as {
-              lat: number;
-              lng: number;
-            };
-            const bLocation = b.location as {
-              lat: number;
-              lng: number;
-            };
-            const distanceA = calculateDistance(
-              input.lat!,
-              input.lng!,
-              aLocation.lat,
-              aLocation.lng,
-            );
-            const distanceB = calculateDistance(
-              input.lat!,
-              input.lng!,
-              bLocation.lat,
-              bLocation.lng,
-            );
-            return distanceA - distanceB;
-          });
-      }
+      return shops.filter((shop) => {
+        const shopLocation = shop.location as {
+          lat?: number;
+          lng?: number;
+        };
 
-      return shops;
+        if (shopLocation.lat === undefined || shopLocation.lng === undefined)
+          return false;
+
+        return (
+          shopLocation.lat <= northEast.lat &&
+          shopLocation.lat >= southWest.lat &&
+          shopLocation.lng <= northEast.lng &&
+          shopLocation.lng >= southWest.lng
+        );
+      });
     }),
 
   getMultiple: publicProcedure
@@ -615,7 +568,12 @@ export const businessRouter = createTRPCRouter({
       return await ctx.db
         .select()
         .from(businesses)
-        .where(sql`${businesses.id} = ANY(${input.ids})`);
+        .where(
+          and(
+            sql`${businesses.id} = ANY(${input.ids})`,
+            eq(businesses.status, "active"),
+          ),
+        );
     }),
 
   // Get all shops with infinite query
@@ -635,16 +593,14 @@ export const businessRouter = createTRPCRouter({
           rating: businesses.rating,
           ratingCount: businesses.ratingCount,
           logo: businesses.logo,
-          availableVehicles: sql<number>`(
-            SELECT COUNT(*)::integer 
-            FROM VehicleRental_vehicle v 
-            WHERE v.business_id = ${businesses.id} 
-            AND v.is_available = true
-          )`,
+          availableVehicles: businesses.availableVehicleTypes,
         })
         .from(businesses)
         .where(
-          input.cursor ? sql`${businesses.id} > ${input.cursor}` : undefined,
+          and(
+            input.cursor ? sql`${businesses.id} > ${input.cursor}` : undefined,
+            eq(businesses.status, "active"),
+          ),
         )
         .orderBy(desc(businesses.id))
         .limit(input.limit + 1);
@@ -727,23 +683,30 @@ export const businessRouter = createTRPCRouter({
   update: protectedProcedure
     .input(
       z.object({
-        name: z.string().nullable(),
+        name: z
+          .string()
+          .min(2, {
+            message: "Business name must be at least 2 characters",
+          })
+          .max(50)
+          .nullable(),
         location: z.object({
-          map: z.string().url().optional(),
-          lat: z.number().optional(),
-          lng: z.number().optional(),
-          address: z.string().min(2).optional(),
-          city: z.string().min(2).optional(),
+          map: z.string().url(),
+          lat: z.number().min(1, { message: "Enter your business latitude" }),
+          lng: z.number().min(1, { message: "Enter your business longitude" }),
+          address: z
+            .string()
+            .min(2, { message: "Add Address of you business" })
+            .max(50),
+          city: z.string().min(2, { message: "Enter City name" }).max(50),
         }),
-        faqs: z.array(
-          z.object({
-            id: z.string(),
-            question: z.string(),
-            answer: z.string(),
-            order: z.number(),
-          }),
+        sellGears: z.boolean().default(false),
+        phoneNumbers: z.array(
+          z
+            .string()
+            .min(9, { message: "Enter a valid Number" })
+            .max(15, { message: "Enter a valid Number" }),
         ),
-        phoneNumbers: z.array(z.string().min(10).max(15)).default([]),
         businessHours: z.record(
           z.string().min(2).max(50),
           z
@@ -755,8 +718,16 @@ export const businessRouter = createTRPCRouter({
         ),
         availableVehicleTypes: z
           .array(z.enum(vehicleTypeEnum.enumValues))
-          .default([]),
+          .nonempty(),
         logo: z.string().url().nullable(),
+        faqs: z.array(
+          z.object({
+            id: z.string(),
+            question: z.string(),
+            answer: z.string(),
+            order: z.number(),
+          }),
+        ),
         images: z.array(z.string().url()),
       }),
     )
@@ -847,8 +818,6 @@ export const businessRouter = createTRPCRouter({
         .from(businesses)
         .where(eq(businesses.id, input.businessId));
 
-      console.log({ vehicleTypes });
-
       if (!vehicleTypes) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -865,7 +834,6 @@ export const businessRouter = createTRPCRouter({
           category: vehicles.category,
           basePrice: vehicles.basePrice,
           inventory: vehicles.inventory,
-          unavailabilityDates: vehicles.unavailabilityDates,
         })
         .from(vehicles)
         .where(eq(vehicles.businessId, input.businessId));
@@ -980,3 +948,4 @@ export type GetBookingsType =
 export type GetOrdersType = inferRouterOutputs<BusinessRouter>["getOrders"];
 export type GetPopularShops =
   inferRouterOutputs<BusinessRouter>["getPopularShops"];
+export type GetSearchedShops = inferRouterOutputs<BusinessRouter>["search"];

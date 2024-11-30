@@ -86,7 +86,7 @@ const BusinessHours = () => {
   return (
     <FormField
       control={form.control}
-      name="name"
+      name="businessHours"
       render={() => (
         <FormItem>
           <FormLabel>Working Days and time</FormLabel>

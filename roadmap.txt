@@ -31,17 +31,19 @@
 ✅ - email system
 ✅ - posthog
 ✅ - shops around
-   - search
-   - orders will only be accessed by user
+✅ - search
+✅ - mistake in rental logic
+✅ - orders will only be accessed by user
+🟢 - change location api [IDEA DROPED]
+⚠️ - fix the fucking huge chunk of re-renders in the setup vendor paged
+   - search based on vehicle name.
    - search header in all pages except the home page
    - order in the images of the vendor page
-   - fix the fucking huge chunk of re-renders in the setup vendor paged
    - authentication error handling
-   - change location api
    - handle upload errors in uploadthing.
    
    - offline/onsite payment
-   - socials of the vendor
+   - socials of the vendor (just instagram)
    - draft data in updating settings.
    - draft saving for bookings.
    - store views

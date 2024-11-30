@@ -1,8 +1,14 @@
-import { TRPCError } from "@trpc/server";
+import { type inferRouterOutputs, TRPCError } from "@trpc/server";
 import { and, desc, eq, getTableColumns } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~/server/db";
-import { businesses, favourite, users } from "~/server/db/schema";
+import {
+  businesses,
+  favourite,
+  rentals,
+  users,
+  vehicles,
+} from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const userRouter = createTRPCRouter({
@@ -36,6 +42,47 @@ export const userRouter = createTRPCRouter({
       }
       return true;
     }),
+
+  favourite: protectedProcedure
+    .input(
+      z.object({
+        vendor: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.db.query.favourite.findFirst({
+        where: and(
+          eq(favourite.userId, ctx.session.user.id),
+          eq(favourite.businessId, input.vendor),
+        ),
+      });
+
+      return !!result;
+    }),
+
+  getUserOrders: protectedProcedure.query(async ({ ctx }) => {
+    const result = await ctx.db
+      .select({
+        id: rentals.id,
+        vendorName: getTableColumns(businesses).name,
+        vendorSlug: getTableColumns(businesses).slug,
+        status: rentals.status,
+        location: getTableColumns(businesses).location,
+        quantity: rentals.quantity,
+        bookedOn: rentals.createdAt,
+        startDate: rentals.rentalStart,
+        endDate: rentals.rentalEnd,
+        totalPrice: rentals.totalPrice,
+        type: getTableColumns(vehicles).type,
+        vehicleName: getTableColumns(vehicles).name,
+      })
+      .from(rentals)
+      .leftJoin(businesses, eq(businesses.id, rentals.businessId))
+      .leftJoin(vehicles, eq(vehicles.id, rentals.vehicleId))
+      .where(eq(rentals.userId, ctx.session.user.id));
+
+    return result;
+  }),
 
   getFavourite: protectedProcedure.query(async ({ ctx }) => {
     const result = await ctx.db
@@ -134,3 +181,6 @@ export const userRouter = createTRPCRouter({
     }
   }),
 });
+export type UserRouter = typeof userRouter;
+
+export type GetUserOrdersType = inferRouterOutputs<UserRouter>["getUserOrders"];

@@ -1,6 +1,13 @@
 "use client";
 
-import { Dot, Globe, MessageCircle, Phone, Star, Store } from "lucide-react";
+import {
+  Dot,
+  Instagram,
+  MessageCircle,
+  Phone,
+  Star,
+  Store,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useContext, useLayoutEffect, useState } from "react";
@@ -22,7 +29,7 @@ import FavroiteButton from "./FavroiteButton";
 import { VendorContext } from "./VendorWrapper";
 
 const VendorDetails = () => {
-  const { open, setOpen, vendor } = useContext(VendorContext);
+  const { setOpen, vendor } = useContext(VendorContext);
 
   const [api, setApi] = useState<CarouselApi>();
 
@@ -169,7 +176,11 @@ const VendorDetails = () => {
 
           <div className="flex flex-1 flex-col">
             <div className="mb-2 flex items-center">
-              <Link href="/" className="block">
+              <Link
+                href={vendor.location.map!}
+                target="_blank"
+                className="block"
+              >
                 <h6 className="text-sm font-medium uppercase text-green-600 underline">
                   {vendor.location.address}
                 </h6>
@@ -195,11 +206,15 @@ const VendorDetails = () => {
                   <Phone size={16} className="text-foreground" />
                   <span className="text-sm">{vendor.phoneNumbers[0]}</span>
                 </div>
-                <Dot size={16} />
-                <div className="flex items-center gap-1">
-                  <Globe size={16} className="text-foreground" />
-                  <span className="text-sm">Website</span>
-                </div>
+                {vendor.socials.instagram && (
+                  <>
+                    <Dot size={16} />
+                    <div className="flex items-center gap-1">
+                      <Instagram size={16} className="text-foreground" />
+                      <span className="text-sm">Instagram</span>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="mb-4">

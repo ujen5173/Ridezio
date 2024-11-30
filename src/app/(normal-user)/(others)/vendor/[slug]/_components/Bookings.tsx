@@ -4,11 +4,11 @@
 
 import { differenceInDays, format } from "date-fns";
 import { CalendarDays, Clipboard, Minus, Plus, X } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useMemo, useState } from "react";
 import { type DateRange } from "react-day-picker";
-import { useUser } from "~/app/_components/contexts/root";
 import { inter } from "~/app/utils/font";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
@@ -67,7 +67,7 @@ const Bookings: React.FC<BookingsProps> = ({
   const category = searchParams.get("category") ?? "";
   const vehicle = searchParams.get("vehicle") ?? "";
 
-  const { user } = useUser();
+  const { data: user } = useSession();
 
   const [selectedVehicleType, setSelectedVehicleType] = useState<string>(
     Object.keys(bookingsDetails.vehicleTypes)[0]!,
@@ -245,10 +245,12 @@ const Bookings: React.FC<BookingsProps> = ({
       startDate,
       totalPrice: getSelectedVehiclePrice(),
       endDate,
-      inventory: quantity,
+      quantity: quantity,
       paymentScreenshot: uploadedFile?.[0]?.url,
       note: message,
     };
+
+    console.log({ booking });
 
     await mutateAsync(booking);
 
@@ -308,6 +310,20 @@ const Bookings: React.FC<BookingsProps> = ({
 
             <ScrollArea className="flex-1 pr-2">
               <div className="space-y-4 py-2">
+                {!user && (
+                  <Alert
+                    className="border-red-300 bg-red-100"
+                    variant="default"
+                  >
+                    <AlertTitle className="text-red-600">
+                      Sign in to continue
+                    </AlertTitle>
+                    <AlertDescription className="text-red-600">
+                      You need to sign in to continue booking a vehicle. Please
+                      sign in to continue.
+                    </AlertDescription>
+                  </Alert>
+                )}
                 {/* Vehicle Type Selection */}
                 <div className="mb-8 space-y-2 px-1">
                   <Label>Vehicle Type</Label>
@@ -564,7 +580,7 @@ const Bookings: React.FC<BookingsProps> = ({
             <div className="flex w-full items-center justify-between gap-4">
               <div className="flex flex-wrap gap-1 text-lg font-semibold">
                 <span className="text-nowrap">
-                  Total: ${getSelectedVehiclePrice()}
+                  Total: रु.{getSelectedVehiclePrice()}/-
                 </span>
 
                 {date?.from && date?.to && (
@@ -580,7 +596,7 @@ const Bookings: React.FC<BookingsProps> = ({
                 <Button
                   variant="primary"
                   onClick={handleCheckout}
-                  disabled={isCheckoutDisabled}
+                  disabled={isCheckoutDisabled || !user}
                 >
                   {isCheckoutDisabled && getMaxAllowedQuantity() === 0
                     ? "No Availability"
@@ -590,119 +606,121 @@ const Bookings: React.FC<BookingsProps> = ({
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center gap-6 p-4">
-            <div className="flex w-full flex-col items-center gap-4">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold">Booking Summary</h3>
+          <ScrollArea className="flex-1 pr-2">
+            <div className="flex flex-col items-center gap-6 p-4">
+              <div className="flex w-full flex-col items-center gap-4">
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold">Booking Summary</h3>
+                </div>
+
+                <div className="w-full space-y-2 rounded-md border p-4 shadow-sm">
+                  <div className="flex justify-between">
+                    <span>Vehicle:</span>
+                    <span className="font-semibold">{selectedModel}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Dates:</span>
+                    <span className="font-medium">
+                      {date?.from && date?.to
+                        ? `${format(date.from, "MMM dd")} - ${format(date.to, "MMM dd, yyyy")}`
+                        : ""}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Quantity:</span>
+                    <span className="font-medium">{quantity}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Total Amount:</span>
+                    <span className="font-semibold">
+                      रु.{getSelectedVehiclePrice()} /-
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div className="w-full space-y-2 rounded-md border p-4 shadow-sm">
-                <div className="flex justify-between">
-                  <span>Vehicle:</span>
-                  <span className="font-semibold">{selectedModel}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Dates:</span>
-                  <span className="font-medium">
-                    {date?.from && date?.to
-                      ? `${format(date.from, "MMM dd")} - ${format(date.to, "MMM dd, yyyy")}`
-                      : ""}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Quantity:</span>
-                  <span className="font-medium">{quantity}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Total Amount:</span>
-                  <span className="font-semibold">
-                    रु.{getSelectedVehiclePrice()} /-
-                  </span>
-                </div>
+              <div className="relative h-48 w-48">
+                <Image
+                  src="/images/qr.png"
+                  alt="Payment QR Code"
+                  fill
+                  className="rounded-lg object-contain"
+                  priority
+                />
               </div>
-            </div>
 
-            <div className="relative h-48 w-48">
-              <Image
-                src="/images/qr.png"
-                alt="Payment QR Code"
-                fill
-                className="rounded-lg object-contain"
-                priority
-              />
-            </div>
-
-            <div className="w-full space-y-4">
-              <div className="flex gap-2 rounded-md border border-border px-4 py-2 shadow-sm">
-                <div className="flex flex-1 items-center">
-                  <p className="text-base font-medium text-slate-600">
-                    {paymentMethod}: {paymentId}
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    void navigator.clipboard.writeText(paymentId);
-                    toast({
-                      title: "Payment ID Copied",
-                      description: "Payment ID copied to clipboard",
-                    });
-                  }}
-                  size={"sm"}
-                  variant={"outline"}
-                >
-                  <Clipboard size={15} className="mr-1 text-slate-700" />
-                  Copy to clipboard
-                </Button>
-              </div>
-              <div className="space-y-2">
-                <Label>Upload Payment Screenshot</Label>
-                <div className="relative">
-                  <Input
-                    max="1"
-                    pattern="image/*"
-                    id="picture"
-                    onChange={(e) => {
-                      const files = e.target.files;
-                      if (files) {
-                        void uploadFiles(Array.from(files));
-                      }
+              <div className="w-full space-y-4">
+                <div className="flex gap-2 rounded-md border border-border px-4 py-2 shadow-sm">
+                  <div className="flex flex-1 items-center">
+                    <p className="text-base font-medium text-slate-600">
+                      {paymentMethod}: {paymentId}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      void navigator.clipboard.writeText(paymentId);
+                      toast({
+                        title: "Payment ID Copied",
+                        description: "Payment ID copied to clipboard",
+                      });
                     }}
-                    type="file"
-                    className="leading-[2.5!important]"
-                  />
-                  {isUploading && (
-                    <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-white">
-                      <span className="text-xs text-secondary">{`Uploading... ${progresses}%`}</span>
-                    </div>
-                  )}
+                    size={"sm"}
+                    variant={"outline"}
+                  >
+                    <Clipboard size={15} className="mr-1 text-slate-700" />
+                    Copy to clipboard
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  <Label>Upload Payment Screenshot</Label>
+                  <div className="relative">
+                    <Input
+                      max="1"
+                      pattern="image/*"
+                      id="picture"
+                      onChange={(e) => {
+                        const files = e.target.files;
+                        if (files) {
+                          void uploadFiles(Array.from(files));
+                        }
+                      }}
+                      type="file"
+                      className="leading-[2.5!important]"
+                    />
+                    {isUploading && (
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-white">
+                        <span className="text-xs text-secondary">{`Uploading... ${progresses}%`}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-4">
+                  <Button
+                    disabled={isUploading}
+                    variant="outline"
+                    onClick={() => setShowQR(false)}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    variant="primary"
+                    disabled={isUploading || status === "pending"}
+                    onClick={async () => {
+                      await handleConfirmBooking();
+                    }}
+                  >
+                    {isUploading
+                      ? "Uploading File..."
+                      : status === "pending"
+                        ? "Confirming Booking..."
+                        : "Confirm Booking"}
+                  </Button>
                 </div>
               </div>
-
-              <div className="flex justify-end gap-4">
-                <Button
-                  disabled={isUploading}
-                  variant="outline"
-                  onClick={() => setShowQR(false)}
-                >
-                  Back
-                </Button>
-                <Button
-                  variant="primary"
-                  disabled={isUploading || status === "pending"}
-                  onClick={async () => {
-                    await handleConfirmBooking();
-                  }}
-                >
-                  {isUploading
-                    ? "Uploading File..."
-                    : status === "pending"
-                      ? "Confirming Booking..."
-                      : "Confirm Booking"}
-                </Button>
-              </div>
             </div>
-          </div>
+          </ScrollArea>
         )}
       </DialogContent>
     </Dialog>

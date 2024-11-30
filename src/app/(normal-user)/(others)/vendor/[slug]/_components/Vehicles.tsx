@@ -1,20 +1,28 @@
 "use client";
 
-import { ListFilter, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useContext } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { Button } from "~/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { Skeleton } from "~/components/ui/skeleton";
-import { vendorDetail } from "~/lib/data";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import { VendorContext } from "./VendorWrapper";
 
 const Vehicles = () => {
   const { slug } = useParams();
+  const { setOpen } = useContext(VendorContext);
+
   const { data: vehicles, isLoading } =
     api.vehicle.getBusinessVehicles.useQuery(
       {
@@ -25,7 +33,6 @@ const Vehicles = () => {
         enabled: !!slug,
       },
     );
-  const { setOpen } = useContext(VendorContext);
 
   return (
     <section>
@@ -34,10 +41,20 @@ const Vehicles = () => {
           <h1 className={cn("text-2xl font-bold xs:text-3xl")}>
             Pick Your Ride
           </h1>
-          <Button variant={"outline"} className="hover:bg-slate-50">
-            <ListFilter size={16} className="mr-2" />
-            <span>Filter</span>
-          </Button>
+          <Select>
+            <SelectTrigger className="w-[180px] bg-white">
+              <SelectValue placeholder="Select Vehicle Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="bike">Bike</SelectItem>
+                <SelectItem value="bicycle">Bicycle</SelectItem>
+                <SelectItem value="car">Car</SelectItem>
+                <SelectItem value="scooter">Scooter</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
 
         <section
@@ -69,41 +86,39 @@ const Vehicles = () => {
                 }}
                 className="flex flex-col gap-2"
               >
-                <div className="relative mb-2 flex items-center justify-center">
-                  <Image
-                    alt={`${vehicle.name}`}
-                    width={450}
-                    height={450}
-                    layout="fixed"
-                    className="h-60 w-auto max-w-full rounded-md object-cover mix-blend-multiply"
-                    src={vehicle.images[0]!}
-                  />
+                <div className="relative mb-2 flex aspect-video items-center justify-center">
+                  <div className="aspect-video h-[80%] w-auto">
+                    <Image
+                      alt={`${vehicle.name}`}
+                      width={850}
+                      height={850}
+                      layout="fixed"
+                      className="m-auto h-full w-auto rounded-md object-cover mix-blend-multiply"
+                      src={vehicle.images[0]!}
+                    />
+                  </div>
                 </div>
                 <div className="">
                   <h3 className="mb-4 line-clamp-1 text-xl font-semibold">
                     {vehicle.name}
                   </h3>
-                  <div className="mb-2 flex items-center gap-1">
-                    <Star
-                      size={20}
-                      className="fill-yellow-500 stroke-yellow-500"
-                    />
-                    <span>
-                      <span className="text-lg font-medium">
-                        {vendorDetail.rating} ({vendorDetail.ratingCount})
-                      </span>
-                    </span>
-                  </div>
-
                   <div>
                     <p className="text-base font-medium uppercase">
                       Starting at
                     </p>
 
-                    <h2 className="text-2xl font-semibold text-slate-700">
+                    <h2 className="mb-4 text-2xl font-bold text-secondary">
                       रु {vehicle.basePrice}{" "}
                       <span className="text-base font-normal">/day</span>
                     </h2>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" className="flex-1" variant={"outline"}>
+                        View Details
+                      </Button>
+                      <Button size="sm" className="flex-1" variant={"primary"}>
+                        Rent Now
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </Link>

@@ -21,9 +21,14 @@ type Props = {
 
 const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
   return (
-    <div className={bricolage.className}>
+    <div className={cn(bricolage.className, "relative z-10")}>
       <div className="relative">
-        <Carousel className="w-full">
+        <Carousel
+          opts={{
+            dragFree: false,
+          }}
+          className="w-full"
+        >
           <CarouselPrevious />
           <CarouselNext />
           <CarouselContent>

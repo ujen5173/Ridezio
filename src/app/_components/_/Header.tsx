@@ -37,7 +37,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
   return (
     <header
       className={cn(
-        "left-0 top-0 z-[40] w-full border-b",
+        "left-0 top-0 z-[45] w-full border-b",
         pth === "/search" ? "fixed" : "absolute",
         pth === "/" ? "border-transparent" : "border-border bg-white shadow-sm",
       )}
@@ -47,16 +47,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
           "mx-auto flex h-16 max-w-[1440px] items-stretch justify-between gap-6 px-4 md:border-none",
         )}
       >
-        <div className="flex h-auto flex-1 items-center space-x-6 py-2 md:py-4">
-          <Logo
-            tw={cn(
-              "h-6",
-              pth === "/" ? "fill-secondary md:fill-white" : "fill-secondary",
-            )}
-          />
-        </div>
-
-        <div className="flex flex-1 items-center justify-end">
+        <div className="flex h-auto flex-1 items-center space-x-0 py-2 md:py-4">
           <div className="flex items-center gap-2 py-2 md:hidden md:py-4">
             <Sheet>
               <SheetTrigger
@@ -148,24 +139,22 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                       </Link>
                     </li>
                   </ul>
-
-                  <div className="space-y-2">
-                    <LoginButton>
-                      <Button
-                        className="w-full text-sm uppercase"
-                        variant={"secondary"}
-                      >
-                        Login / Sign up
-                      </Button>
-                    </LoginButton>
-                  </div>
                 </div>
               </SheetContent>
             </Sheet>
           </div>
 
-          <div className="hidden items-center md:flex">
-            <div className="flex items-center gap-4 px-4">
+          <Logo
+            tw={cn(
+              "h-6",
+              pth === "/" ? "fill-secondary md:fill-white" : "fill-secondary",
+            )}
+          />
+        </div>
+
+        <div className="flex flex-1 items-center justify-end">
+          <div className="flex items-center">
+            <div className="flex items-center gap-4">
               {data ? (
                 <div className="flex items-center gap-4">
                   <Button
@@ -247,27 +236,36 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                 </div>
               ) : (
                 <>
-                  <LoginButton>
-                    <Button
-                      variant={"link"}
-                      className={cn(
-                        pth === "/" ? "text-slate-100" : "text-slate-700",
-                      )}
-                    >
-                      Login / Sign up
-                    </Button>
-                  </LoginButton>
-                  <LoginButton>
-                    <Button
-                      variant={pth === "/" ? "outline-primary" : "primary"}
-                      className={cn(
-                        "font-semibold uppercase",
-                        pth === "/" && "text-slate-100",
-                      )}
-                    >
-                      Start Renting
-                    </Button>
-                  </LoginButton>
+                  <div className="flex items-center justify-end md:hidden">
+                    <LoginButton>
+                      <Button variant={"outline"} size="sm">
+                        Login / Sign up
+                      </Button>
+                    </LoginButton>
+                  </div>
+                  <div className="hidden items-center gap-2 md:flex">
+                    <LoginButton>
+                      <Button
+                        variant={"link"}
+                        className={cn(
+                          pth === "/" ? "text-slate-100" : "text-slate-700",
+                        )}
+                      >
+                        Login / Sign up
+                      </Button>
+                    </LoginButton>
+                    <LoginButton>
+                      <Button
+                        variant={pth === "/" ? "outline-primary" : "primary"}
+                        className={cn(
+                          "font-semibold uppercase",
+                          pth === "/" && "text-slate-100",
+                        )}
+                      >
+                        Start Renting
+                      </Button>
+                    </LoginButton>
+                  </div>
                 </>
               )}
             </div>

@@ -1,4 +1,4 @@
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { redirect } from "next/navigation";
 import { lato } from "~/app/utils/font";
 import { cn } from "~/lib/utils";
@@ -42,7 +42,19 @@ const Dashboard = async () => {
                   </h1>
                 </div>
               </div>
-              <div className="hover: relative rounded-xl border border-slate-200 p-4 hover:shadow-md">
+              <div className="relative rounded-xl border border-slate-200 p-4">
+                <div className="absolute inset-0 z-10 bg-white/10 backdrop-blur-[0.8px]"></div>
+                <div className="absolute right-2 top-2 z-10">
+                  <span
+                    className={cn(
+                      "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors duration-200",
+                      "border border-input bg-background shadow-sm",
+                      "h-8 cursor-default rounded-md px-3 text-xs",
+                    )}
+                  >
+                    Upcoming Feature
+                  </span>
+                </div>
                 <p className="mb-2 text-base font-medium text-slate-500">
                   Store Views
                 </p>
@@ -52,15 +64,15 @@ const Dashboard = async () => {
                     lato.className,
                   )}
                 >
-                  50k -
+                  51k -
                 </h1>
-                <div className="relative z-30 flex items-center gap-2 text-sm font-medium text-slate-500">
-                  <TrendingDown size={16} className="text-red-600" />
+                <div className="relative z-[9] flex items-center gap-2 text-sm font-medium text-slate-500">
+                  <TrendingUp size={16} className="text-green-600" />
                   <span>12% from last month</span>
                 </div>
                 <div className="chart-container absolute bottom-4 right-0 w-1/2 min-w-36">
-                  <div className="chart-blur-bottom absolute bottom-0 z-20 h-6 w-full"></div>
-                  <div className="chart-blur-right absolute right-2 z-20 h-12 w-6"></div>
+                  <div className="chart-blur-bottom absolute bottom-0 z-[5] h-6 w-full"></div>
+                  <div className="chart-blur-right absolute right-2 z-[5] h-12 w-6"></div>
                   <Chart
                     chartColor="hsl(var(--color-2))"
                     chartData={[

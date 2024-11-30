@@ -123,7 +123,7 @@ const HeroSection = () => {
                 You
               </Balancer>
             </div>
-            <div className="flex md:hidden">
+            <div className="mb-8 flex md:hidden">
               <Balancer>Rent Any Vehicles Right Now Around You</Balancer>
             </div>
           </h1>
@@ -155,26 +155,41 @@ const HeroSection = () => {
                     onValueChange={setSearchQuery}
                   />
                   <CommandList>
-                    <CommandEmpty>No location found.</CommandEmpty>
+                    <CommandEmpty>
+                      {searchQuery.length < 2
+                        ? "Start typing..."
+                        : "No locations found"}
+                    </CommandEmpty>
                     <CommandGroup heading="Suggestions">
                       {isLoading && (
                         <CommandItem disabled>Loading locations...</CommandItem>
                       )}
-                      {locations?.map((location: Location) => (
-                        <CommandItem
-                          key={location.place_id}
-                          className="w-full"
-                          value={location.display_name}
-                          onSelect={(value) => {
-                            setSelectedLocation(value);
-                            setSearchQuery("");
-                            setOpen(false);
-                          }}
-                        >
-                          <MapPin className="mr-2 h-4 w-4" />
-                          {location.display_name}
-                        </CommandItem>
-                      ))}
+                      {locations !== undefined &&
+                        locations?.length > 0 &&
+                        Array.from(
+                          locations
+                            .reduce((map, item) => {
+                              if (!map.has(item.place_id)) {
+                                map.set(item.place_id, item);
+                              }
+                              return map;
+                            }, new Map())
+                            .values(),
+                        ).map((location: Location) => (
+                          <CommandItem
+                            key={location.place_id}
+                            className="w-full"
+                            value={location.display_name}
+                            onSelect={(value) => {
+                              setSelectedLocation(value);
+                              setSearchQuery("");
+                              setOpen(false);
+                            }}
+                          >
+                            <MapPin className="mr-2 h-4 w-4" />
+                            {location.display_name}
+                          </CommandItem>
+                        ))}
                     </CommandGroup>
                   </CommandList>
                 </Command>

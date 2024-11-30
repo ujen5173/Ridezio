@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect } from "react";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import VendorCardLoading from "~/app/_components/_/VendorCardLoading";
+import { Button } from "~/components/ui/button";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
@@ -18,15 +20,15 @@ const Favourite = () => {
         variant: "destructive",
       });
     }
-  }, []);
+  }, [error]);
 
   return (
     <>
       <HeaderHeight />
-      <section className="min-h-[50vh] w-full">
-        <div className="container mx-auto px-4 py-12">
+      <section className="w-full">
+        <div className="mx-auto h-full max-w-[1440px] px-4 py-12">
           <div className="mb-4">
-            <h1 className={cn("text-4xl font-semibold")}>Favourite</h1>
+            <h1 className={cn("text-4xl font-semibold")}>Favourites</h1>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -45,11 +47,17 @@ const Favourite = () => {
               ))
             )}
           </div>
-          {(data ?? []).length === 0 && (
-            <div className="py-6">
+          {!isLoading && (data ?? []).length === 0 && (
+            <div className="flex h-96 flex-col items-center justify-center gap-4 py-6">
               <p className="text-center text-lg font-semibold text-gray-500 md:text-xl">
-                No Favourite added!
+                Your favourite bucket is empty. <br /> Add some rental shops to
+                your favourite.
               </p>
+              <Link href="/">
+                <Button variant={"secondary"}>
+                  <span>Explore Rentals around you</span>
+                </Button>
+              </Link>
             </div>
           )}
         </div>
