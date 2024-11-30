@@ -1,13 +1,14 @@
 "use client";
 
 import { MapIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import VendorCard from "~/app/_components/_/VendorCard";
 import VendorCardLoading from "~/app/_components/_/VendorCardLoading";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { toast } from "~/hooks/use-toast";
+import useWindowDimensions from "~/hooks/useWindowDimensions";
 import { cn } from "~/lib/utils";
 import { type GetSearchedShops } from "~/server/api/routers/business";
 import { api } from "~/trpc/react";
@@ -21,6 +22,7 @@ export interface MapBounds {
 }
 
 const Search = () => {
+  const { width } = useWindowDimensions();
   const [places, setPlaces] = useState<GetSearchedShops>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [bounds, setBounds] = useState<MapBounds | null>(null);
@@ -45,7 +47,11 @@ const Search = () => {
     },
   );
 
-  console.log({ bounds, searchBusinesses });
+  console.log({ showingArea });
+
+  useEffect(() => {
+    setShowingArea(width < 1024 ? "map" : "both");
+  }, [width]);
 
   // Handle initial data loading and subsequent updates
   useEffect(() => {
@@ -72,7 +78,7 @@ const Search = () => {
   }, [isError]);
 
   // Debounced resize handler with meaningful width change check
-  useEffect(() => {
+  useLayoutEffect(() => {
     let lastWidth = window.innerWidth;
     let timeoutId: NodeJS.Timeout;
 
@@ -104,7 +110,6 @@ const Search = () => {
     };
   }, []);
 
-  // Memoized method to toggle area view
   const toggleAreaView = useCallback(() => {
     setShowingArea((prev) => (prev === "places" ? "map" : "places"));
   }, []);
@@ -139,7 +144,7 @@ const Search = () => {
           >
             <HeaderHeight />
 
-            <div className="mb-2 flex items-center justify-between gap-4 py-4">
+            <div className="flex items-center justify-between gap-4 pb-2 pt-4 sm:mb-2 sm:py-4">
               <span
                 className={cn(
                   "text-lg font-medium text-foreground",
@@ -162,7 +167,7 @@ const Search = () => {
                     <VendorCardLoading />
                     <VendorCardLoading />
                   </>
-                ) : (
+                ) : places.length > 0 ? (
                   places.map((rental) => (
                     <div
                       className={cn("relative", chakra_petch.className)}
@@ -175,6 +180,12 @@ const Search = () => {
                       />
                     </div>
                   ))
+                ) : (
+                  <div className="flex h-[80vh] items-center justify-center">
+                    <span className="text-lg font-medium text-foreground">
+                      Try Searching in a different area
+                    </span>
+                  </div>
                 )}
               </div>
             </ScrollArea>

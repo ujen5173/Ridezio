@@ -33,7 +33,7 @@ const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
           <CarouselNext />
           <CarouselContent>
             {shop.images.map((image, index) => (
-              <CarouselItem key={index} className="relative pt-2">
+              <CarouselItem key={index} className="relative">
                 <Link href={`/vendor/${shop.slug}`}>
                   <Image
                     alt={`${shop.name}'s Images`}
