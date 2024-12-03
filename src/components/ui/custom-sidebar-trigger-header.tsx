@@ -2,10 +2,9 @@
 
 import { format } from "date-fns";
 import { Bell, PanelLeft } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useUser } from "~/app/_components/contexts/root";
 import { Button } from "./button";
 import {
   DropdownMenu,
@@ -18,7 +17,7 @@ import {
 import { useSidebar } from "./sidebar";
 
 const CustomSidebarTriggerHeader = () => {
-  const { user: data } = useUser();
+  const { data } = useSession();
   const { state, toggleSidebar } = useSidebar();
 
   return (

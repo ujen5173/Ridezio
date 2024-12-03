@@ -21,13 +21,38 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "~/components/ui/sheet";
+import useWindowDimensions from "~/hooks/useWindowDimensions";
 import { cn } from "~/lib/utils";
 import Logo from "~/svg/logo";
+import HeaderSearch from "./HeaderSearch";
 import LoginButton from "./LoginButton";
 import SignOut from "./signout";
 
+type Location = {
+  address: {
+    country: string;
+    country_code: string;
+    county: string;
+    state: string;
+    name: string;
+  };
+  boundingBox: Record<number, string>;
+  class: string;
+  display_name: string;
+  display_place: string;
+  lat: string;
+  licence: string;
+  lon: string;
+  osm_id: string;
+  place_id: string;
+  osm_type: string;
+  type: string;
+  display_address: string;
+};
+
 const Header = ({ pth = "/" }: { pth?: string }) => {
   const { data } = useSession();
+  const { width } = useWindowDimensions();
 
   const theme =
     pth === "/"
@@ -152,13 +177,15 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
           />
         </div>
 
+        {pth !== "/" && <HeaderSearch />}
+
         <div className="flex flex-1 items-center justify-end">
           <div className="flex items-center">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               {data ? (
                 <div className="flex items-center gap-4">
                   <Button
-                    variant={"ghost"}
+                    variant={"link"}
                     className={cn(
                       "hidden sm:flex",
                       pth === "/"
@@ -170,7 +197,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                     <Bell
                       size={20}
                       className={cn(
-                        pth === "/" ? "text-slate-100" : "tex-slate-700",
+                        pth === "/" ? "text-slate-100" : "text-slate-600",
                       )}
                     />
                   </Button>

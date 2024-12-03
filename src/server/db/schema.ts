@@ -5,7 +5,6 @@ import {
   index,
   integer,
   json,
-  jsonb,
   pgEnum,
   pgTableCreator,
   primaryKey,
@@ -49,10 +48,12 @@ export const userRoleEnum = pgEnum("user_role", ["USER", "VENDOR"]);
 
 export const paymentStatusEnum = pgEnum("payment_status", [
   "pending",
-  "processing",
-  "completed",
-  "failed",
-  "refunded",
+  "complete",
+  "full_refund",
+  "parial_refund",
+  "ambiguous",
+  "not_found",
+  "canceled",
 ]);
 
 export const users = createTable(
@@ -70,7 +71,6 @@ export const users = createTable(
     deleted: boolean("deleted").default(false),
     phoneNumber: varchar("phone_number", { length: 20 }),
     vendor_setup_complete: boolean("vendor_setup_complete"),
-    stripeCustomerId: varchar("stripe_customer_id", { length: 100 }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -92,8 +92,7 @@ export const businesses = createTable(
       .references(() => users.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 100 }),
     slug: varchar("slug", { length: 100 }),
-    location: jsonb("location")
-      .notNull()
+    location: json("location")
       .$type<{
         city?: string | undefined;
         address?: string | undefined;
@@ -101,11 +100,12 @@ export const businesses = createTable(
         lng?: number | undefined;
         map?: string | undefined;
       }>()
-      .default(sql`'{}'::jsonb`),
+      .notNull()
+      .default(sql`'{}'::json`),
     phoneNumbers: varchar("phone_numbers", { length: 20 })
       .array()
       .notNull()
-      .default(sql`'{}'::varchar[]`),
+      .default([]),
     socials: json("socials")
       .$type<{
         twitter?: string | undefined;
@@ -114,10 +114,10 @@ export const businesses = createTable(
       .notNull()
       .default(sql`'{}'::json`),
     sellGears: boolean("sell_gears").notNull().default(false),
-    businessHours: jsonb("business_hours")
+    businessHours: json("business_hours")
       .$type<Record<string, { open: string; close: string } | null>>()
       .notNull()
-      .default(sql`'{}'::jsonb`),
+      .default(sql`'{}'::json`),
     vehiclesCount: integer("vehicles_count").default(0),
     rating: decimal("rating", { precision: 3, scale: 2 })
       .$type<number>()
@@ -128,12 +128,9 @@ export const businesses = createTable(
     availableVehicleTypes: vehicleTypeEnum("available_vehicle_types")
       .array()
       .notNull()
-      .default(sql`'{}'::vehicle_type[]`),
+      .default([]),
     logo: text("logo"),
-    images: text("shop_images")
-      .array()
-      .notNull()
-      .default(sql`'{}'::text[]`),
+    images: text("shop_images").array().notNull().default([]),
     faqs: json("faqs")
       .array()
       .$type<
@@ -142,7 +139,6 @@ export const businesses = createTable(
       .notNull()
       .default(sql`'{}'::json[]`),
     status: businessStatusEnum("status").notNull().default("setup-incomplete"),
-    stripeAccountId: varchar("stripe_account_id", { length: 100 }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -186,21 +182,19 @@ export const vehicles = createTable(
     slug: varchar("slug", { length: 100 }).notNull(),
     type: vehicleTypeEnum("type").notNull(),
     category: varchar("category", { length: 100 }).notNull(),
-    images: text("images")
-      .array()
-      .notNull()
-      .default(sql`'{}'::text[]`),
+    images: text("images").array().notNull().default([]),
     basePrice: integer("base_price").notNull(),
     inventory: integer("inventory").notNull().default(1),
-    features: jsonb("features")
-      .notNull()
+    features: json("features")
+      .array()
       .$type<
         {
           key: string;
           value: string;
         }[]
       >()
-      .default(sql`'{}'::jsonb[]`),
+      .notNull()
+      .default(sql`'{}'::json[]`),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -231,13 +225,16 @@ export const rentals = createTable(
     quantity: integer("quantity").notNull().default(1),
     phone_number: varchar("phone_number", { length: 20 }),
     status: rentalStatusEnum("status").notNull().default("pending"),
+    paymentStatus: paymentStatusEnum("payment_status")
+      .notNull()
+      .default("pending"),
     paymentMethod: varchar("payment_method", {
       enum: ["online", "onsite"],
     }),
     totalPrice: integer("total_price").notNull(),
     num_of_days: integer("num_of_days").notNull().default(1),
     notes: text("notes"),
-    paymentScreenshot: text("payment_screenshot"),
+    paymentId: text("payment_id"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -260,19 +257,14 @@ export const payments = createTable(
       .notNull()
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    rentalId: varchar("rental_id", { length: 255 })
+    businessesId: varchar("businesses_id", { length: 255 })
       .notNull()
-      .references(() => rentals.id, { onDelete: "cascade" }),
+      .references(() => businesses.id, { onDelete: "cascade" }),
     userId: varchar("user_id", { length: 255 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     amount: integer("amount").notNull(),
-    currency: varchar("currency", { length: 3 }).notNull().default("USD"),
-    status: paymentStatusEnum("status").notNull().default("pending"),
-    stripePaymentIntentId: varchar("stripe_payment_intent_id", { length: 255 }),
-    stripeClientSecret: varchar("stripe_client_secret", { length: 255 }),
-    metadata: jsonb("metadata").default(sql`'{}'::jsonb`),
-    paymentDate: timestamp("payment_date", { withTimezone: true }),
+    status: paymentStatusEnum("status").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .default(sql`CURRENT_TIMESTAMP`),
@@ -282,7 +274,7 @@ export const payments = createTable(
       .$onUpdate(() => new Date()),
   },
   (table) => ({
-    rentalIdx: index("payment_rental_idx").on(table.rentalId),
+    rentalIdx: index("payment_businesses_idx").on(table.businessesId),
     userIdx: index("payment_user_idx").on(table.userId),
     statusIdx: index("payment_status_idx").on(table.status),
   }),
@@ -428,7 +420,7 @@ export const rentalsRelations = relations(rentals, ({ one, many }) => ({
 
 export const paymentsRelations = relations(payments, ({ one }) => ({
   rental: one(rentals, {
-    fields: [payments.rentalId],
+    fields: [payments.businessesId],
     references: [rentals.id],
   }),
   user: one(users, { fields: [payments.userId], references: [users.id] }),

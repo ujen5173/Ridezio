@@ -1,16 +1,25 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ExternalLink } from "lucide-react";
-import { notFound } from "next/navigation";
-import { createContext, useEffect, useState } from "react";
+import { ExternalLink, Loader } from "lucide-react";
+import Link from "next/link";
+import {
+  notFound,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import { createContext, useEffect, useRef, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { Button } from "~/components/ui/button";
+import { Dialog, DialogContent } from "~/components/ui/dialog";
 import { toast } from "~/hooks/use-toast";
 import {
   type GetBookingsType,
   type GetVendorType,
 } from "~/server/api/routers/business";
+import { decodeEsewaSignature } from "~/server/utils/generate-payment-token";
+import { api } from "~/trpc/react";
 import Bookings from "./Bookings";
 import Faqs from "./Faqs";
 import Locations from "./Locations";
@@ -28,13 +37,145 @@ export const VendorContext = createContext<{
   },
 });
 
+type PaymentBase64Data = {
+  status: "COMPLETE" | "PENDING" | "FAILED";
+  transaction_uuid: string;
+};
+
+type RentalBookingData = {
+  vehicleId: string;
+  startDate: Date;
+  endDate: Date;
+  totalPrice: number;
+  quantity: number;
+  paymentId: string;
+  notes: string;
+};
+
 const VendorWrapper = ({
   data,
   bookingsDetails,
 }: {
-  bookingsDetails: GetBookingsType | null;
+  bookingsDetails: GetBookingsType | undefined | null;
   data: GetVendorType;
 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const paymentHash = useSearchParams().get("data");
+  const [loading, setLoading] = useState(false);
+  const { mutateAsync: rentUpdateStatusMutation, isError } =
+    api.rental.rent.useMutation();
+  const hasProcessedPayment = useRef(false);
+
+  const processPayment = async () => {
+    setLoading(true);
+    console.log("PROCESSING PAYMENT AND BOOKING...");
+    console.log({ paymentHash });
+    if (!paymentHash) {
+      return;
+    }
+
+    try {
+      // Decode payment signature
+      const decodedPaymentHash = decodeEsewaSignature(paymentHash);
+      const paymentData = JSON.parse(decodedPaymentHash) as PaymentBase64Data;
+
+      // Validate payment status
+      if (paymentData.status !== "COMPLETE") {
+        toast({
+          variant: "destructive",
+          title: "Payment Error",
+          description: "Payment initiation failed. Please try again.",
+        });
+        return false;
+      }
+
+      // Retrieve local storage booking data
+      const localStorageObject = localStorage.getItem("rental");
+      if (!localStorageObject) {
+        return false;
+      }
+
+      // Parse local storage data
+      const parsedData = JSON.parse(localStorageObject) as RentalBookingData;
+      console.log({ paymentData, localStorageObject, parsedData });
+
+      // Validate transaction
+      if (parsedData.paymentId !== paymentData.transaction_uuid) {
+        toast({
+          variant: "destructive",
+          title: "Booking mismatch",
+          description: "Please contact support for assistance.",
+        });
+        return false;
+      }
+
+      console.log({
+        input: {
+          ...parsedData,
+          paymentStatus: "complete",
+          startDate: new Date(parsedData.startDate),
+          endDate: new Date(parsedData.endDate),
+        },
+      });
+
+      // Update rental status
+      const res = await rentUpdateStatusMutation({
+        ...parsedData,
+        startDate: new Date(parsedData.startDate),
+        endDate: new Date(parsedData.endDate),
+        paymentStatus: "complete",
+      });
+
+      console.log({ res });
+
+      if (res) {
+        toast({
+          title: "Payment Successful",
+          description: "Your payment has been successfully processed.",
+        });
+        toast({
+          title: "Wait for Booking Confirmation",
+          description: "Please wait while vendor validates your booking.",
+        });
+        return true;
+      }
+
+      return false;
+    } catch (err) {
+      console.log({ err });
+      toast({
+        variant: "destructive",
+        title: "Payment Processing Failed",
+        description: "Please try again or contact support.",
+      });
+      router.push(pathname, { scroll: false });
+    } finally {
+      setLoading(false);
+      localStorage.removeItem("rental");
+      router.push(pathname, { scroll: false });
+    }
+  };
+
+  useEffect(() => {
+    if (paymentHash && !hasProcessedPayment.current) {
+      const handlePayment = async () => {
+        hasProcessedPayment.current = true;
+        await processPayment();
+      };
+
+      void handlePayment();
+    }
+  }, [paymentHash, router, pathname]);
+
+  const [bookingModelOpen, setBookingModelOpen] = useState(false);
+
+  useEffect(() => {
+    if (paymentHash) {
+      setBookingModelOpen(true);
+    }
+  }, [paymentHash]);
+
   const [isVisible, setIsVisible] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -74,15 +215,60 @@ const VendorWrapper = ({
       }}
     >
       <main className="relative w-full">
-        {bookingsDetails !== null && (
-          <Bookings
-            paymentId={data?.phoneNumbers[0] ?? ""}
-            paymentMethod={"PhonePay"}
-            open={open}
-            setOpen={setOpen}
-            bookingsDetails={bookingsDetails}
-          />
+        {bookingModelOpen && (
+          // Booking Model
+          <Dialog open={bookingModelOpen}>
+            <DialogContent className="py-20 text-center sm:max-w-[625px]">
+              <div className="mb-4">
+                <h1 className="mb-2 text-3xl font-semibold">
+                  Payment successful
+                </h1>
+                <p className="text-lg italic text-slate-600">
+                  Your payment has been successfully processed.
+                </p>
+              </div>
+
+              <div>
+                {isError ? (
+                  <div className="text-red-500">
+                    Something went wrong while booking. Please contact support
+                    and the vendor.
+                  </div>
+                ) : loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader size={24} className="animate-spin text-slate-700" />
+                    <span className="text-slate-700">Booking...</span>
+                  </div>
+                ) : (
+                  <div className="">
+                    <h1 className="mb-2 text-5xl font-bold text-green-600">
+                      Booking successful.
+                    </h1>
+                    <p className="mb-10 text-lg italic text-slate-600">
+                      Please wait for vendor confirmation. <br /> You will get a
+                      confirmation email soon.
+                    </p>
+                    <div className="flex justify-end">
+                      <Link href="/orders">
+                        <Button variant={"primary"}>Go to Orders</Button>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
         )}
+        {bookingsDetails !== null &&
+          bookingsDetails !== undefined &&
+          !!data && (
+            <Bookings
+              vendorId={data?.id}
+              open={open}
+              setOpen={setOpen}
+              bookingsDetails={bookingsDetails}
+            />
+          )}
 
         {/* Share Button */}
         <motion.div

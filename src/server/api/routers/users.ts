@@ -69,6 +69,7 @@ export const userRouter = createTRPCRouter({
         status: rentals.status,
         location: getTableColumns(businesses).location,
         quantity: rentals.quantity,
+        paymentStatus: rentals.paymentStatus,
         bookedOn: rentals.createdAt,
         startDate: rentals.rentalStart,
         endDate: rentals.rentalEnd,
@@ -79,6 +80,7 @@ export const userRouter = createTRPCRouter({
       .from(rentals)
       .leftJoin(businesses, eq(businesses.id, rentals.businessId))
       .leftJoin(vehicles, eq(vehicles.id, rentals.vehicleId))
+      .orderBy(desc(rentals.createdAt))
       .where(eq(rentals.userId, ctx.session.user.id));
 
     return result;

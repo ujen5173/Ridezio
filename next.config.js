@@ -20,6 +20,10 @@ const config = {
       },
       {
         protocol: "https",
+        hostname: "embed.widencdn.net",
+      },
+      {
+        protocol: "https",
         hostname: "utfs.io",
       },
       {

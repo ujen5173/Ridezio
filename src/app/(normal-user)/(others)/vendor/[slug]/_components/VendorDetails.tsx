@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Dot,
-  Instagram,
-  MessageCircle,
-  Phone,
-  Star,
-  Store,
-} from "lucide-react";
+import { Dot, Instagram, MapPin, Phone, Star, Store } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useContext, useLayoutEffect, useState } from "react";
@@ -102,6 +95,28 @@ const VendorDetails = () => {
     return [hour!, minute!, period === "AM" ? "AM" : "PM"];
   }
 
+  function extractDirectionsFromIframe(iframeSrc: string): string {
+    // Check if the source is a valid Google Maps URL
+    if (!iframeSrc?.includes("google.com/maps")) {
+      return "# ";
+    }
+
+    // Extract place name from the URL
+    const placeNameMatch = /!2s(.+?)!/.exec(iframeSrc);
+    const placeName = placeNameMatch
+      ? decodeURIComponent(placeNameMatch[1]!).replace(/\+/g, " ")
+      : null;
+
+    // Throw an error if no place name is found
+    if (!placeName) {
+      return "# ";
+    }
+
+    const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName)}`;
+
+    return googleMapsLink;
+  }
+
   if (!vendor) return null;
 
   return (
@@ -126,7 +141,7 @@ const VendorDetails = () => {
                       key={index}
                       className="relative basis-auto px-1 pt-2"
                     >
-                      <button className="rounded-md hover:ring-2 hover:ring-secondary hover:ring-offset-2">
+                      <button className="rounded-sm hover:ring-2 hover:ring-secondary hover:ring-offset-2">
                         <Image
                           onClick={() => {
                             api?.scrollTo(index);
@@ -135,7 +150,7 @@ const VendorDetails = () => {
                           width={450}
                           height={450}
                           layout="fixed"
-                          className="size-16 cursor-pointer rounded-md object-cover md:aspect-square"
+                          className="size-16 cursor-pointer rounded-sm object-cover md:aspect-square"
                           key={index}
                           src={image}
                         />
@@ -153,14 +168,14 @@ const VendorDetails = () => {
                 <CarouselContent className="h-full">
                   {vendor.images.map((_, index) => (
                     <CarouselItem key={index} className="relative">
-                      <div className="absolute inset-0 z-0 aspect-square animate-pulse rounded-md bg-slate-200"></div>
+                      <div className="absolute inset-0 z-0 ml-4 animate-pulse rounded-md bg-slate-100"></div>
                       <Image
                         alt={`${vendor.name!}'s Images`}
-                        width={950}
+                        width={1440}
                         height={950}
                         // priority
                         layout="cover"
-                        className="relative z-10 aspect-square rounded-md bg-transparent object-cover"
+                        className="relative z-10 aspect-[16/12] rounded-md bg-transparent object-cover"
                         key={index}
                         src={_}
                       />
@@ -176,15 +191,9 @@ const VendorDetails = () => {
 
           <div className="flex flex-1 flex-col">
             <div className="mb-2 flex items-center">
-              <Link
-                href={vendor.location.map!}
-                target="_blank"
-                className="block"
-              >
-                <h6 className="text-sm font-medium uppercase text-green-600 underline">
-                  {vendor.location.address}
-                </h6>
-              </Link>
+              <h6 className="text-sm font-medium uppercase text-green-600">
+                {vendor.location.address}
+              </h6>
             </div>
 
             <h1 className="mb-4 text-3xl font-bold">{vendor.name}</h1>
@@ -307,10 +316,19 @@ const VendorDetails = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <FavroiteButton id={vendor.id} />
-                  <Button className="w-full" variant={"outline"}>
-                    <MessageCircle size={16} className="mr-2" />
-                    Chat with vendor
-                  </Button>
+                  <Link
+                    href={extractDirectionsFromIframe(vendor.location.map!)}
+                    target="_blank"
+                    className="block w-full"
+                  >
+                    <Button
+                      className="w-full text-slate-700"
+                      variant={"outline"}
+                    >
+                      <MapPin size={16} className="mr-2 text-slate-700" />
+                      View in Maps
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>

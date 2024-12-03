@@ -1,9 +1,9 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
-import { useUser } from "~/app/_components/contexts/root";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
@@ -16,7 +16,7 @@ import OrdersLoading from "./_components/OrdersLoading";
 type TFiltered = (typeof rentalStatusEnum.enumValues)[number] | "all";
 
 const Orders = () => {
-  const { user } = useUser();
+  const { data: user } = useSession();
 
   if (user?.user.role === "VENDOR") {
     redirect("/dashboard");
@@ -77,10 +77,10 @@ const Orders = () => {
                   key={status}
                   onClick={() => setFilteredType(status as TFiltered)}
                   className={cn(
-                    "cursor-pointer border-b-4 px-4 py-2 font-semibold capitalize text-secondary",
+                    "cursor-pointer border-b-4 px-4 py-2 font-semibold capitalize",
                     filteredType === status
-                      ? "border-secondary"
-                      : "border-transparent",
+                      ? "border-secondary text-secondary"
+                      : "border-transparent text-slate-600",
                   )}
                 >
                   {status}
@@ -103,7 +103,7 @@ const Orders = () => {
                     }
                   }}
                 />
-                <Button variant={"primary"}>Search</Button>
+                <Button variant={"secondary"}>Search</Button>
               </div>
             </form>
             <div className="grid grid-cols-1 gap-4 py-4 lg:grid-cols-2">

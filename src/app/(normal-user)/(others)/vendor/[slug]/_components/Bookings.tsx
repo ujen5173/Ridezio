@@ -3,12 +3,13 @@
 // TODO: Not rendering the data from the url properly
 
 import { differenceInDays, format } from "date-fns";
-import { CalendarDays, Clipboard, Minus, Plus, X } from "lucide-react";
+import { CalendarDays, Minus, Plus, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useMemo, useState } from "react";
 import { type DateRange } from "react-day-picker";
+import { v4 as uuidv4 } from "uuid";
 import { inter } from "~/app/utils/font";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
@@ -37,7 +38,6 @@ import {
 import { Separator } from "~/components/ui/separator";
 import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/hooks/use-toast";
-import { useUploadFile } from "~/hooks/useUploadthing";
 import useWindowDimensions from "~/hooks/useWindowDimensions";
 import { cn } from "~/lib/utils";
 import { type GetBookingsType } from "~/server/api/routers/business";
@@ -48,16 +48,14 @@ interface BookingsProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   bookingsDetails: GetBookingsType;
-  paymentId: string;
-  paymentMethod: string;
+  vendorId: string;
 }
 
 const Bookings: React.FC<BookingsProps> = ({
   bookingsDetails,
   open,
   setOpen,
-  paymentMethod,
-  paymentId,
+  vendorId,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -71,11 +69,6 @@ const Bookings: React.FC<BookingsProps> = ({
 
   const [selectedVehicleType, setSelectedVehicleType] = useState<string>(
     Object.keys(bookingsDetails.vehicleTypes)[0]!,
-  );
-
-  const { isUploading, progresses, uploadFiles, uploadedFile } = useUploadFile(
-    "imageUploader",
-    {},
   );
 
   const [selectedVehicleSubType, setSelectedVehicleSubType] =
@@ -212,62 +205,8 @@ const Bookings: React.FC<BookingsProps> = ({
     return !selectedVehicleType || !selectedVehicleSubType || !selectedModel;
   }, [selectedVehicleType, selectedVehicleSubType, selectedModel]);
 
-  const { mutateAsync, status } = api.rental.rent.useMutation();
-
-  const handleConfirmBooking = async () => {
-    const selectedVehicleId = getSelectedVehicleId();
-    if (!selectedVehicleId || !date?.from || !date?.to) {
-      return;
-    }
-
-    const maxAllowedQuantity = getMaxAllowedQuantity();
-    if (quantity > maxAllowedQuantity) {
-      toast({
-        title: "Booking Exceeded Available Quantity",
-        description: `The maximum available quantity for the selected dates is ${maxAllowedQuantity}. Please adjust your booking.`,
-      });
-      return;
-    }
-
-    if (!uploadedFile?.[0]?.url) {
-      toast({
-        title: "Upload Payment Screenshot",
-        description: "Please upload payment screenshot to confirm booking",
-      });
-      return;
-    }
-
-    const startDate = date.from;
-    const endDate = date.to;
-
-    const booking = {
-      vehicleId: selectedVehicleId,
-      startDate,
-      totalPrice: getSelectedVehiclePrice(),
-      endDate,
-      quantity: quantity,
-      paymentScreenshot: uploadedFile?.[0]?.url,
-      note: message,
-    };
-
-    console.log({ booking });
-
-    await mutateAsync(booking);
-
-    setOpen(false);
-    setShowQR(false);
-    setSelectedVehicleType("");
-    setSelectedVehicleSubType("");
-    setSelectedModel("");
-    setDate(undefined);
-    setQuantity(1);
-    setMessage("");
-
-    toast({
-      title: "Booking Confirmed. Wait for confirmation",
-      description: "Your booking has been confirmed successfully",
-    });
-  };
+  const { mutate: rentMutation, status } = api.rental.rent.useMutation();
+  const [loading, setLoading] = useState(false);
 
   // Updated quantity change handler
   const handleQuantityChange = (action: "increment" | "decrement") => {
@@ -281,6 +220,101 @@ const Bookings: React.FC<BookingsProps> = ({
   };
 
   const { width } = useWindowDimensions();
+  const { mutateAsync: paymentMutation } = api.payment.create.useMutation();
+
+  const handlePayment = async () => {
+    setLoading(true);
+    const selectedVehicleId = getSelectedVehicleId();
+    if (!selectedVehicleId || !date?.from || !date?.to) {
+      return;
+    }
+
+    const maxAllowedQuantity = getMaxAllowedQuantity();
+    if (quantity > maxAllowedQuantity) {
+      toast({
+        title: "Booking Exceeded Available Quantity",
+        description: `The maximum available quantity for the selected dates is ${maxAllowedQuantity}. Please adjust your booking.`,
+      });
+      return;
+    }
+    const startDate = date.from;
+    const endDate = date.to;
+
+    const transactionUuid = `${Date.now()}-${uuidv4()}`;
+
+    try {
+      const payment = await paymentMutation({
+        method: "esewa",
+        amount: getSelectedVehiclePrice(),
+        productName: "",
+        transactionId: "",
+        transactionUuid,
+        businessId: vendorId,
+      });
+
+      const localStorageObject = {
+        vehicleId: selectedVehicleId,
+        startDate,
+        totalPrice: getSelectedVehiclePrice(),
+        endDate,
+        quantity: quantity,
+        paymentId: transactionUuid,
+        paymentStatus: "pending",
+        notes: message,
+      };
+
+      localStorage.setItem("rental", JSON.stringify(localStorageObject));
+
+      toast({
+        title: "Payment Initiated",
+        description: "Redirecting to eSewa payment gateway...",
+      });
+
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
+
+      const esewaPayload = {
+        amount: payment.amount,
+        tax_amount: payment.esewaConfig.tax_amount,
+        total_amount: payment.esewaConfig.total_amount,
+        transaction_uuid: payment.esewaConfig.transaction_uuid,
+        product_code: payment.esewaConfig.product_code,
+        product_service_charge: payment.esewaConfig.product_service_charge,
+        product_delivery_charge: payment.esewaConfig.product_delivery_charge,
+        success_url: payment.esewaConfig.success_url,
+        failure_url: payment.esewaConfig.failure_url,
+        signed_field_names: payment.esewaConfig.signed_field_names,
+        signature: payment.esewaConfig.signature,
+      };
+
+      console.log({ esewaPayload });
+
+      Object.entries(esewaPayload).forEach(([key, value]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = String(value);
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
+      console.error("Payment error:", errorMessage);
+      toast({ title: "Payment initiation failed. Please try again." });
+      toast({
+        variant: "destructive",
+        title: "Payment Error",
+        description: "Payment initiation failed. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Dialog
@@ -639,85 +673,73 @@ const Bookings: React.FC<BookingsProps> = ({
                 </div>
               </div>
 
-              <div className="relative h-48 w-48">
-                <Image
-                  src="/images/qr.png"
-                  alt="Payment QR Code"
-                  fill
-                  className="rounded-lg object-contain"
-                  priority
-                />
+              <div className="flex items-center gap-2 space-y-1 rounded-md border border-orange-600 bg-orange-100 p-4 text-orange-600">
+                <div>
+                  <h1 className="mb-2 text-xl font-semibold">
+                    Something to note before booking
+                  </h1>
+                  <ul className="space-y-2 pl-6">
+                    <li className="list-disc">
+                      Please contact support and vendor if you have any issues
+                      with the booking.
+                    </li>
+                    <li className="list-disc">
+                      Don&apos;t forget to bring your ID card while picking up
+                      the vehicle.
+                    </li>
+                    <li className="list-disc">
+                      Once the booking is done, it cannot be cancelled.
+                    </li>
+                  </ul>
+                </div>
               </div>
 
-              <div className="w-full space-y-4">
-                <div className="flex gap-2 rounded-md border border-border px-4 py-2 shadow-sm">
-                  <div className="flex flex-1 items-center">
-                    <p className="text-base font-medium text-slate-600">
-                      {paymentMethod}: {paymentId}
-                    </p>
-                  </div>
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      void navigator.clipboard.writeText(paymentId);
-                      toast({
-                        title: "Payment ID Copied",
-                        description: "Payment ID copied to clipboard",
-                      });
-                    }}
-                    size={"sm"}
-                    variant={"outline"}
-                  >
-                    <Clipboard size={15} className="mr-1 text-slate-700" />
-                    Copy to clipboard
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  <Label>Upload Payment Screenshot</Label>
-                  <div className="relative">
-                    <Input
-                      max="1"
-                      pattern="image/*"
-                      id="picture"
-                      onChange={(e) => {
-                        const files = e.target.files;
-                        if (files) {
-                          void uploadFiles(Array.from(files));
-                        }
-                      }}
-                      type="file"
-                      className="leading-[2.5!important]"
-                    />
-                    {isUploading && (
-                      <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-white">
-                        <span className="text-xs text-secondary">{`Uploading... ${progresses}%`}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-4">
-                  <Button
-                    disabled={isUploading}
-                    variant="outline"
-                    onClick={() => setShowQR(false)}
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    variant="primary"
-                    disabled={isUploading || status === "pending"}
-                    onClick={async () => {
-                      await handleConfirmBooking();
-                    }}
-                  >
-                    {isUploading
-                      ? "Uploading File..."
-                      : status === "pending"
-                        ? "Confirming Booking..."
-                        : "Confirm Booking"}
-                  </Button>
-                </div>
+              <div className="flex w-full flex-wrap items-center justify-center gap-4">
+                {/* <div className="flex gap-2 rounded-md border border-border px-4 py-2 shadow-sm"> */}
+                <button
+                  className={cn(
+                    "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium text-slate-700 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+                    "h-12 gap-2 px-6 py-3",
+                    "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+                    "rounded-md",
+                  )}
+                  type="button"
+                  onClick={() => void handlePayment()}
+                >
+                  <Image
+                    src="/esewa.svg"
+                    width={23}
+                    height={23}
+                    alt="EWallet"
+                  />
+                  <span>Continue with Esewa</span>
+                </button>
+                <Separator orientation="vertical" className="h-10" />
+                {/* <button
+                  className={cn(
+                    "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium text-slate-700 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+                    "h-12 gap-2 px-6 py-3",
+                    "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+                    "rounded-md",
+                  )}
+                  type="button"
+                  onClick={() => void handlePayment()}
+                >
+                  <Image
+                    src="/khalti.png"
+                    width={23}
+                    height={23}
+                    alt="EWallet"
+                  />
+                  <span>Continue with Khalti</span>
+                </button> */}
+                <Button
+                  variant={"outline"}
+                  className="gap-2 font-medium text-slate-700"
+                >
+                  <Image src="/cash.svg" width={23} height={23} alt="Cash" />
+                  <span>Continue with Cash</span>
+                </Button>
               </div>
             </div>
           </ScrollArea>

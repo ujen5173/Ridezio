@@ -104,7 +104,7 @@ const GeneralInfo = () => {
           </button>
         </div>
         <input
-          accept={"image/png, image/jpeg, image/jpg"}
+          accept={"image/png, image/jpeg, image/jpg, image/webp"}
           type="file"
           hidden
           id="logo"

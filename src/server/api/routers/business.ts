@@ -370,7 +370,7 @@ export const businessRouter = createTRPCRouter({
         order: rentals.id,
         customer: users.name,
         payment: rentals.paymentMethod,
-        payment_ss: rentals.paymentScreenshot,
+        paymentStatus: rentals.paymentStatus,
         status: rentals.status,
         vehicle: vehicles.name,
         vehicle_type: vehicles.type,
@@ -813,20 +813,13 @@ export const businessRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       // Fetch available vehicle types for the business
-      const [vehicleTypes] = await ctx.db
+      const vehicleTypesData = ctx.db
         .select({ vehicleTypes: businesses.availableVehicleTypes })
         .from(businesses)
         .where(eq(businesses.id, input.businessId));
 
-      if (!vehicleTypes) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Vendor not found",
-        });
-      }
-
       // Fetch all vehicles for the business
-      const allVendorVehicles = await ctx.db
+      const allVendorVehiclesData = ctx.db
         .select({
           id: vehicles.id,
           name: vehicles.name,
@@ -838,7 +831,7 @@ export const businessRouter = createTRPCRouter({
         .from(vehicles)
         .where(eq(vehicles.businessId, input.businessId));
 
-      const rentedVehicles = await ctx.db
+      const rentedVehiclesData = ctx.db
         .select({
           rentalStart: rentals.rentalStart,
           rentalEnd: rentals.rentalEnd,
@@ -852,6 +845,12 @@ export const businessRouter = createTRPCRouter({
             eq(rentals.status, "approved"),
           ),
         );
+
+      const [, allVendorVehicles, rentedVehicles] = await Promise.all([
+        vehicleTypesData,
+        allVendorVehiclesData,
+        rentedVehiclesData,
+      ]);
 
       // Create a map of the lowest base price for each vehicle type
       const basePricesMap = Object.fromEntries(

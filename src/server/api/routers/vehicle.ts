@@ -1,5 +1,5 @@
 import { type inferRouterOutputs } from "@trpc/server";
-import { eq, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import slugify from "slugify";
 import { z } from "zod";
 import { slugifyDefault } from "~/lib/helpers";
@@ -100,6 +100,7 @@ export const vehicleRouter = createTRPCRouter({
 
       const result = await ctx.db.query.vehicles.findMany({
         where: eq(vehicles.businessId, businessId.id),
+        orderBy: [desc(vehicles.createdAt)],
       });
 
       return result;
@@ -127,6 +128,7 @@ export const vehicleRouter = createTRPCRouter({
                 name: true,
                 slug: true,
                 basePrice: true,
+                features: true,
                 type: true,
                 category: true,
               },
@@ -150,3 +152,6 @@ export type GetSingleVehicleType = inferRouterOutputs<
 export type GetBusinessVehicleType = inferRouterOutputs<
   typeof vehicleRouter
 >["getVendorVehicles"];
+export type GetBusinessVehiclesType = inferRouterOutputs<
+  typeof vehicleRouter
+>["getBusinessVehicles"];

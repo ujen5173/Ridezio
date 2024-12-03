@@ -385,7 +385,7 @@ const Wrapper = ({
                         <Input
                           value={feature.key}
                           className="h-10"
-                          placeholder="Frame"
+                          placeholder="Property"
                           autoFocus
                           onChange={(e) => {
                             const updatedFeatures = [...features];
@@ -398,7 +398,7 @@ const Wrapper = ({
                         <Input
                           value={feature.value}
                           className="h-10"
-                          placeholder="Carbon Fiber"
+                          placeholder="Value"
                           onChange={(e) => {
                             const updatedFeatures = [...features];
                             if (updatedFeatures[idx]) {

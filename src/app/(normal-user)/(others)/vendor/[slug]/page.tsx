@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import "react-datepicker/dist/react-datepicker.css";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
+import { type GetBookingsType } from "~/server/api/routers/business";
 import { api } from "~/trpc/server";
 import VendorWrapper from "./_components/VendorWrapper";
+
 const VendorPage = async ({
   params,
 }: {
@@ -18,7 +20,7 @@ const VendorPage = async ({
     slug: slug,
   });
 
-  let bookingDetails = null;
+  let bookingDetails: GetBookingsType | undefined | null = null;
 
   if (data) {
     bookingDetails = await api.business.getBookingsDetails({

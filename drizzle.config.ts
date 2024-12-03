@@ -8,5 +8,6 @@ export default {
   dbCredentials: {
     url: env.DATABASE_URL,
   },
+  out: "./drizzle",
   tablesFilter: ["velocit-re-build_*"],
 } satisfies Config;

@@ -12,6 +12,7 @@ import {
 import { FormField } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
 import useBusinessFormContext from "../hooks/useBusinessFormContext";
 
@@ -104,10 +105,24 @@ const LocationDetails = () => {
                   variant={"outline"}
                   size={"sm"}
                   onClick={() => {
-                    navigator.geolocation.getCurrentPosition((position) => {
-                      form.setValue("location.lat", position.coords.latitude);
-                      form.setValue("location.lng", position.coords.longitude);
-                    });
+                    navigator.geolocation.getCurrentPosition(
+                      (position) => {
+                        form.setValue("location.lat", position.coords.latitude);
+                        form.setValue(
+                          "location.lng",
+                          position.coords.longitude,
+                        );
+                      },
+                      () => {
+                        toast({
+                          title: "Please allow location access",
+                          variant: "destructive",
+                        });
+                      },
+                      {
+                        enableHighAccuracy: true,
+                      },
+                    );
                   }}
                 >
                   Auto Detect
@@ -150,7 +165,12 @@ const LocationDetails = () => {
                           position.coords.longitude,
                         );
                       },
-                      undefined,
+                      () => {
+                        toast({
+                          title: "Please allow location access",
+                          variant: "destructive",
+                        });
+                      },
                       {
                         enableHighAccuracy: true,
                       },

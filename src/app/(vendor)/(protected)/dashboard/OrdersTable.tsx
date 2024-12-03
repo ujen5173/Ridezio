@@ -14,11 +14,9 @@ import {
 } from "@tanstack/react-table";
 import { formatDate } from "date-fns";
 import { Check, Loader, Plus, RefreshCcw, Trash } from "lucide-react";
-import Image from "next/image";
 import * as React from "react";
 import Bookings from "~/app/(normal-user)/(others)/vendor/[slug]/_components/Bookings";
 import { Button } from "~/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Skeleton } from "~/components/ui/skeleton";
 import {
@@ -32,7 +30,10 @@ import {
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
 import { type GetOrdersType } from "~/server/api/routers/business";
-import { type rentalStatusEnum } from "~/server/db/schema";
+import {
+  type paymentStatusEnum,
+  type rentalStatusEnum,
+} from "~/server/db/schema";
 import { api } from "~/trpc/react";
 
 export type Order = Omit<GetOrdersType[0], "notes" | "date"> & {};
@@ -44,7 +45,7 @@ const transformApiData = (data: GetOrdersType = []): Order[] =>
     order: vehicle.order,
     customer: vehicle.customer,
     payment: vehicle.payment,
-    payment_ss: vehicle.payment_ss,
+    paymentStatus: vehicle.paymentStatus,
     status: vehicle.status,
     vehicle: vehicle.vehicle,
     vehicle_type: vehicle.vehicle_type,
@@ -56,7 +57,7 @@ const transformApiData = (data: GetOrdersType = []): Order[] =>
 
 const OrdersTable = () => {
   const { data: vendor } = api.business.current.useQuery();
-  const { mutateAsync, status } = api.rental.updatedStatus.useMutation();
+  const { mutateAsync, status } = api.rental.updatedRentalStatus.useMutation();
   const {
     data: ordersData = [],
     isLoading,
@@ -157,42 +158,38 @@ const OrdersTable = () => {
         ),
       },
       {
-        accessorKey: "payment_ss",
-        header: () => <div className="w-max break-keep px-4">Payment SS</div>,
-        cell: ({ row }) => (
-          <div className="w-max break-keep px-4 capitalize">
-            {row.getValue("payment_ss") ? (
-              <div className="">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <div className="cursor-pointer">
-                      <Image
-                        src={row.getValue("payment_ss")}
-                        alt="Payment Screenshot missing..."
-                        width={100}
-                        height={200}
-                        className="w-10 rounded-sm object-cover"
-                      />
-                    </div>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <div className="py-8">
-                      <Image
-                        src={row.getValue("payment_ss")}
-                        alt="Payment Screenshot missing..."
-                        width={1440}
-                        height={840}
-                        className="mx-auto h-[70vh] max-h-[42rem] min-h-[30rem] w-auto rounded-md object-cover"
-                      />
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            ) : (
-              "N/A"
-            )}
-          </div>
+        accessorKey: "paymentStatus",
+        header: () => (
+          <div className="w-max break-keep px-4">Payment Status</div>
         ),
+        cell: ({ row }) => {
+          const status =
+            row.getValue<(typeof paymentStatusEnum.enumValues)[number]>(
+              "paymentStatus",
+            );
+
+          return (
+            <div className="w-max break-keep px-4 capitalize">
+              {row.getValue("paymentStatus") ? (
+                <div
+                  className={cn(
+                    "w-20 break-keep rounded-sm px-2 py-1 text-center text-xs capitalize",
+                    status === "pending" &&
+                      "border border-yellow-400 bg-yellow-50 text-yellow-600",
+                    status === "complete" &&
+                      "border border-green-400 bg-green-50 text-green-600",
+                    status === "canceled" &&
+                      "border border-red-400 bg-red-50 text-red-600",
+                  )}
+                >
+                  {row.getValue("paymentStatus")}
+                </div>
+              ) : (
+                "N/A"
+              )}
+            </div>
+          );
+        },
       },
       {
         accessorKey: "amount",
@@ -282,6 +279,7 @@ const OrdersTable = () => {
                   toast({
                     title: `Order has been rejected.`,
                   });
+
                   void refetch();
                 }}
                 variant={"outline"}
@@ -365,8 +363,7 @@ const OrdersTable = () => {
           open={open}
           setOpen={setOpen}
           bookingsDetails={bookingsDetails}
-          paymentMethod={"PhonePay"}
-          paymentId={"98xxxxxxxx"}
+          vendorId={vendor?.id ?? ""}
         />
       )}
       <div className="max-w-1440px mx-auto">

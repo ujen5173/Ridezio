@@ -14,29 +14,43 @@ const OrderCard = ({
   return (
     <div className="rounded-md border border-border p-6 shadow-md">
       <div className="mb-2 flex items-center justify-between gap-4">
-        <h1 className="line-clamp-1 text-2xl font-semibold text-slate-600">
-          <span className="text-slate-500">
-            #{orderDetails.id.slice(-4)} -{" "}
-          </span>
+        <h1 className="line-clamp-1 flex-1 text-2xl font-semibold text-slate-600">
           {orderDetails.vehicleName}
         </h1>
-        <span
-          className={cn(
-            "rounded-md border px-2 py-1 text-sm font-semibold capitalize",
-            {
-              "border-secondary/30 bg-secondary/10 text-secondary":
-                orderDetails.status === "completed",
-              "border-blue-600/30 bg-blue-600/10 text-blue-600":
-                orderDetails.status === "pending",
-              "border-slate-600/30 bg-slate-600/10 text-slate-600":
-                orderDetails.status === "cancelled",
-              "borer-green-600/30 bg-green-600/10 text-green-600":
-                orderDetails.status === "approved",
-            },
-          )}
-        >
-          {orderDetails.status}
-        </span>
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              "rounded-md border px-2 py-1 text-sm font-semibold capitalize",
+              {
+                "border-secondary/30 bg-secondary/10 text-secondary":
+                  orderDetails.paymentStatus === "complete",
+                "border-blue-600/30 bg-blue-600/10 text-blue-600":
+                  orderDetails.paymentStatus === "pending",
+                "border-slate-600/30 bg-slate-600/10 text-slate-600":
+                  orderDetails.paymentStatus === "canceled",
+              },
+            )}
+          >
+            Payment: {orderDetails.paymentStatus}
+          </span>
+          <span
+            className={cn(
+              "rounded-md border px-2 py-1 text-sm font-semibold capitalize",
+              {
+                "border-secondary/30 bg-secondary/10 text-secondary":
+                  orderDetails.status === "completed",
+                "border-blue-600/30 bg-blue-600/10 text-blue-600":
+                  orderDetails.status === "pending",
+                "border-slate-600/30 bg-slate-600/10 text-slate-600":
+                  orderDetails.status === "cancelled",
+                "borer-green-600/30 bg-green-600/10 text-green-600":
+                  orderDetails.status === "approved",
+              },
+            )}
+          >
+            Status: {orderDetails.status}
+          </span>
+        </div>
       </div>
       <div className="mt-4 flex items-center gap-1 font-medium text-slate-600">
         <Store size={20} className="text-slate-600" />

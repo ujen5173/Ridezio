@@ -181,7 +181,7 @@ const Search = () => {
                     </div>
                   ))
                 ) : (
-                  <div className="flex h-[80vh] items-center justify-center">
+                  <div className="flex h-[80vh] items-center justify-center sm:h-auto">
                     <span className="text-lg font-medium text-foreground">
                       Try Searching in a different area
                     </span>

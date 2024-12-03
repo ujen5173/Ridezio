@@ -23,6 +23,12 @@ export const env = createEnv({
     PASS: z.string().min(1),
 
     IPINFO_API_KEY: z.string(),
+
+    ESEWA_URL: z.string().default("https://uat.esewa.com.np/epay/main"),
+    ESEWA_VERIFICATION_URL: z
+      .string()
+      .default("https://uat.esewa.com.np/epay/transrec"),
+    ESEWA_MERCHANT_CODE: z.string().min(1),
   },
 
   client: {
@@ -30,11 +36,19 @@ export const env = createEnv({
     NEXT_PUBLIC_LOCATIONIQ_API_KEY: z.string(),
     NEXT_PUBLIC_POSTHOG_KEY: z.string(),
     NEXT_PUBLIC_POSTHOG_HOST: z.string(),
+    NEXT_PUBLIC_ESEWA_SECRET_KEY: z.string(),
+    NEXT_PUBLIC_SUCCESS_URL: z
+      .string()
+      .default("http://localhost:3000/success"),
+    NEXT_PUBLIC_FAILURE_URL: z
+      .string()
+      .default("http://localhost:3000/failure"),
   },
 
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_ESEWA_SECRET_KEY: process.env.NEXT_PUBLIC_ESEWA_SECRET_KEY,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
@@ -47,6 +61,12 @@ export const env = createEnv({
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     IPINFO_API_KEY: process.env.IPINFO_API_KEY,
+
+    ESEWA_URL: process.env.ESEWA_URL,
+    ESEWA_VERIFICATION_URL: process.env.ESEWA_VERIFICATION_URL,
+    ESEWA_MERCHANT_CODE: process.env.ESEWA_MERCHANT_CODE,
+    NEXT_PUBLIC_SUCCESS_URL: process.env.NEXT_PUBLIC_SUCCESS_URL,
+    NEXT_PUBLIC_FAILURE_URL: process.env.NEXT_PUBLIC_FAILURE_URL,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,

@@ -49,8 +49,10 @@ const ShopsAround = () => {
   );
 
   useEffect(() => {
-    setLoading(isLoading);
-  }, [isLoading]);
+    if (shopsAroundData) {
+      setLoading(isLoading);
+    }
+  }, [isLoading, shopsAroundData]);
 
   useLayoutEffect(() => {
     const getLocation = async () => {

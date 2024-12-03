@@ -1,7 +1,6 @@
-export const dynamic = "force-static";
+// export const dynamic = "force-static";
 
 import { Map } from "lucide-react";
-import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import HeroSection from "~/app/_components/_/HeroSection";
 import PopularShops from "~/app/_components/_/PopularShops";
@@ -10,28 +9,28 @@ import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/server";
 import ShopsAround from "./_components/ShopsAround";
 
-const getUpcomingEvents = unstable_cache(
-  () => api.events.getUpcomingEvents(),
-  ["upcoming-events"],
-  {
-    revalidate: 60 * 60 * 60 * 24, // 24 hours
-    tags: ["upcoming-events"],
-  },
-);
+// const getUpcomingEvents = unstable_cache(
+//   () => api.events.getUpcomingEvents(),
+//   ["upcoming-events"],
+//   {
+//     revalidate: 60 * 60 * 60 * 24, // 24 hours
+//     tags: ["upcoming-events"],
+//   },
+// );
 
-const getPopularShops = unstable_cache(
-  () => api.business.getPopularShops(),
-  ["popular-shops"],
-  {
-    revalidate: 60 * 60 * 60 * 24, // 24 hours
-    tags: ["popular-shops"],
-  },
-);
+// const getPopularShops = unstable_cache(
+//   () => api.business.getPopularShops(),
+//   ["popular-shops"],
+//   {
+//     revalidate: 60 * 60 * 60 * 24, // 24 hours
+//     tags: ["popular-shops"],
+//   },
+// );
 
 const Home = async () => {
-  const [events, popularShops] = await Promise.all([
-    getUpcomingEvents(),
-    getPopularShops(),
+  const [popularShops, events] = await Promise.all([
+    api.business.getPopularShops(),
+    api.events.getUpcomingEvents(),
   ]);
 
   return (

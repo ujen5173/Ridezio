@@ -13,6 +13,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -49,7 +50,7 @@ const items = [
     title: "Accessories",
     url: "/accessories",
     icon: ShoppingCart,
-    disabled: false,
+    disabled: true,
   },
   {
     title: "Events",
@@ -151,7 +152,15 @@ export function AppSidebar({ slug }: { slug: string }) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Button className="w-full gap-2" variant={"outline"}>
+            <Button
+              onClick={() => {
+                void signOut().then(() => {
+                  window.location.href = "/";
+                });
+              }}
+              className="w-full gap-2"
+              variant={"outline"}
+            >
               <LogOut size={15} className="text-slate-600" />
               <span>Logout</span>
             </Button>

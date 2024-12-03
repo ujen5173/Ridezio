@@ -5,7 +5,6 @@
 import { Loader } from "lucide-react";
 import Image from "next/image";
 import { type DropzoneOptions } from "react-dropzone";
-import { buttonVariants } from "~/components/ui/button";
 import {
   FileInput,
   FileUploader,
@@ -15,7 +14,6 @@ import {
 import { toast } from "~/hooks/use-toast";
 import { type UploadedFileType } from "~/hooks/useUploadthing";
 import { convertMultipleToWebP, webpBase64ToFile } from "~/lib/image";
-import { cn } from "~/lib/utils";
 
 export const defaultDropzone = {
   accept: {
@@ -94,13 +92,26 @@ const FileUploaderWrapper = ({
     >
       <FileInput>
         <div className="flex h-72 w-full flex-col items-center justify-center rounded-md border bg-background hover:bg-slate-100">
-          <p className="font-medium text-gray-700">Drop files here</p>
-          <p className="text-xs italic text-gray-600">
-            (Max {dropzone.maxFiles} files, {dropzone.maxSize} each)
+          <p className="flex items-center gap-2 font-medium text-gray-700">
+            {isUploading ? (
+              <>
+                <Loader className="text-primary-500 animate-spin" />
+                <span>Uploading...</span>
+              </>
+            ) : (
+              "Drop files here"
+            )}
           </p>
-          <p className="text-xs italic text-gray-600">
-            Accepted types: {dropzone.accept?.["image/*"]?.join(", ")}
-          </p>
+          {!isUploading && (
+            <>
+              <p className="text-xs italic text-gray-600">
+                (Max {dropzone.maxFiles} files, {dropzone.maxSize} each)
+              </p>
+              <p className="text-xs italic text-gray-600">
+                Accepted types: {dropzone.accept?.["image/*"]?.join(", ")}
+              </p>
+            </>
+          )}
         </div>
       </FileInput>
       <FileUploaderContent className="flex flex-row items-end gap-2">
@@ -111,7 +122,7 @@ const FileUploaderWrapper = ({
               removeFile={!((uploadedFile ?? []).length > 0)}
               index={i}
               disabled={isUploading}
-              className="size-20 overflow-hidden rounded-md p-0"
+              className="h-16 overflow-hidden rounded-sm p-0"
               aria-roledescription={`file ${i + 1} containing ${file.name}`}
             >
               {isUploading && (
@@ -126,28 +137,11 @@ const FileUploaderWrapper = ({
                 alt={file.name}
                 height={80}
                 width={80}
-                className="w-20 object-cover p-0"
+                className="aspect-video h-full object-cover p-0"
               />
             </FileUploaderItem>
           );
         })}
-
-        {(files ?? []).length > 0 && (
-          <span
-            className={cn(
-              "gap-2",
-              buttonVariants({
-                variant: "outline",
-                size: "sm",
-              }),
-            )}
-          >
-            {isUploading && <Loader className="animate-spin" size={15} />}
-            <label className="inline-block">
-              {isUploading ? `Uploading ${progresses}%` : "Upload"}
-            </label>
-          </span>
-        )}
       </FileUploaderContent>
     </FileUploader>
   );

@@ -7,7 +7,6 @@ import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useUser } from "~/app/_components/contexts/root";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -50,7 +49,6 @@ const GeneralSettings = ({
 
   const { mutateAsync, status } = api.user.update.useMutation();
   const { data, update } = useSession();
-  const { setUser } = useUser();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await mutateAsync({
@@ -67,8 +65,6 @@ const GeneralSettings = ({
 
     // this works
     void update(newUser);
-
-    setUser(newUser);
 
     toast({
       title: "Profile updated",
