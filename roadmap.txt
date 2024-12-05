@@ -40,7 +40,13 @@
 ✅ - missing name in the dashboard at initial
 ✅ - esewa payment
 ✅ - chart bug in the dashboard
+✅ - reviews 
+✅ - add loading for accpet and reject in orders
+✅ - remove the refetch after accept or reject order
+   - useContext error: `TypeError: Cannot read properties of null (reading 'useContext')`
+   - mobile ma isError true aayexa
    - search based on vehicle name.
+   - reduce the database load in `rent` procedure. (took >5sec to execute)
    - migrate to google maps asap
    - order in the images of the vendor page
    - authentication error handling
@@ -71,3 +77,13 @@
 
 -- in progress --
    - multiple image upload without re-uploading uploaded file.
+
+
+
+
+-- before launch:
+   - vehicle name search
+   - rating and review
+   - remove vehicles if vendor discard the vehicle type
+   - email of confirmation and rejection
+   

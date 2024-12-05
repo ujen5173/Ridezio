@@ -3,7 +3,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 const OrdersLoading = () => {
   return (
     <div className="rounded-md border border-slate-200 p-4">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-4">
         <Skeleton className="h-6 w-10/12" />
         <Skeleton className="h-6 w-20" />
       </div>

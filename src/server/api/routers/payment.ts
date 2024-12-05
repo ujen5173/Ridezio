@@ -51,7 +51,7 @@ export const paymentRouter = createTRPCRouter({
               product_service_charge: "0",
               product_delivery_charge: "0",
               success_url: path,
-              failure_url: `${env.NEXT_PUBLIC_APP_URL}/payment-failed`,
+              failure_url: path,
               signed_field_names: "total_amount,transaction_uuid,product_code",
             };
 
@@ -79,18 +79,19 @@ export const paymentRouter = createTRPCRouter({
               },
             };
           }
+
           // case "khalti": {
           //   console.log("Initiating Khalti payment");
           //   const khaltiConfig = {
-          //     return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?method=khalti`,
-          //     website_url: process.env.NEXT_PUBLIC_BASE_URL!,
-          //     amount: Math.round(parseFloat(amount) * 100),
-          //     purchase_order_id: transactionId,
+          //     return_url: path,
+          //     website_url: env.NEXT_PUBLIC_APP_URL,
+          //     amount: Math.round(parseFloat(`${amount}`) * 100),
+          //     purchase_order_id: transactionUuid,
           //     purchase_order_name: productName,
           //     customer_info: {
-          //       name: "dai",
-          //       email: "dai@gmail.com",
-          //       phone: "9800000000",
+          //       name: ctx.session.user.name,
+          //       email: ctx.session.user.email,
+          //       phone: ctx.session.user.phoneNumber,
           //     },
           //   };
 
@@ -99,7 +100,7 @@ export const paymentRouter = createTRPCRouter({
           //     {
           //       method: "POST",
           //       headers: {
-          //         Authorization: `Key ${process.env.NEXT_PUBLIC_KHALTI_SECRET_KEY}`,
+          //         Authorization: `Key ${env.NEXT_PUBLIC_KHALTI_SECRET_KEY}`,
           //         "Content-Type": "application/json",
           //       },
           //       body: JSON.stringify(khaltiConfig),

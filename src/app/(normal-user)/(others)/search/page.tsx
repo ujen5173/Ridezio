@@ -47,8 +47,6 @@ const Search = () => {
     },
   );
 
-  console.log({ showingArea });
-
   useEffect(() => {
     setShowingArea(width < 1024 ? "map" : "both");
   }, [width]);

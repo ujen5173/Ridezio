@@ -17,6 +17,14 @@ import { Check, Loader, Plus, RefreshCcw, Trash } from "lucide-react";
 import * as React from "react";
 import Bookings from "~/app/(normal-user)/(others)/vendor/[slug]/_components/Bookings";
 import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Skeleton } from "~/components/ui/skeleton";
 import {
@@ -30,10 +38,7 @@ import {
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
 import { type GetOrdersType } from "~/server/api/routers/business";
-import {
-  type paymentStatusEnum,
-  type rentalStatusEnum,
-} from "~/server/db/schema";
+import { type rentalStatusEnum } from "~/server/db/schema";
 import { api } from "~/trpc/react";
 
 export type Order = Omit<GetOrdersType[0], "notes" | "date"> & {};
@@ -49,6 +54,7 @@ const transformApiData = (data: GetOrdersType = []): Order[] =>
     status: vehicle.status,
     vehicle: vehicle.vehicle,
     vehicle_type: vehicle.vehicle_type,
+    notes: vehicle.notes,
     quantity: vehicle.quantity,
     num_of_days: vehicle.num_of_days,
     amount: vehicle.amount,
@@ -64,7 +70,15 @@ const OrdersTable = () => {
     isRefetching,
     isError,
     refetch,
-  } = api.business.getOrders.useQuery();
+  } = api.business.getOrders.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+    refetchInterval: 1000 * 60 * 5, // 5 minutes
+  });
+
+  const [loadingOrderIds, setLoadingOrderIds] = React.useState<{
+    accept?: string;
+    reject?: string;
+  }>({});
 
   const columns: ColumnDef<Order>[] = React.useMemo(
     () => [
@@ -158,32 +172,32 @@ const OrdersTable = () => {
         ),
       },
       {
-        accessorKey: "paymentStatus",
-        header: () => (
-          <div className="w-max break-keep px-4">Payment Status</div>
-        ),
+        accessorKey: "notes",
+        header: () => <div className="w-max break-keep px-4">Notes</div>,
         cell: ({ row }) => {
-          const status =
-            row.getValue<(typeof paymentStatusEnum.enumValues)[number]>(
-              "paymentStatus",
-            );
+          const notes = row.getValue<string | null>("notes");
 
           return (
-            <div className="w-max break-keep px-4 capitalize">
-              {row.getValue("paymentStatus") ? (
-                <div
-                  className={cn(
-                    "w-20 break-keep rounded-sm px-2 py-1 text-center text-xs capitalize",
-                    status === "pending" &&
-                      "border border-yellow-400 bg-yellow-50 text-yellow-600",
-                    status === "complete" &&
-                      "border border-green-400 bg-green-50 text-green-600",
-                    status === "canceled" &&
-                      "border border-red-400 bg-red-50 text-red-600",
-                  )}
-                >
-                  {row.getValue("paymentStatus")}
-                </div>
+            <div className="mx-auto w-max break-keep px-4 capitalize">
+              {notes ? (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant={"outline"} size="sm">
+                      Open
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Note from Customer</DialogTitle>
+                    </DialogHeader>
+                    <p className="">{notes}</p>
+                    <DialogFooter>
+                      <Button variant={"outline"} size="sm">
+                        Close
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               ) : (
                 "N/A"
               )}
@@ -241,57 +255,77 @@ const OrdersTable = () => {
             Actions
           </div>
         ),
-
         cell: ({ row }) => {
+          const orderId = row.getValue<string>("order");
+          const orderStatus =
+            row.getValue<(typeof rentalStatusEnum.enumValues)[number]>(
+              "status",
+            );
+
           return (
             <div className="flex items-center justify-end gap-2 px-4 pr-4">
               <Button
                 variant={"outline"}
                 size="sm"
                 onClick={async () => {
+                  setLoadingOrderIds((prev) => ({ ...prev, accept: orderId }));
+
                   await mutateAsync({
-                    orderId: row.getValue<string>("order"),
+                    orderId,
                     status: "approved",
                   });
+
+                  setLoadingOrderIds((prev) => ({
+                    ...prev,
+                    accept: undefined,
+                  }));
 
                   toast({
                     title: `Order has been accepted.`,
                   });
-                  void refetch();
                 }}
                 disabled={
-                  row.getValue<(typeof rentalStatusEnum.enumValues)[number]>(
-                    "status",
-                  ) === "approved"
+                  orderStatus === "approved" || orderStatus !== "pending"
                 }
                 className="gap-1 text-green-700"
               >
-                <Check size={15} className="text-green-600" />
+                {loadingOrderIds.accept === orderId ? (
+                  <Loader size={15} className="animate-spin text-slate-700" />
+                ) : (
+                  <Check size={15} className="text-green-600" />
+                )}
                 Accept
               </Button>
               <Button
                 onClick={async () => {
+                  setLoadingOrderIds((prev) => ({ ...prev, reject: orderId }));
+
                   await mutateAsync({
-                    orderId: row.getValue<string>("order"),
+                    orderId,
                     status: "rejected",
                   });
+
+                  setLoadingOrderIds((prev) => ({
+                    ...prev,
+                    reject: undefined,
+                  }));
 
                   toast({
                     title: `Order has been rejected.`,
                   });
-
-                  void refetch();
                 }}
                 variant={"outline"}
                 size="sm"
                 disabled={
-                  row.getValue<(typeof rentalStatusEnum.enumValues)[number]>(
-                    "status",
-                  ) === "rejected"
+                  orderStatus === "rejected" || orderStatus !== "pending"
                 }
                 className="gap-1 text-red-700"
               >
-                <Trash size={15} className="text-red-600" />
+                {loadingOrderIds.reject === orderId ? (
+                  <Loader size={15} className="animate-spin text-slate-700" />
+                ) : (
+                  <Trash size={15} className="text-red-600" />
+                )}
                 Reject
               </Button>
             </div>
@@ -311,9 +345,9 @@ const OrdersTable = () => {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
+
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
     data: orders,
@@ -325,12 +359,10 @@ const OrdersTable = () => {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
     },
   });
 
@@ -363,6 +395,7 @@ const OrdersTable = () => {
           open={open}
           setOpen={setOpen}
           bookingsDetails={bookingsDetails}
+          fromVendor={true}
           vendorId={vendor?.id ?? ""}
         />
       )}
@@ -388,15 +421,19 @@ const OrdersTable = () => {
               onClick={() => void refetch()}
             >
               {isRefetching ? (
-                <Loader size={16} className="mr-1 animate-spin" />
+                <Loader
+                  size={15}
+                  className="mr-1 animate-spin text-slate-700"
+                />
               ) : (
-                <RefreshCcw size={16} className="mr-1" />
+                <RefreshCcw size={15} className="mr-1 text-slate-700" />
               )}
               {isRefetching ? "Refreshing" : "Refresh"}
             </Button>
             <Button
               variant={"secondary"}
               size="sm"
+              disabled={bookingsDetailsLoading}
               onClick={() => setOpen(true)}
             >
               <Plus size={16} className="mr-1" />
@@ -428,7 +465,7 @@ const OrdersTable = () => {
               ))}
             </TableHeader>
             <TableBody className="p-4">
-              {isLoading || isRefetching ? (
+              {isLoading ? (
                 <>
                   {Array(4)
                     .fill("____")
@@ -439,9 +476,6 @@ const OrdersTable = () => {
                             <Skeleton className="h-5 w-full" />
                           </TableCell>
                         ))}
-                        <TableCell className="">
-                          <Skeleton className="h-5 w-full" />
-                        </TableCell>
                       </TableRow>
                     ))}
                 </>

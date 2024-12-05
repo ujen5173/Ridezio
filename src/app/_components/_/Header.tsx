@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Bell, Menu } from "lucide-react";
+import { ArrowRight, Menu } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -184,23 +184,6 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
             <div className="flex items-center gap-2">
               {data ? (
                 <div className="flex items-center gap-4">
-                  <Button
-                    variant={"link"}
-                    className={cn(
-                      "hidden sm:flex",
-                      pth === "/"
-                        ? "hover:bg-slate-100/20"
-                        : "hover:bg-slate-600/20",
-                    )}
-                    size="icon"
-                  >
-                    <Bell
-                      size={20}
-                      className={cn(
-                        pth === "/" ? "text-slate-100" : "text-slate-600",
-                      )}
-                    />
-                  </Button>
                   {data?.user.role === "VENDOR" && (
                     <Link href="/dashboard">
                       <Button variant={"outline"} size="sm">
@@ -250,6 +233,9 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                       <DropdownMenuSeparator />
                       <Link href="/orders">
                         <DropdownMenuItem>Orders</DropdownMenuItem>
+                      </Link>
+                      <Link href="/reviews">
+                        <DropdownMenuItem>Reviews</DropdownMenuItem>
                       </Link>
                       <Link href="/favourite">
                         <DropdownMenuItem>Favourites</DropdownMenuItem>

@@ -3,7 +3,7 @@
 // TODO: Not rendering the data from the url properly
 
 import { differenceInDays, format } from "date-fns";
-import { CalendarDays, Minus, Plus, X } from "lucide-react";
+import { CalendarDays, Loader, Minus, Plus, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -49,6 +49,7 @@ interface BookingsProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   bookingsDetails: GetBookingsType;
   vendorId: string;
+  fromVendor: boolean;
 }
 
 const Bookings: React.FC<BookingsProps> = ({
@@ -56,6 +57,7 @@ const Bookings: React.FC<BookingsProps> = ({
   open,
   setOpen,
   vendorId,
+  fromVendor = false,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -205,8 +207,10 @@ const Bookings: React.FC<BookingsProps> = ({
     return !selectedVehicleType || !selectedVehicleSubType || !selectedModel;
   }, [selectedVehicleType, selectedVehicleSubType, selectedModel]);
 
-  const { mutate: rentMutation, status } = api.rental.rent.useMutation();
-  const [loading, setLoading] = useState(false);
+  const { mutateAsync: rentMutation } = api.rental.rent.useMutation();
+  const [continueWithCashLoading, setContinueWithCashLoading] = useState(false);
+  const [continueWithOnlineLoading, setContinueWithOnlineLoading] =
+    useState(false);
 
   // Updated quantity change handler
   const handleQuantityChange = (action: "increment" | "decrement") => {
@@ -223,7 +227,6 @@ const Bookings: React.FC<BookingsProps> = ({
   const { mutateAsync: paymentMutation } = api.payment.create.useMutation();
 
   const handlePayment = async () => {
-    setLoading(true);
     const selectedVehicleId = getSelectedVehicleId();
     if (!selectedVehicleId || !date?.from || !date?.to) {
       return;
@@ -259,6 +262,7 @@ const Bookings: React.FC<BookingsProps> = ({
         endDate,
         quantity: quantity,
         paymentId: transactionUuid,
+        paymentMethod: null,
         paymentStatus: "pending",
         notes: message,
       };
@@ -311,8 +315,50 @@ const Bookings: React.FC<BookingsProps> = ({
         title: "Payment Error",
         description: "Payment initiation failed. Please try again.",
       });
+    }
+  };
+
+  const continuePaymentOffline = async (
+    method: "cash" | "online-payment" = "cash",
+  ) => {
+    try {
+      if (method === "cash") {
+        setContinueWithCashLoading(true);
+      } else {
+        setContinueWithOnlineLoading(true);
+      }
+      toast({
+        title: "Initiating Booking",
+        description: "Please wait while we confirm your booking",
+      });
+      await rentMutation({
+        vehicleId: getSelectedVehicleId()!,
+        startDate: date?.from ?? new Date(),
+        endDate: date?.to ?? new Date(),
+        totalPrice: getSelectedVehiclePrice(),
+        quantity: quantity,
+        paymentId: null,
+        paymentStatus: "pending",
+        paymentMethod: method === "cash" ? "onsite" : "online",
+        notes: message,
+      });
+    } catch (err) {
+      console.log({ err });
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: "Please try again",
+      });
     } finally {
-      setLoading(false);
+      setContinueWithCashLoading(false);
+      setContinueWithOnlineLoading(false);
+      toast({
+        title: "Booking Successful",
+        description: "Your booking has been confirmed",
+      });
+      setTimeout(() => {
+        setOpen(false);
+      }, 600);
     }
   };
 
@@ -673,73 +719,125 @@ const Bookings: React.FC<BookingsProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 space-y-1 rounded-md border border-orange-600 bg-orange-100 p-4 text-orange-600">
-                <div>
-                  <h1 className="mb-2 text-xl font-semibold">
-                    Something to note before booking
-                  </h1>
-                  <ul className="space-y-2 pl-6">
-                    <li className="list-disc">
-                      Please contact support and vendor if you have any issues
-                      with the booking.
-                    </li>
-                    <li className="list-disc">
-                      Don&apos;t forget to bring your ID card while picking up
-                      the vehicle.
-                    </li>
-                    <li className="list-disc">
-                      Once the booking is done, it cannot be cancelled.
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="flex w-full flex-wrap items-center justify-center gap-4">
-                {/* <div className="flex gap-2 rounded-md border border-border px-4 py-2 shadow-sm"> */}
-                <button
-                  className={cn(
-                    "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium text-slate-700 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
-                    "h-12 gap-2 px-6 py-3",
-                    "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-                    "rounded-md",
-                  )}
-                  type="button"
-                  onClick={() => void handlePayment()}
-                >
-                  <Image
-                    src="/esewa.svg"
-                    width={23}
-                    height={23}
-                    alt="EWallet"
-                  />
-                  <span>Continue with Esewa</span>
-                </button>
-                <Separator orientation="vertical" className="h-10" />
-                {/* <button
-                  className={cn(
-                    "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium text-slate-700 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
-                    "h-12 gap-2 px-6 py-3",
-                    "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-                    "rounded-md",
-                  )}
-                  type="button"
-                  onClick={() => void handlePayment()}
-                >
-                  <Image
-                    src="/khalti.png"
-                    width={23}
-                    height={23}
-                    alt="EWallet"
-                  />
-                  <span>Continue with Khalti</span>
-                </button> */}
-                <Button
-                  variant={"outline"}
-                  className="gap-2 font-medium text-slate-700"
-                >
-                  <Image src="/cash.svg" width={23} height={23} alt="Cash" />
-                  <span>Continue with Cash</span>
-                </Button>
+              <div>
+                <h1 className="mb-4 text-lg font-semibold">Payment Method</h1>
+                {fromVendor ? (
+                  <div className="flex w-full flex-wrap items-center justify-center gap-4">
+                    <button
+                      className={cn(
+                        "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium text-slate-700 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+                        "h-12 gap-2 px-6 py-3",
+                        "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+                        "rounded-md",
+                      )}
+                      type="button"
+                      onClick={() => {
+                        void continuePaymentOffline("online-payment");
+                      }}
+                    >
+                      {continueWithOnlineLoading ? (
+                        <>
+                          <Loader
+                            size={15}
+                            className="ml-2 animate-spin text-slate-600"
+                          />
+                          <span>Processing...</span>
+                        </>
+                      ) : (
+                        <span>Continue with Online payment</span>
+                      )}
+                    </button>
+                    <Separator orientation="vertical" className="h-10" />
+                    <Button
+                      variant={"outline"}
+                      onClick={async () => {
+                        void continuePaymentOffline("cash");
+                      }}
+                      className="gap-2 font-medium text-slate-700"
+                    >
+                      {continueWithCashLoading ? (
+                        <>
+                          <Loader
+                            size={15}
+                            className="ml-2 animate-spin text-slate-600"
+                          />
+                          <span>Processing...</span>
+                        </>
+                      ) : (
+                        <span>Continue with Cash</span>
+                      )}
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-10 flex items-center gap-2 space-y-1 rounded-md border border-orange-600 bg-orange-100 p-4 text-orange-600">
+                      <div>
+                        <h1 className="mb-2 text-xl font-semibold">
+                          Something to note before booking
+                        </h1>
+                        <ul className="space-y-2 pl-6">
+                          <li className="list-disc">
+                            Please contact support and vendor if you have any
+                            issues with the booking.
+                          </li>
+                          <li className="list-disc">
+                            Don&apos;t forget to bring your ID card while
+                            picking up the vehicle.
+                          </li>
+                          <li className="list-disc">
+                            Once the booking is done, it cannot be cancelled.
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="flex w-full flex-wrap items-center justify-center gap-4">
+                      <button
+                        className={cn(
+                          "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium text-slate-700 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+                          "h-12 gap-2 px-6 py-3",
+                          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+                          "rounded-md",
+                        )}
+                        type="button"
+                        onClick={() => void handlePayment()}
+                      >
+                        <Image
+                          src="/esewa.svg"
+                          width={23}
+                          height={23}
+                          alt="EWallet"
+                        />
+                        <span>Continue with Esewa</span>
+                      </button>
+                      <Separator orientation="vertical" className="h-10" />
+                      <Button
+                        variant={"outline"}
+                        onClick={() => {
+                          void continuePaymentOffline("cash");
+                        }}
+                        className="gap-2 font-medium text-slate-700"
+                      >
+                        <Image
+                          src="/cash.svg"
+                          width={23}
+                          height={23}
+                          alt="Cash"
+                        />
+                        {continueWithCashLoading ? (
+                          <>
+                            <Loader
+                              size={15}
+                              className="ml-2 animate-spin text-slate-600"
+                            />
+                            <span>Processing...</span>
+                          </>
+                        ) : (
+                          <span>Continue with Cash</span>
+                        )}
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </ScrollArea>

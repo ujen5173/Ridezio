@@ -1,4 +1,5 @@
 "use client";
+
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";

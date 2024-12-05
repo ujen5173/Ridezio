@@ -23,6 +23,7 @@ import { api } from "~/trpc/react";
 import Bookings from "./Bookings";
 import Faqs from "./Faqs";
 import Locations from "./Locations";
+import Reviews from "./Reviews";
 import Vehicles from "./Vehicles";
 import VendorDetails from "./VendorDetails";
 
@@ -122,6 +123,7 @@ const VendorWrapper = ({
       // Update rental status
       const res = await rentUpdateStatusMutation({
         ...parsedData,
+        paymentMethod: "online",
         startDate: new Date(parsedData.startDate),
         endDate: new Date(parsedData.endDate),
         paymentStatus: "complete",
@@ -147,7 +149,7 @@ const VendorWrapper = ({
       toast({
         variant: "destructive",
         title: "Payment Processing Failed",
-        description: "Please try again or contact support.",
+        description: "Please contact support or vendor.",
       });
       router.push(pathname, { scroll: false });
     } finally {
@@ -217,16 +219,19 @@ const VendorWrapper = ({
       <main className="relative w-full">
         {bookingModelOpen && (
           // Booking Model
-          <Dialog open={bookingModelOpen}>
+          <Dialog open={bookingModelOpen} onOpenChange={setBookingModelOpen}>
             <DialogContent className="py-20 text-center sm:max-w-[625px]">
-              <div className="mb-4">
-                <h1 className="mb-2 text-3xl font-semibold">
-                  Payment successful
-                </h1>
-                <p className="text-lg italic text-slate-600">
-                  Your payment has been successfully processed.
-                </p>
-              </div>
+              {loading && (
+                <div className="mb-4">
+                  <h1 className="mb-2 text-3xl font-semibold text-green-500">
+                    Payment successful
+                  </h1>
+
+                  <p className="text-lg italic text-slate-600">
+                    Your payment has been successfully processed.
+                  </p>
+                </div>
+              )}
 
               <div>
                 {isError ? (
@@ -237,16 +242,18 @@ const VendorWrapper = ({
                 ) : loading ? (
                   <div className="flex items-center justify-center gap-2">
                     <Loader size={24} className="animate-spin text-slate-700" />
-                    <span className="text-slate-700">Booking...</span>
+                    <span className="text-slate-700">
+                      Booking in progress...
+                    </span>
                   </div>
                 ) : (
                   <div className="">
-                    <h1 className="mb-2 text-5xl font-bold text-green-600">
+                    <h1 className="mb-4 text-5xl font-bold text-green-600">
                       Booking successful.
                     </h1>
-                    <p className="mb-10 text-lg italic text-slate-600">
-                      Please wait for vendor confirmation. <br /> You will get a
-                      confirmation email soon.
+                    <p className="mb-10 text-lg font-medium italic text-slate-600">
+                      You will get a confirmation email shortly. Please wait for
+                      the vendor to confirm your booking.
                     </p>
                     <div className="flex justify-end">
                       <Link href="/orders">
@@ -265,6 +272,7 @@ const VendorWrapper = ({
             <Bookings
               vendorId={data?.id}
               open={open}
+              fromVendor={false}
               setOpen={setOpen}
               bookingsDetails={bookingsDetails}
             />
@@ -287,6 +295,12 @@ const VendorWrapper = ({
 
         <div className="[&>section:nth-child(odd)]:bg-slate-50 [&>section]:px-4 [&>section]:py-16">
           <Vehicles />
+
+          <Reviews
+            rating={data?.rating ?? 0}
+            ratingCount={data?.ratingCount ?? 0}
+            businessId={data?.id}
+          />
 
           <Faqs />
 

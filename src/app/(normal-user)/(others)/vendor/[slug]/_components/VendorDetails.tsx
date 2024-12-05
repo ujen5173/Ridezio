@@ -196,7 +196,9 @@ const VendorDetails = () => {
               </h6>
             </div>
 
-            <h1 className="mb-4 text-3xl font-bold">{vendor.name}</h1>
+            <h1 className="mb-4 text-3xl font-bold text-slate-700">
+              {vendor.name}
+            </h1>
 
             <div className="flex flex-1 flex-col justify-between">
               <div className="mb-4 flex items-center gap-1">
@@ -206,8 +208,10 @@ const VendorDetails = () => {
                     className="fill-yellow-500 stroke-yellow-500"
                   />
                   <span className="text-sm">
-                    {vendor.rating === 0 ? vendor.rating : "N/A"} (
-                    {vendor.ratingCount})
+                    {vendor.rating !== 0
+                      ? parseFloat(vendor.rating.toString()).toFixed(1)
+                      : "N/A"}{" "}
+                    ({vendor.ratingCount})
                   </span>
                 </div>
                 <Dot size={16} />

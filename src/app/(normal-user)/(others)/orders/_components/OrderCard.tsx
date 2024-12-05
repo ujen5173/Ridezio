@@ -3,14 +3,27 @@ import { Calendar, Dot, MapPin, Store } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
 import { type GetUserOrdersType } from "~/server/api/routers/users";
 
 const OrderCard = ({
   orderDetails,
+  setIsOpen,
+  setVendorName,
+  setSelectedVendor,
 }: {
   orderDetails: GetUserOrdersType[number];
+  setVendorName: React.Dispatch<React.SetStateAction<string | null>>;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedVendor: React.Dispatch<React.SetStateAction<string | null>>;
 }) => {
+  console.log(orderDetails);
   return (
     <div className="rounded-md border border-border p-6 shadow-md">
       <div className="mb-2 flex items-center justify-between gap-4">
@@ -91,9 +104,9 @@ const OrderCard = ({
             height={100}
             className="size-12 object-cover"
             src={
-              orderDetails.type === "car"
+              orderDetails.type?.includes("car")
                 ? "/images/vehicle/car.png"
-                : orderDetails.type === "bike"
+                : orderDetails.type?.includes("bike")
                   ? "/images/vehicle/bike.png"
                   : "/images/vehicle/bicycle.png"
             }
@@ -109,9 +122,40 @@ const OrderCard = ({
           </span>
         </span>
         <div className="flex items-center gap-2">
-          <Button variant={"outline"} size="sm">
-            Report issue
-          </Button>
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    if (
+                      !orderDetails.canReview ||
+                      !(new Date() >= orderDetails.startDate)
+                    ) {
+                      return;
+                    }
+                    setIsOpen(true);
+                    setVendorName(orderDetails.vendorName);
+                    setSelectedVendor(orderDetails.vendorId);
+                  }}
+                  variant={"outline"}
+                  size="sm"
+                >
+                  Add a review
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  {!orderDetails.canReview
+                    ? "You have already reviewed this vendor"
+                    : new Date() >= orderDetails.startDate
+                      ? "Tell us what you think?"
+                      : "You can review this vendor after the rental period"}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <Link href={`/vendor/${orderDetails.vendorSlug!}`}>
             <Button variant={"destructive"} size="sm">
               Order again

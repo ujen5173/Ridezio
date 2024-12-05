@@ -6,6 +6,7 @@ import {
   businesses,
   favourite,
   rentals,
+  reviews,
   users,
   vehicles,
 } from "~/server/db/schema";
@@ -64,6 +65,7 @@ export const userRouter = createTRPCRouter({
     const result = await ctx.db
       .select({
         id: rentals.id,
+        vendorId: rentals.businessId,
         vendorName: getTableColumns(businesses).name,
         vendorSlug: getTableColumns(businesses).slug,
         status: rentals.status,
@@ -83,7 +85,17 @@ export const userRouter = createTRPCRouter({
       .orderBy(desc(rentals.createdAt))
       .where(eq(rentals.userId, ctx.session.user.id));
 
-    return result;
+    const canUserReview = await ctx.db
+      .select({ id: reviews.id, businessId: reviews.businessId })
+      .from(reviews)
+      .where(eq(reviews.userId, ctx.session.user.id));
+
+    return result.map((order) => ({
+      ...order,
+      canReview: !canUserReview.some(
+        (review) => review.businessId === order.vendorId,
+      ),
+    }));
   }),
 
   getFavourite: protectedProcedure.query(async ({ ctx }) => {

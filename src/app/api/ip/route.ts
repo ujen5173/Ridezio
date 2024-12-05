@@ -22,8 +22,6 @@ export async function GET(request: Request): Promise<Response> {
         "124.41.204.21"; // Default to Kathmandu, Nepal
     }
 
-    console.log({ ipAddress, env: env.NODE_ENV });
-
     // Fetch location data from ipinfo.io API
     const response = await axios.get<IpInfoResponse>(
       `https://ipinfo.io/${ipAddress}/json?token=${env.IPINFO_API_KEY}`,

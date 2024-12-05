@@ -119,7 +119,7 @@ export const businesses = createTable(
       .notNull()
       .default(sql`'{}'::json`),
     vehiclesCount: integer("vehicles_count").default(0),
-    rating: decimal("rating", { precision: 3, scale: 2 })
+    rating: decimal("rating", { precision: 3, scale: 1 })
       .$type<number>()
       .notNull()
       .default(0.0),
@@ -247,6 +247,31 @@ export const rentals = createTable(
       table.rentalStart,
       table.rentalEnd,
     ),
+  }),
+);
+
+export const reviews = createTable(
+  "review",
+  {
+    id: varchar("id", { length: 36 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: varchar("user_id", { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    businessId: varchar("business_id", { length: 36 })
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    rating: integer("rating").notNull(),
+    review: text("review").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    userIdx: index("review_user_idx").on(table.userId),
+    businessIdx: index("review_business_idx").on(table.businessId),
+    ratingIdx: index("review_rating_idx").on(table.rating),
   }),
 );
 

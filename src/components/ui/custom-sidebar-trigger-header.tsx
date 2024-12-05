@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { Bell, PanelLeft } from "lucide-react";
+import { PanelLeft } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -57,9 +57,6 @@ const CustomSidebarTriggerHeader = () => {
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant={"ghost"} size="icon">
-          <Bell size={20} className="text-slate-600" />
-        </Button>
         {data?.user.image && (
           <DropdownMenu>
             <DropdownMenuTrigger>
@@ -83,8 +80,9 @@ const CustomSidebarTriggerHeader = () => {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
-                  void signOut();
-                  window.location.href = "/";
+                  void signOut().then(() => {
+                    window.location.href = "/";
+                  });
                 }}
               >
                 Logout

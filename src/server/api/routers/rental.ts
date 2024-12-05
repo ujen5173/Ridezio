@@ -10,7 +10,7 @@ import {
   vehicles,
 } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { sendBookingDetailsEmail } from "./email";
+import { sendBookingDetailsEmail, sendBookingUpdateEmail } from "./email";
 
 export const rentalRouter = createTRPCRouter({
   rent: protectedProcedure
@@ -21,19 +21,19 @@ export const rentalRouter = createTRPCRouter({
         totalPrice: z.number(),
         endDate: z.date(),
         quantity: z.number().default(1),
-        paymentId: z.string(),
+        paymentId: z.string().nullable(),
         paymentStatus: z.enum(paymentStatusEnum.enumValues),
         notes: z.string().optional(),
+        paymentMethod: z.enum(["online", "onsite"]).nullable(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log("RENTING...");
-      const alreadyBooked = await ctx.db
-        .select({ id: rentals.id })
-        .from(rentals)
-        .where(eq(rentals.paymentId, input.paymentId));
-
-      console.log({ alreadyBooked });
+      const alreadyBooked = input.paymentId
+        ? await ctx.db
+            .select({ id: rentals.id })
+            .from(rentals)
+            .where(eq(rentals.paymentId, input.paymentId))
+        : [];
 
       if (alreadyBooked.length > 0) {
         throw new TRPCError({
@@ -84,8 +84,6 @@ export const rentalRouter = createTRPCRouter({
           });
         }
 
-        console.log({ vehicle });
-
         // Check if requested quantity exceeds total inventory
         if (input.quantity > vehicle.inventory) {
           throw new TRPCError({
@@ -104,8 +102,6 @@ export const rentalRouter = createTRPCRouter({
           })
           .from(rentals)
           .where(eq(rentals.vehicleId, input.vehicleId));
-
-        console.log({ existingRentals });
 
         // Filter active rentals that overlap with requested dates
         const activeStatuses = ["pending", "confirmed", "ongoing"];
@@ -175,15 +171,14 @@ export const rentalRouter = createTRPCRouter({
                 : rentalStatusEnum.enumValues[0],
             totalPrice: input.totalPrice,
             notes: input.notes,
-            paymentMethod: input.paymentId ? "online" : "onsite",
+            paymentMethod:
+              (input.paymentMethod ?? input.paymentId) ? "online" : "onsite",
             paymentStatus: input.paymentStatus,
             quantity: input.quantity,
             num_of_days: numOfDays,
             paymentId: input.paymentId,
           })
           .returning();
-
-        console.log({ rental });
 
         if (rental) {
           await sendBookingDetailsEmail({
@@ -271,6 +266,7 @@ export const rentalRouter = createTRPCRouter({
 
       const rental = await ctx.db
         .select({
+          id: rentals.id,
           status: rentals.status,
         })
         .from(rentals)
@@ -305,10 +301,11 @@ export const rentalRouter = createTRPCRouter({
 
       if (result) {
         // Send email to user after change of status
-        // await sendBookingStatusEmail({
-        //   session: ctx.session,
-        //   bookingId: rental.id,
-        // });
+        await sendBookingUpdateEmail({
+          bookingId: rental.id,
+          session: ctx.session,
+          status: input.status,
+        });
       }
 
       return true;

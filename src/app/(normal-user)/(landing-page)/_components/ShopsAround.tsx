@@ -27,8 +27,6 @@ const ShopsAround = () => {
   const [userLocation, setUserLocation] = useState<LatLng | null>(null);
   const [loading, setLoading] = useState(true);
 
-  console.log({ userLocation });
-
   const {
     data: shopsAroundData,
     isLoading,
@@ -60,8 +58,6 @@ const ShopsAround = () => {
       const { data: userLocation } = await axios.get<IpInfoResponse>(
         env.NEXT_PUBLIC_APP_URL + "/api/ip",
       );
-
-      console.log({ userLocation });
 
       if (!userLocation) {
         return;

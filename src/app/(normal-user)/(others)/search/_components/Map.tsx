@@ -162,18 +162,19 @@ const Map: React.FC<MapProps> = ({
       key={JSON.stringify(location)}
       style={{ width: "100%", height: "100%" }}
       center={location}
-      zoom={12}
+      zoom={20}
       zoomAnimation={true}
       zoomControl={false}
       zoomSnap={0}
       zoomDelta={0.2}
-      wheelPxPerZoomLevel={400}
+      wheelPxPerZoomLevel={500}
       scrollWheelZoom={true}
     >
       <ComponentResize />
       {isLoading && (
-        <div className="absolute left-1/2 top-20 z-[999] flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-sm bg-white shadow-lg">
-          <Loader2 className="size-6 animate-spin text-secondary" />
+        <div className="absolute left-1/2 top-20 z-[999] flex h-12 w-32 -translate-x-1/2 items-center justify-center gap-1 rounded-sm bg-white text-sm font-medium text-slate-700 shadow-lg">
+          <Loader2 className="size-5 animate-spin text-secondary" />
+          Searching...
         </div>
       )}
       <BoundsHandler setData={setData} initialBounds={initialBounds} />

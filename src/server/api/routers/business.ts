@@ -1,5 +1,5 @@
 import { type inferRouterOutputs, TRPCError } from "@trpc/server";
-import { and, desc, eq, ilike, not, sql } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, ilike, not, sql } from "drizzle-orm";
 import slugify from "slugify";
 import { z, ZodError } from "zod";
 import { slugifyDefault } from "~/lib/helpers";
@@ -12,6 +12,7 @@ import {
   businesses,
   businessStatusEnum,
   rentals,
+  reviews,
   users,
   vehicles,
   vehicleTypeEnum,
@@ -39,7 +40,8 @@ interface ChartDataPoint {
   value: number;
 }
 
-interface DailyData {
+// Daily data interface
+export interface DailyData {
   date: string;
   value: number;
   orders: number;
@@ -67,27 +69,6 @@ const VendorSearchInputSchema = z.object({
   status: z.enum(["active", "setup-incomplete"]).optional(),
 });
 
-// Haversine distance calculation (both for JS and SQL)
-const calculateDistance = (
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-) => {
-  const toRad = (x: number) => (x * Math.PI) / 180;
-  const R = 6371; // Earth's radius in km
-
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
 export const businessRouter = createTRPCRouter({
   getStoreName: protectedProcedure.query(async ({ ctx }) => {
     const business = await ctx.db
@@ -411,6 +392,29 @@ export const businessRouter = createTRPCRouter({
         );
 
       return result;
+    }),
+
+  getReviews: publicProcedure
+    .input(
+      z.object({
+        businessId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return await ctx.db
+        .select({
+          id: reviews.id,
+          rating: reviews.rating,
+          content: reviews.review,
+          user: {
+            name: getTableColumns(users).name,
+            image: getTableColumns(users).image,
+          },
+          createdAt: reviews.createdAt,
+        })
+        .from(reviews)
+        .innerJoin(users, eq(reviews.userId, users.id))
+        .where(eq(reviews.businessId, input.businessId));
     }),
 
   allowedVehicles: protectedProcedure.query(async ({ ctx }) => {
@@ -938,6 +942,86 @@ export const businessRouter = createTRPCRouter({
         ),
       };
     }),
+
+  addReview: protectedProcedure
+    .input(
+      z.object({
+        businessId: z.string(),
+        rating: z.number().min(1).max(5),
+        review: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const business = await ctx.db.query.businesses.findFirst({
+        where: eq(businesses.id, input.businessId),
+      });
+
+      if (!business) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Vendor not found",
+        });
+      }
+
+      const existingReviews = await ctx.db
+        .select({
+          id: reviews.id,
+        })
+        .from(reviews)
+        .where(
+          and(
+            eq(reviews.businessId, input.businessId),
+            eq(reviews.userId, ctx.session.user.id),
+          ),
+        );
+
+      const hasUserBooked = await ctx.db
+        .select({
+          id: rentals.id,
+        })
+        .from(rentals)
+        .where(
+          and(
+            eq(rentals.businessId, input.businessId),
+            eq(rentals.userId, ctx.session.user.id),
+          ),
+        );
+
+      if (existingReviews.length > 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You have already reviewed this vendor",
+        });
+      }
+
+      if (hasUserBooked.length === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You must book with this vendor to review",
+        });
+      }
+
+      const review = await ctx.db.insert(reviews).values({
+        businessId: input.businessId,
+        userId: ctx.session.user.id,
+        rating: input.rating,
+        review: input.review,
+      });
+
+      const totalRating =
+        (business.rating * (business.ratingCount ?? 0) + input.rating) /
+        ((business.ratingCount ?? 0) + 1);
+
+      await ctx.db
+        .update(businesses)
+        .set({
+          rating: totalRating,
+          ratingCount: sql`COALESCE(${businesses.ratingCount}, 0) + 1`,
+        })
+        .where(eq(businesses.id, input.businessId));
+
+      return review;
+    }),
 });
 
 export type BusinessRouter = typeof businessRouter;
@@ -948,3 +1032,5 @@ export type GetOrdersType = inferRouterOutputs<BusinessRouter>["getOrders"];
 export type GetPopularShops =
   inferRouterOutputs<BusinessRouter>["getPopularShops"];
 export type GetSearchedShops = inferRouterOutputs<BusinessRouter>["search"];
+export type GetDashboardInfo =
+  inferRouterOutputs<BusinessRouter>["getDashboardInfo"];

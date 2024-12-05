@@ -84,6 +84,7 @@
     "react-dropzone": "^14.3.5",
     "react-hook-form": "^7.53.1",
     "react-leaflet": "^4.2.1",
+    "react-scan": "^0.0.36",
     "react-wrap-balancer": "^1.1.1",
     "recharts": "^2.13.3",
     "server-only": "^0.0.1",
