@@ -35,8 +35,6 @@ export async function GET(request: Request): Promise<Response> {
       },
     });
   } catch (error) {
-    console.error("Error fetching IP location:", error);
-
     // Handle errors and return a 500 response
     return new Response(
       JSON.stringify({ error: "Failed to retrieve IP location" }),

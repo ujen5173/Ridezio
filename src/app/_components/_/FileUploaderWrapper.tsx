@@ -1,19 +1,42 @@
-// TODO: Dont Re-upload the already uploaded file. Need to fix this asap.
-
 "use client";
 
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  horizontalListSortingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
 import { Loader } from "lucide-react";
-import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import { type DropzoneOptions } from "react-dropzone";
+import { type UseFormReturn } from "react-hook-form";
+import { z } from "zod";
 import {
   FileInput,
   FileUploader,
   FileUploaderContent,
-  FileUploaderItem,
 } from "~/components/ui/file-uploader";
-import { toast } from "~/hooks/use-toast";
 import { type UploadedFileType } from "~/hooks/useUploadthing";
-import { convertMultipleToWebP, webpBase64ToFile } from "~/lib/image";
+import ImageDragItem from "./ImageDragItem";
+
+export const imageSchema = z.object({
+  images: z
+    .object({
+      id: z.string(),
+      url: z.string().url(),
+      order: z.number(),
+    })
+    .array(),
+});
 
 export const defaultDropzone = {
   accept: {
@@ -24,47 +47,6 @@ export const defaultDropzone = {
   maxSize: 5 * 1024 * 1024,
 } satisfies DropzoneOptions;
 
-const fileuploaderFunc = async ({
-  files,
-  setFiles,
-  cb,
-}: {
-  files: File[] | null;
-  setFiles: React.Dispatch<React.SetStateAction<File[] | null>>;
-  cb: (files: File[]) => void;
-}) => {
-  if (!files) {
-    toast({
-      title: "No files to upload",
-      variant: "destructive",
-    });
-    return;
-  }
-  setFiles(files);
-  try {
-    const convertedImages = await convertMultipleToWebP(files, {
-      maxWidth: 1920,
-      maxHeight: 1080,
-      quality: 0.6,
-    });
-
-    // Convert the compressed images back to Files for upload
-    const optimizedFiles = convertedImages.map((img) =>
-      webpBase64ToFile(img.base64, {
-        fileName: img.name,
-        fileType: img.type,
-      }),
-    );
-
-    void cb(optimizedFiles);
-  } catch (error) {
-    toast({
-      title: "Error processing images",
-      variant: "destructive",
-    });
-  }
-};
-
 const FileUploaderWrapper = ({
   dropzone = defaultDropzone,
   files,
@@ -72,7 +54,8 @@ const FileUploaderWrapper = ({
   onFileUpload,
   uploadedFile,
   isUploading,
-  progresses,
+  images,
+  form,
 }: {
   dropzone?: DropzoneOptions;
   files: File[] | null;
@@ -80,18 +63,94 @@ const FileUploaderWrapper = ({
   onFileUpload: (files: File[]) => void;
   uploadedFile: UploadedFileType[] | undefined;
   isUploading: boolean;
-  progresses: number;
+  images: {
+    id: string;
+    url: string;
+    order: number;
+  }[];
+  form: UseFormReturn<z.infer<typeof imageSchema>>;
 }) => {
+  const [localImages, setLocalImages] = useState<
+    {
+      id: string;
+      url: string;
+      order: number;
+    }[]
+  >(images);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = localImages.findIndex((img) => img.id === active.id);
+      const newIndex = localImages.findIndex((img) => img.id === over.id);
+
+      const reorderedImages = arrayMove(localImages, oldIndex, newIndex);
+
+      const updatedImages = reorderedImages.map((img, index) => ({
+        ...img,
+        order: index + 1,
+      }));
+
+      setLocalImages(updatedImages);
+      form.setValue("images", updatedImages, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (uploadedFile && uploadedFile.length > 0) {
+      // Filter out already uploaded images based on URL
+      const newUniqueUploads = uploadedFile.filter(
+        (newFile) =>
+          !localImages.some((existingImg) => existingImg.url === newFile.url),
+      );
+
+      if (newUniqueUploads.length > 0) {
+        const newUploadedImages = newUniqueUploads.map((e, idx) => ({
+          id: e.key,
+          order: localImages.length + idx + 1,
+          url: e.url,
+        }));
+
+        const updatedImages = [...localImages, ...newUploadedImages];
+
+        setLocalImages(updatedImages);
+        form.setValue("images", updatedImages, {
+          shouldDirty: true,
+          shouldTouch: true,
+        });
+      }
+    }
+  }, [uploadedFile, form]);
+
+  const imageIds = useMemo(
+    () => localImages.map((img) => img.id),
+    [localImages],
+  );
+
   return (
     <FileUploader
       value={files}
-      onValueChange={(e) =>
-        fileuploaderFunc({ files: e, setFiles, cb: onFileUpload })
-      }
+      onValueChange={(newFiles) => {
+        setFiles(newFiles);
+        if (newFiles) {
+          onFileUpload(newFiles);
+        }
+      }}
       dropzoneOptions={dropzone}
     >
       <FileInput>
-        <div className="flex h-72 w-full flex-col items-center justify-center rounded-md border bg-background hover:bg-slate-100">
+        <div className="mb-4 flex h-72 w-full flex-col items-center justify-center rounded-md border bg-background hover:bg-slate-100">
           <p className="flex items-center gap-2 font-medium text-gray-700">
             {isUploading ? (
               <>
@@ -102,46 +161,27 @@ const FileUploaderWrapper = ({
               "Drop files here"
             )}
           </p>
-          {!isUploading && (
-            <>
-              <p className="text-xs italic text-gray-600">
-                (Max {dropzone.maxFiles} files, {dropzone.maxSize} each)
-              </p>
-              <p className="text-xs italic text-gray-600">
-                Accepted types: {dropzone.accept?.["image/*"]?.join(", ")}
-              </p>
-            </>
-          )}
         </div>
       </FileInput>
-      <FileUploaderContent className="flex flex-row items-end gap-2">
-        {files?.map((file, i) => {
-          return (
-            <FileUploaderItem
-              key={i}
-              removeFile={!((uploadedFile ?? []).length > 0)}
-              index={i}
-              disabled={isUploading}
-              className="h-16 overflow-hidden rounded-sm p-0"
-              aria-roledescription={`file ${i + 1} containing ${file.name}`}
-            >
-              {isUploading && (
-                <div className="absolute inset-0 bg-slate-900/20">
-                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
-                    <Loader className="animate-spin text-white duration-1500" />
-                  </div>
+      <FileUploaderContent className="flex flex-row items-center space-x-2">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={imageIds}
+            strategy={horizontalListSortingStrategy}
+          >
+            <div className="flex items-center gap-2">
+              {localImages.map((image, index) => (
+                <div key={image.id} className="relative h-28 w-32">
+                  <ImageDragItem id={image.id} file={image.url} index={index} />
                 </div>
-              )}
-              <Image
-                src={URL.createObjectURL(file)}
-                alt={file.name}
-                height={80}
-                width={80}
-                className="aspect-video h-full object-cover p-0"
-              />
-            </FileUploaderItem>
-          );
-        })}
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       </FileUploaderContent>
     </FileUploader>
   );

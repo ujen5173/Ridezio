@@ -489,8 +489,6 @@ export const businessRouter = createTRPCRouter({
           offset: input.offset,
         };
       } catch (err) {
-        console.error("Vendor search error:", err);
-
         if (err instanceof TRPCError) {
           throw err;
         }
@@ -656,7 +654,13 @@ export const businessRouter = createTRPCRouter({
         ),
         availableVehicleTypes: z.array(z.enum(vehicleTypeEnum.enumValues)),
         logo: z.string().url(),
-        images: z.array(z.string().url()),
+        images: z.array(
+          z.object({
+            url: z.string().url(),
+            order: z.number(),
+            id: z.string(),
+          }),
+        ),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -732,7 +736,13 @@ export const businessRouter = createTRPCRouter({
             order: z.number(),
           }),
         ),
-        images: z.array(z.string().url()),
+        images: z.array(
+          z.object({
+            url: z.string().url(),
+            order: z.number(),
+            id: z.string(),
+          }),
+        ),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -775,7 +785,7 @@ export const businessRouter = createTRPCRouter({
             cause: error.issues,
           });
         }
-        console.error("Unexpected error:", error);
+
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "An unexpected error occurred",

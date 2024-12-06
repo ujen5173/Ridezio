@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import {
   Command,
   CommandEmpty,
@@ -78,8 +79,20 @@ const HeaderSearch = () => {
     retry: 1,
   });
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const url = `/search?query=${inputRef.current?.value}`;
+
+    router.push(url);
+  };
+
   return (
-    <form className="flex items-center">
+    <form className="flex items-center" onSubmit={handleSubmit}>
       <div className="my-auto flex h-10 items-center rounded-full border border-border px-[0.35rem] py-2 shadow-md">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -153,6 +166,7 @@ const HeaderSearch = () => {
 
         <input
           placeholder="Search Query"
+          ref={inputRef}
           className={cn(
             "h-8 w-28 flex-1 rounded-lg border-none py-2 text-center text-xs font-semibold text-slate-800 outline-none placeholder:text-slate-600",
           )}

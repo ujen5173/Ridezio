@@ -190,6 +190,8 @@ export const userRouter = createTRPCRouter({
       const user = await db.query.users.findFirst({
         where: eq(users.id, ctx.session.user.id),
       });
+
+      return user;
     } catch (err) {
       console.log({ err });
     }

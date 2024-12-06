@@ -65,7 +65,11 @@ export interface Vehicle {
   type: (typeof vehicleTypeEnum.enumValues)[number];
   inventory: number;
   basePrice: number;
-  image: string;
+  images: {
+    url: string;
+    order: number;
+    id: string;
+  }[];
   status: "available" | "Unavailable";
   features: string;
   category: string;
@@ -83,19 +87,25 @@ export const columns: ColumnDef<Vehicle>[] = [
     ),
   },
   {
-    accessorKey: "image",
+    accessorKey: "images",
     header: () => <div className="w-max break-keep px-4">Image</div>,
     cell: ({ row }) => {
-      const image = row.getValue<string>("image");
+      const image = row.getValue<
+        {
+          url: string;
+          order: number;
+          id: string;
+        }[]
+      >("images");
 
       return (
         <div className="px-4">
           <Image
-            src={image}
+            src={image[0]!.url}
             alt="Vehicle"
             width={500}
             height={700}
-            className="h-auto w-28 max-w-prose rounded-sm object-cover"
+            className="h-20 w-28 max-w-prose rounded-sm object-cover"
           />
         </div>
       );
@@ -265,7 +275,7 @@ const transformApiData = (data: GetBusinessVehicleType = []): Vehicle[] =>
     type: vehicle.type,
     inventory: vehicle.inventory,
     basePrice: vehicle.basePrice,
-    image: vehicle.images[0] ?? "",
+    images: vehicle.images ?? [],
     status: vehicle.inventory === 0 ? "Unavailable" : "available",
     features: vehicle.features
       .map((feature) => `${feature.key}: ${feature.value}`)

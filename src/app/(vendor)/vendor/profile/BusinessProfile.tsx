@@ -83,7 +83,23 @@ export const formSchema = z.object({
       order: z.number(),
     }),
   ),
-  images: z.array(z.string().url()),
+  images: z.array(
+    z.object({
+      id: z.string(),
+      url: z.string().url(),
+      order: z.number(),
+    }),
+  ),
+});
+
+export const imageSchema = z.object({
+  images: z
+    .object({
+      id: z.string(),
+      url: z.string().url(),
+      order: z.number(),
+    })
+    .array(),
 });
 
 export const BusinessFormContext = createContext({});
@@ -111,6 +127,15 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
       ),
     },
   });
+  const imageForm = useForm<z.infer<typeof imageSchema>>({
+    resolver: zodResolver(imageSchema),
+    mode: "onBlur",
+    defaultValues: {
+      images: business.images ?? [],
+    },
+  });
+
+  const images = imageForm.watch("images") || [];
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const isValid = await form.trigger();
@@ -121,7 +146,7 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
 
     const result = {
       ...values,
-      images: form.getValues("images"),
+      images: images,
       logo: form.getValues("logo"),
     };
 
@@ -135,7 +160,7 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
       return;
     }
 
-    if (form.getValues("images").length < 1) {
+    if (images.length < 1) {
       toast({
         title: "Shop Images Required",
         description: "Please upload at least one image of your shop",
@@ -201,7 +226,7 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <GeneralInfo />
-              <ShopImages />
+              <ShopImages form={imageForm} images={images} />
               <BusinessHours />
               <CreateFAQs />
               <LocationDetails />

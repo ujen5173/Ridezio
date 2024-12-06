@@ -1,28 +1,45 @@
 "use client";
 import { useEffect, useState } from "react";
+import { type UseFormReturn } from "react-hook-form";
+import { type z } from "zod";
 import FileUploaderWrapper from "~/app/_components/_/FileUploaderWrapper";
 import { Label } from "~/components/ui/label";
 import { useUploadFile } from "~/hooks/useUploadthing";
-import useBusinessFormContext from "../hooks/useBusinessFormContext";
+import { type imageSchema } from "../BusinessProfile";
 
-const ShopImages = () => {
-  const { form, business } = useBusinessFormContext();
-
+const ShopImages = ({
+  images,
+  form,
+}: {
+  form: UseFormReturn<z.infer<typeof imageSchema>>;
+  images: {
+    id: string;
+    url: string;
+    order: number;
+  }[];
+}) => {
   const [files, setFiles] = useState<File[] | null>([]);
 
-  const { uploadFiles, progresses, uploadedFile, isUploading } = useUploadFile(
+  const { uploadFiles, uploadedFile, isUploading } = useUploadFile(
     "imageUploader",
     {},
   );
 
   useEffect(() => {
     if (uploadedFile && uploadedFile.length > 0) {
-      form.setValue(
-        "images",
-        uploadedFile.map((e) => e.url),
-      );
+      const existingImages = form.getValues("images") || [];
+
+      const newImages = uploadedFile.map((file, index) => ({
+        url: file.url,
+        order: existingImages.length + index + 1,
+        id: file.key,
+      }));
+
+      form.setValue("images", [...existingImages, ...newImages], {
+        shouldDirty: true,
+      });
     }
-  }, [uploadedFile]);
+  }, [uploadedFile, form]);
 
   return (
     <div className="space-y-6">
@@ -33,28 +50,14 @@ const ShopImages = () => {
         </p>
       </div>
 
-      <div className="flex items-center gap-2">
-        {business.images.map((image, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <div
-              style={{
-                backgroundImage: `url(${image})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-              className="size-28 rounded-md border border-slate-200 bg-slate-100"
-            ></div>
-          </div>
-        ))}
-      </div>
-
       <FileUploaderWrapper
         files={files}
+        form={form}
+        images={images}
         onFileUpload={uploadFiles}
         setFiles={setFiles}
         uploadedFile={uploadedFile}
         isUploading={isUploading}
-        progresses={progresses}
       />
     </div>
   );

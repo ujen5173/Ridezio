@@ -139,7 +139,11 @@ const Vehicles = () => {
                         height={850}
                         layout="fixed"
                         className="m-auto h-full w-auto rounded-md object-cover mix-blend-multiply"
-                        src={vehicle.images[0]!}
+                        src={
+                          (vehicle.images ?? []).sort(
+                            (a, b) => a.order - b.order,
+                          )[0]?.url ?? "/vehicle-placeholder.png"
+                        }
                       />
                     </div>
                   </div>
@@ -189,7 +193,7 @@ const Vehicles = () => {
                                         height={1440}
                                         layout="fixed"
                                         className="m-auto h-full w-auto rounded-md object-cover mix-blend-multiply"
-                                        src={_}
+                                        src={_.url}
                                       />
                                     </div>
                                   </div>

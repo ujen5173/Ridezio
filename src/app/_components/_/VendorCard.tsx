@@ -32,21 +32,23 @@ const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
           <CarouselPrevious />
           <CarouselNext />
           <CarouselContent>
-            {shop.images.map((image, index) => (
-              <CarouselItem key={index} className="relative">
-                <Link href={`/vendor/${shop.slug}`}>
-                  <Image
-                    alt={`${shop.name}'s Images`}
-                    width={450}
-                    height={450}
-                    layout="fixed"
-                    className="aspect-[4/3] cursor-pointer rounded-md object-cover"
-                    key={index}
-                    src={image}
-                  />
-                </Link>
-              </CarouselItem>
-            ))}
+            {shop.images
+              .sort((a, b) => a.order - b.order)
+              .map((image, index) => (
+                <CarouselItem key={index} className="relative">
+                  <Link href={`/vendor/${shop.slug}`}>
+                    <Image
+                      alt={`${shop.name}'s Images`}
+                      width={450}
+                      height={450}
+                      layout="fixed"
+                      className="aspect-[4/3] cursor-pointer rounded-md object-cover"
+                      key={index}
+                      src={image.url}
+                    />
+                  </Link>
+                </CarouselItem>
+              ))}
           </CarouselContent>
         </Carousel>
       </div>

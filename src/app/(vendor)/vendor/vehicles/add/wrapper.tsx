@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {} from "cmdk";
-import { Check, ChevronsUpDown, Loader, Plus, Trash, X } from "lucide-react";
+import { Check, ChevronsUpDown, Loader, Plus, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -41,16 +41,6 @@ import { VEHICLE_CATEGORY } from "~/lib/vehicle-category";
 import { vehicleTypeEnum } from "~/server/db/schema";
 import { api } from "~/trpc/react";
 
-export const formSchema = z.object({
-  name: z.string().min(1),
-  category: z.string().min(1),
-  type: z.enum(vehicleTypeEnum.enumValues).optional(),
-  inventory: z.number().min(1),
-  basePrice: z.number().min(100),
-  features: z.array(z.object({ key: z.string(), value: z.string() })),
-  images: z.array(z.string()),
-});
-
 type EditData = {
   id: string;
   name: string;
@@ -58,9 +48,39 @@ type EditData = {
   type: (typeof vehicleTypeEnum.enumValues)[number];
   inventory: number;
   basePrice: number;
-  images: string[];
+  images: {
+    id: string;
+    order: number;
+    url: string;
+  }[];
   features: { key: string; value: string }[];
 };
+
+const formSchema = z.object({
+  name: z.string().min(1),
+  category: z.string().min(1),
+  type: z.enum(vehicleTypeEnum.enumValues).optional(),
+  inventory: z.number().min(1),
+  basePrice: z.number().min(100),
+  features: z.array(z.object({ key: z.string(), value: z.string() })),
+  images: z.array(
+    z.object({
+      id: z.string(),
+      order: z.number(),
+      url: z.string(),
+    }),
+  ),
+});
+
+const imageSchema = z.object({
+  images: z
+    .object({
+      id: z.string(),
+      url: z.string().url(),
+      order: z.number(),
+    })
+    .array(),
+});
 
 const Wrapper = ({
   editData,
@@ -79,25 +99,20 @@ const Wrapper = ({
   const [features, setFeatures] = useState<{ key: string; value: string }[]>(
     editData?.features ?? [],
   );
-  const [pastImages, setPastImages] = useState<string[]>(
-    editData?.images ?? [],
-  );
+  const [pastImages, setPastImages] = useState<
+    {
+      id: string;
+      order: number;
+      url: string;
+    }[]
+  >(editData?.images ?? []);
 
   const [files, setFiles] = useState<File[] | null>([]);
 
-  const { uploadFiles, progresses, uploadedFile, isUploading } = useUploadFile(
+  const { uploadFiles, uploadedFile, isUploading } = useUploadFile(
     "imageUploader",
     {},
   );
-
-  useEffect(() => {
-    if (uploadedFile && uploadedFile.length > 0) {
-      form.setValue(
-        "images",
-        uploadedFile.map((e) => e.url),
-      );
-    }
-  }, [uploadedFile]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -111,6 +126,28 @@ const Wrapper = ({
       images: [],
     },
   });
+  const imageForm = useForm<z.infer<typeof imageSchema>>({
+    resolver: zodResolver(imageSchema),
+    mode: "onBlur",
+    defaultValues: {
+      images: editData?.images ?? [],
+    },
+  });
+
+  const images = imageForm.watch("images") || [];
+
+  useEffect(() => {
+    if (uploadedFile && uploadedFile.length > 0) {
+      imageForm.setValue(
+        "images",
+        uploadedFile.map((e, idx) => ({
+          id: e.key,
+          order: idx,
+          url: e.url,
+        })),
+      );
+    }
+  }, [uploadedFile, imageForm]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!business) {
@@ -136,7 +173,7 @@ const Wrapper = ({
         ...rest,
         features,
         inventory: inventory,
-        images: [...pastImages, ...values.images],
+        images: images,
         businessId: business.id,
       },
       type,
@@ -165,34 +202,43 @@ const Wrapper = ({
               <FormLabel className="text-slate-600">
                 Media (Upload vehicle images)
               </FormLabel>
-
+              {/* 
               {type === "edit" && (
                 <div className="mb-4 mt-1 flex items-center gap-2">
-                  {pastImages.map((image: string, i) => (
-                    <div key={i} className="relative flex items-center gap-2">
-                      <div
-                        style={{
-                          backgroundImage: `url(${image})`,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center center",
-                        }}
-                        className="size-28 rounded-md border border-slate-200 bg-slate-100"
-                      ></div>
-                      <span className="sr-only">remove item {i}</span>
-                      <div
-                        onClick={() => {
-                          const updatedImages = [...pastImages];
-                          updatedImages.splice(i, 1);
-                          setPastImages(updatedImages);
-                        }}
-                        className="absolute right-2 top-2 z-10 flex size-5 items-center justify-center rounded-sm border border-border bg-white shadow-sm"
-                      >
-                        <X className="size-3 stroke-destructive duration-200 ease-in-out" />
+                  {pastImages.map(
+                    (
+                      image: {
+                        id: string;
+                        order: number;
+                        url: string;
+                      },
+                      i,
+                    ) => (
+                      <div key={i} className="relative flex items-center gap-2">
+                        <div
+                          style={{
+                            backgroundImage: `url(${image.url})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center center",
+                          }}
+                          className="size-28 rounded-md border border-slate-200 bg-slate-100"
+                        ></div>
+                        <span className="sr-only">remove item {i}</span>
+                        <div
+                          onClick={() => {
+                            const updatedImages = [...pastImages];
+                            updatedImages.splice(i, 1);
+                            setPastImages(updatedImages);
+                          }}
+                          className="absolute right-2 top-2 z-10 flex size-5 items-center justify-center rounded-sm border border-border bg-white shadow-sm"
+                        >
+                          <X className="size-3 stroke-destructive duration-200 ease-in-out" />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
-              )}
+              )} */}
 
               <div className="mb-4">
                 <FileUploaderWrapper
@@ -201,7 +247,8 @@ const Wrapper = ({
                   onFileUpload={uploadFiles}
                   uploadedFile={uploadedFile}
                   isUploading={isUploading}
-                  progresses={progresses}
+                  images={images}
+                  form={imageForm}
                 />
               </div>
             </div>

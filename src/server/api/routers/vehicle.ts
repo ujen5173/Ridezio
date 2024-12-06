@@ -15,7 +15,13 @@ export const vehicleRouter = createTRPCRouter({
           name: z.string(),
           type: z.enum(vehicleTypeEnum.enumValues).optional().default("bike"),
           category: z.string().min(1),
-          images: z.array(z.string()),
+          images: z.array(
+            z.object({
+              id: z.string(),
+              url: z.string().url(),
+              order: z.number().default(0),
+            }),
+          ),
           basePrice: z.number(),
           inventory: z.number().default(1),
           features: z.array(

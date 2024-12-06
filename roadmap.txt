@@ -43,12 +43,12 @@
 ✅ - reviews 
 ✅ - add loading for accpet and reject in orders
 ✅ - remove the refetch after accept or reject order
+✅ - order in the images of the vendor page
    - useContext error: `TypeError: Cannot read properties of null (reading 'useContext')`
    - mobile ma isError true aayexa
    - search based on vehicle name.
    - reduce the database load in `rent` procedure. (took >5sec to execute)
    - migrate to google maps asap
-   - order in the images of the vendor page
    - authentication error handling
    - handle upload errors in uploadthing.
    - test the esewa payment

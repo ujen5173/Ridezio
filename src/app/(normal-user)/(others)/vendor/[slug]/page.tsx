@@ -1,7 +1,6 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import "react-datepicker/dist/react-datepicker.css";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
-import { type GetBookingsType } from "~/server/api/routers/business";
 import { api } from "~/trpc/server";
 import VendorWrapper from "./_components/VendorWrapper";
 
@@ -20,18 +19,18 @@ const VendorPage = async ({
     slug: slug,
   });
 
-  let bookingDetails: GetBookingsType | undefined | null = null;
-
   if (data) {
-    bookingDetails = await api.business.getBookingsDetails({
+    await api.business.getBookingsDetails.prefetch({
       businessId: data.id,
     });
+  } else {
+    notFound();
   }
 
   return (
     <>
       <HeaderHeight />
-      <VendorWrapper data={data} bookingsDetails={bookingDetails} />
+      <VendorWrapper data={data} />
     </>
   );
 };

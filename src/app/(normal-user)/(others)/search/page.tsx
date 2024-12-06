@@ -3,10 +3,7 @@
 import { MapIcon } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
-import VendorCard from "~/app/_components/_/VendorCard";
-import VendorCardLoading from "~/app/_components/_/VendorCardLoading";
 import { Button } from "~/components/ui/button";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { toast } from "~/hooks/use-toast";
 import useWindowDimensions from "~/hooks/useWindowDimensions";
 import { cn } from "~/lib/utils";
@@ -21,15 +18,21 @@ export interface MapBounds {
   southWest: { lat: number; lng: number };
 }
 
-const Search = () => {
+const Search = ({
+  params,
+}: {
+  params: {
+    query: string;
+  };
+}) => {
   const { width } = useWindowDimensions();
   const [places, setPlaces] = useState<GetSearchedShops>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [bounds, setBounds] = useState<MapBounds | null>(null);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [showingArea, setShowingArea] = useState<"places" | "map" | "both">(
     "both",
   );
-  const [initialLoad, setInitialLoad] = useState(true);
 
   const {
     data: searchBusinesses,
@@ -38,6 +41,7 @@ const Search = () => {
     refetch,
   } = api.business.search.useQuery(
     {
+      query: params.query,
       bounds: bounds!,
     },
     {
@@ -155,7 +159,7 @@ const Search = () => {
                 <Filter />
               </div>
             </div>
-            <ScrollArea className="">
+            {/* <ScrollArea className="">
               <div className="grid grid-cols-1 gap-4 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
                 {isDataFetching ? (
                   <>
@@ -186,7 +190,7 @@ const Search = () => {
                   </div>
                 )}
               </div>
-            </ScrollArea>
+            </ScrollArea> */}
           </div>
           <div
             className={cn(

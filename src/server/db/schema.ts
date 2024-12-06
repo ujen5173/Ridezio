@@ -130,7 +130,17 @@ export const businesses = createTable(
       .notNull()
       .default([]),
     logo: text("logo"),
-    images: text("shop_images").array().notNull().default([]),
+    images: json("images")
+      .array()
+      .$type<
+        {
+          id: string;
+          url: string;
+          order: number;
+        }[]
+      >()
+      .notNull()
+      .default(sql`'{}'::json[]`),
     faqs: json("faqs")
       .array()
       .$type<
@@ -145,7 +155,7 @@ export const businesses = createTable(
   (table) => ({
     nameIdx: index("business_name_idx").on(table.name),
     ownerIdx: index("business_owner_idx").on(table.ownerId),
-    locationIdx: index("business_location_idx").on(table.location),
+    // locationIdx: index("business_location_idx").on(table.location),
     ratingIdx: index("business_rating_idx").on(table.rating, table.ratingCount),
   }),
 );
@@ -182,7 +192,17 @@ export const vehicles = createTable(
     slug: varchar("slug", { length: 100 }).notNull(),
     type: vehicleTypeEnum("type").notNull(),
     category: varchar("category", { length: 100 }).notNull(),
-    images: text("images").array().notNull().default([]),
+    images: json("images")
+      .array()
+      .$type<
+        {
+          id: string;
+          url: string;
+          order: number;
+        }[]
+      >()
+      .notNull()
+      .default(sql`'{}'::json[]`),
     basePrice: integer("base_price").notNull(),
     inventory: integer("inventory").notNull().default(1),
     features: json("features")
@@ -241,7 +261,7 @@ export const rentals = createTable(
   (table) => ({
     userIdx: index("rental_user_idx").on(table.userId),
     vehicleIdx: index("rental_vehicle_idx").on(table.vehicleId),
-    businessIdx: index("rental_business_idx").on(table.businessId), // Add this index
+    businessIdx: index("rental_business_idx").on(table.businessId),
     statusIdx: index("rental_status_idx").on(table.status),
     dateRangeIdx: index("rental_date_range_idx").on(
       table.rentalStart,

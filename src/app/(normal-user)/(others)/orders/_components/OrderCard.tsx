@@ -23,7 +23,6 @@ const OrderCard = ({
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectedVendor: React.Dispatch<React.SetStateAction<string | null>>;
 }) => {
-  console.log(orderDetails);
   return (
     <div className="rounded-md border border-border p-6 shadow-md">
       <div className="mb-2 flex items-center justify-between gap-4">

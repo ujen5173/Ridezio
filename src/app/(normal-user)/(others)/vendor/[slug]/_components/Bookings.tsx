@@ -292,8 +292,6 @@ const Bookings: React.FC<BookingsProps> = ({
         signature: payment.esewaConfig.signature,
       };
 
-      console.log({ esewaPayload });
-
       Object.entries(esewaPayload).forEach(([key, value]) => {
         const input = document.createElement("input");
         input.type = "hidden";
@@ -308,11 +306,9 @@ const Bookings: React.FC<BookingsProps> = ({
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "An unknown error occurred";
-      console.error("Payment error:", errorMessage);
-      toast({ title: "Payment initiation failed. Please try again." });
       toast({
         variant: "destructive",
-        title: "Payment Error",
+        title: errorMessage,
         description: "Payment initiation failed. Please try again.",
       });
     }

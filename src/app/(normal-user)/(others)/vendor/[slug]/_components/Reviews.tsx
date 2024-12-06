@@ -93,6 +93,7 @@ const Reviews = ({
               </div>
             </>
           ) : (
+            (allReviews ?? []).length > 0 &&
             allReviews?.map((review) => (
               <div key={review.id}>
                 <div className="mb-4 flex items-center gap-2">
@@ -142,6 +143,11 @@ const Reviews = ({
             ))
           )}
         </div>
+        {allReviews?.length === 0 && (
+          <div className="text-center text-slate-600">
+            <p>No reviews yet.</p>
+          </div>
+        )}
       </div>
     </section>
   );

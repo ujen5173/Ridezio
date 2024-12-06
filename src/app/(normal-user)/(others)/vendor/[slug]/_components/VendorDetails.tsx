@@ -152,7 +152,7 @@ const VendorDetails = () => {
                           layout="fixed"
                           className="size-16 cursor-pointer rounded-sm object-cover md:aspect-square"
                           key={index}
-                          src={image}
+                          src={image.url}
                         />
                       </button>
                     </CarouselItem>
@@ -177,7 +177,7 @@ const VendorDetails = () => {
                         layout="cover"
                         className="relative z-10 aspect-[16/12] rounded-md bg-transparent object-cover"
                         key={index}
-                        src={_}
+                        src={_.url}
                       />
                     </CarouselItem>
                   ))}

@@ -115,7 +115,6 @@ const MapArea = ({
           });
         }
       } catch (error) {
-        console.error("Location fetching error:", error);
         toast({
           title: "Location Error",
           description: "Could not determine your location",

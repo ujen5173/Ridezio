@@ -14,10 +14,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent } from "~/components/ui/dialog";
 import { toast } from "~/hooks/use-toast";
-import {
-  type GetBookingsType,
-  type GetVendorType,
-} from "~/server/api/routers/business";
+import { type GetVendorType } from "~/server/api/routers/business";
 import { decodeEsewaSignature } from "~/server/utils/generate-payment-token";
 import { api } from "~/trpc/react";
 import Bookings from "./Bookings";
@@ -53,13 +50,11 @@ type RentalBookingData = {
   notes: string;
 };
 
-const VendorWrapper = ({
-  data,
-  bookingsDetails,
-}: {
-  bookingsDetails: GetBookingsType | undefined | null;
-  data: GetVendorType;
-}) => {
+const VendorWrapper = ({ data }: { data: GetVendorType }) => {
+  const [bookingsDetails] = api.business.getBookingsDetails.useSuspenseQuery({
+    businessId: data!.id,
+  });
+
   const router = useRouter();
   const pathname = usePathname();
   const paymentHash = useSearchParams().get("data");
@@ -70,8 +65,6 @@ const VendorWrapper = ({
 
   const processPayment = async () => {
     setLoading(true);
-    console.log("PROCESSING PAYMENT AND BOOKING...");
-    console.log({ paymentHash });
     if (!paymentHash) {
       return;
     }
@@ -99,7 +92,6 @@ const VendorWrapper = ({
 
       // Parse local storage data
       const parsedData = JSON.parse(localStorageObject) as RentalBookingData;
-      console.log({ paymentData, localStorageObject, parsedData });
 
       // Validate transaction
       if (parsedData.paymentId !== paymentData.transaction_uuid) {
@@ -111,15 +103,6 @@ const VendorWrapper = ({
         return false;
       }
 
-      console.log({
-        input: {
-          ...parsedData,
-          paymentStatus: "complete",
-          startDate: new Date(parsedData.startDate),
-          endDate: new Date(parsedData.endDate),
-        },
-      });
-
       // Update rental status
       const res = await rentUpdateStatusMutation({
         ...parsedData,
@@ -128,8 +111,6 @@ const VendorWrapper = ({
         endDate: new Date(parsedData.endDate),
         paymentStatus: "complete",
       });
-
-      console.log({ res });
 
       if (res) {
         toast({
@@ -145,7 +126,6 @@ const VendorWrapper = ({
 
       return false;
     } catch (err) {
-      console.log({ err });
       toast({
         variant: "destructive",
         title: "Payment Processing Failed",
