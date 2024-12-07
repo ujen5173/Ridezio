@@ -6,10 +6,14 @@ import VendorWrapper from "./_components/VendorWrapper";
 
 const VendorPage = async ({
   params,
+  searchParams,
 }: {
   params: Promise<{
     slug: string;
   }>;
+  searchParams: {
+    data?: string;
+  };
 }) => {
   const { slug } = await params;
 
@@ -30,7 +34,7 @@ const VendorPage = async ({
   return (
     <>
       <HeaderHeight />
-      <VendorWrapper data={data} />
+      <VendorWrapper bookingProcessData={searchParams.data} data={data} />
     </>
   );
 };

@@ -149,13 +149,15 @@ export const businesses = createTable(
       .notNull()
       .default(sql`'{}'::json[]`),
     status: businessStatusEnum("status").notNull().default("setup-incomplete"),
+    paymentQR: text("payment_qr"),
+    paymentNumber: varchar("payment_number", { length: 20 }),
+    merchantCode: varchar("merchant_code", { length: 20 }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => ({
     nameIdx: index("business_name_idx").on(table.name),
     ownerIdx: index("business_owner_idx").on(table.ownerId),
-    // locationIdx: index("business_location_idx").on(table.location),
     ratingIdx: index("business_rating_idx").on(table.rating, table.ratingCount),
   }),
 );

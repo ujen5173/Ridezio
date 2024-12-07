@@ -733,10 +733,13 @@ export const businessRouter = createTRPCRouter({
             id: z.string(),
           }),
         ),
+        merchantCode: z.string().optional(),
+        paymentQR: z.string().optional(),
+        paymentNumber: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      try {
+      try {  
         const business = await ctx.db.query.businesses.findFirst({
           where: eq(businesses.ownerId, ctx.session.user.id),
           columns: { id: true, status: true },

@@ -349,8 +349,8 @@ const Bookings: React.FC<BookingsProps> = ({
       setContinueWithCashLoading(false);
       setContinueWithOnlineLoading(false);
       toast({
-        title: "Booking Successful",
-        description: "Your booking has been confirmed",
+        title: "Wait for Confirmation from Vendor",
+        description: "Your booking request has been sent to the vendor",
       });
       setTimeout(() => {
         setOpen(false);
@@ -813,12 +813,6 @@ const Bookings: React.FC<BookingsProps> = ({
                         }}
                         className="gap-2 font-medium text-slate-700"
                       >
-                        <Image
-                          src="/cash.svg"
-                          width={23}
-                          height={23}
-                          alt="Cash"
-                        />
                         {continueWithCashLoading ? (
                           <>
                             <Loader
@@ -828,7 +822,15 @@ const Bookings: React.FC<BookingsProps> = ({
                             <span>Processing...</span>
                           </>
                         ) : (
-                          <span>Continue with Cash</span>
+                          <>
+                            <Image
+                              src="/cash.svg"
+                              width={23}
+                              height={23}
+                              alt="Cash"
+                            />
+                            <span>Continue with Cash</span>
+                          </>
                         )}
                       </Button>
                     </div>

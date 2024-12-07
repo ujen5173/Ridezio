@@ -91,6 +91,9 @@ export const formSchema = z.object({
       order: z.number(),
     }),
   ),
+  merchantCode: z.string().default(""),
+  paymentQR: z.string().default(""),
+  paymentNumber: z.string().default(""),
 });
 
 export const imageSchema = z.object({
@@ -119,6 +122,9 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
     defaultValues: {
       ...business,
       name: business.name ?? "",
+      paymentNumber: business.paymentNumber ?? "",
+      paymentQR: business.paymentQR ?? "",
+      merchantCode: business.merchantCode ?? "",
       businessHours: WEEK_DAYS.reduce(
         (acc, day) => ({
           ...acc,
@@ -165,6 +171,21 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
       toast({
         title: "Shop Images Required",
         description: "Please upload at least one image of your shop",
+        variant: "destructive",
+      });
+
+      return;
+    }
+
+    if (
+      // Check if at least one payment detail is provided
+      !result.merchantCode &&
+      !result.paymentQR &&
+      !result.paymentNumber
+    ) {
+      toast({
+        title: "Payment Details Required",
+        description: "Please enter at lesadcast one payment detail",
         variant: "destructive",
       });
 

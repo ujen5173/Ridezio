@@ -13,6 +13,7 @@ import { env } from "~/env";
 import { db } from "~/server/db";
 import {
   accounts,
+  businesses,
   sessions,
   users,
   verificationTokens,
@@ -97,6 +98,9 @@ export const authOptions: NextAuthOptions = {
               .update(users)
               .set({ email: user.email, role: roleCookie as userRoleEnum })
               .where(eq(users.id, existingUser.id));
+            if (roleCookie === "VENDOR") {
+              await db.insert(businesses).values({ ownerId: existingUser.id });
+            }
           }
 
           cookies().set("role", "", { maxAge: -1, path: "/" });

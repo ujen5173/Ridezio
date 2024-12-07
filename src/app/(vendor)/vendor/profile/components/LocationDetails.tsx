@@ -186,7 +186,7 @@ const LocationDetails = () => {
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <p className="text-base text-slate-600">Embed a google map</p>
           <Dialog>
             <DialogTrigger className="flex items-center gap-1">

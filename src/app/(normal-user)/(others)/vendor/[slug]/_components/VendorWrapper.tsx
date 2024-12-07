@@ -3,12 +3,7 @@
 import { motion } from "framer-motion";
 import { ExternalLink, Loader } from "lucide-react";
 import Link from "next/link";
-import {
-  notFound,
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
+import { notFound, usePathname, useRouter } from "next/navigation";
 import { createContext, useEffect, useRef, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { Button } from "~/components/ui/button";
@@ -50,28 +45,36 @@ type RentalBookingData = {
   notes: string;
 };
 
-const VendorWrapper = ({ data }: { data: GetVendorType }) => {
+const VendorWrapper = ({
+  data,
+  bookingProcessData,
+}: {
+  data: GetVendorType;
+  bookingProcessData: string | undefined;
+}) => {
   const [bookingsDetails] = api.business.getBookingsDetails.useSuspenseQuery({
     businessId: data!.id,
   });
 
   const router = useRouter();
   const pathname = usePathname();
-  const paymentHash = useSearchParams().get("data");
   const [loading, setLoading] = useState(false);
   const { mutateAsync: rentUpdateStatusMutation, isError } =
     api.rental.rent.useMutation();
   const hasProcessedPayment = useRef(false);
+  const [bookingModelOpen, setBookingModelOpen] =
+    useState<boolean>(!!bookingProcessData);
 
   const processPayment = async () => {
     setLoading(true);
-    if (!paymentHash) {
+
+    if (!bookingProcessData) {
       return;
     }
 
     try {
       // Decode payment signature
-      const decodedPaymentHash = decodeEsewaSignature(paymentHash);
+      const decodedPaymentHash = decodeEsewaSignature(bookingProcessData);
       const paymentData = JSON.parse(decodedPaymentHash) as PaymentBase64Data;
 
       // Validate payment status
@@ -140,7 +143,7 @@ const VendorWrapper = ({ data }: { data: GetVendorType }) => {
   };
 
   useEffect(() => {
-    if (paymentHash && !hasProcessedPayment.current) {
+    if (bookingProcessData && !hasProcessedPayment.current) {
       const handlePayment = async () => {
         hasProcessedPayment.current = true;
         await processPayment();
@@ -148,15 +151,7 @@ const VendorWrapper = ({ data }: { data: GetVendorType }) => {
 
       void handlePayment();
     }
-  }, [paymentHash, router, pathname]);
-
-  const [bookingModelOpen, setBookingModelOpen] = useState(false);
-
-  useEffect(() => {
-    if (paymentHash) {
-      setBookingModelOpen(true);
-    }
-  }, [paymentHash]);
+  }, [bookingProcessData, router, pathname]);
 
   const [isVisible, setIsVisible] = useState(false);
   const [open, setOpen] = useState(false);

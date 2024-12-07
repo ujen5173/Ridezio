@@ -275,6 +275,8 @@ const OrdersTable = () => {
                     status: "approved",
                   });
 
+                  void refetch();
+
                   setLoadingOrderIds((prev) => ({
                     ...prev,
                     accept: undefined,
@@ -304,6 +306,8 @@ const OrdersTable = () => {
                     orderId,
                     status: "rejected",
                   });
+
+                  void refetch();
 
                   setLoadingOrderIds((prev) => ({
                     ...prev,
