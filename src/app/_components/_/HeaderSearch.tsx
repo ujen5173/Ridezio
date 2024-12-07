@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   Command,
@@ -45,9 +45,11 @@ type Location = {
 
 const HeaderSearch = () => {
   const [open, setOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
+  const q = useSearchParams().get("query") ?? "";
+  console.log({ q });
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -99,7 +101,7 @@ const HeaderSearch = () => {
             <button
               aria-expanded={open}
               className={cn(
-                "h-8 w-20 flex-1 rounded-lg border-none py-2 outline-none",
+                "h-8 w-32 flex-1 rounded-lg border-none py-2 outline-none",
               )}
             >
               <span className="line-clamp-1 w-full text-center text-xs font-semibold text-slate-800">
@@ -167,12 +169,16 @@ const HeaderSearch = () => {
         <input
           placeholder="Search Query"
           ref={inputRef}
+          defaultValue={q}
           className={cn(
             "h-8 w-28 flex-1 rounded-lg border-none py-2 text-center text-xs font-semibold text-slate-800 outline-none placeholder:text-slate-600",
           )}
         />
 
-        <button className="flex size-7 items-center justify-center rounded-full bg-secondary outline-none">
+        <button
+          type="submit"
+          className="flex size-7 items-center justify-center rounded-full bg-secondary outline-none"
+        >
           <Search size={12} className="text-white" />
         </button>
       </div>

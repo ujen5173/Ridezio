@@ -196,12 +196,16 @@ export const columns: ColumnDef<Vehicle>[] = [
     },
   },
   {
-    accessorKey: "status",
-    header: () => <div className="w-max break-keep px-4">Current Status</div>,
+    accessorKey: "totalRentals",
+    header: () => (
+      <div className="w-max break-keep px-4">Total Rented Count</div>
+    ),
     cell: ({ row }) => {
-      // Use useMemo or move formatter to component level to prevent hydration issues
-      const amount = row.getValue<number>("basePrice");
-      return <div className="w-max break-keep px-4 capitalize">Available</div>;
+      return (
+        <div className="w-max break-keep px-4 capitalize">
+          {row.getValue<number>("totalRentals")}
+        </div>
+      );
     },
   },
   {
@@ -275,8 +279,9 @@ const transformApiData = (data: GetBusinessVehicleType = []): Vehicle[] =>
     type: vehicle.type,
     inventory: vehicle.inventory,
     basePrice: vehicle.basePrice,
-    images: vehicle.images ?? [],
+    images: vehicle.images,
     status: vehicle.inventory === 0 ? "Unavailable" : "available",
+    totalRentals: vehicle.totalRentals,
     features: vehicle.features
       .map((feature) => `${feature.key}: ${feature.value}`)
       .join(", "),
@@ -292,6 +297,7 @@ const VehiclesTable = () => {
     isRefetching,
     isError,
   } = api.vehicle.getVendorVehicles.useQuery();
+  console.log({ data });
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

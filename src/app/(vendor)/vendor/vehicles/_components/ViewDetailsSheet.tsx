@@ -71,7 +71,7 @@ const VehicleDetailsSheet = ({ row }: VehicleDetailsSheetProps) => {
             <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-lg border">
               {/* Use next/image for optimization */}
               <Image
-                src={vehicle.image}
+                src={vehicle.images[0]?.url ?? "/vehicle-placeholder.png"}
                 alt={vehicle.name}
                 width={800}
                 height={800}

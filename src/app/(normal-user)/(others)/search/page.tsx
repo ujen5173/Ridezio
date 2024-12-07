@@ -3,7 +3,10 @@
 import { MapIcon } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
+import VendorCard from "~/app/_components/_/VendorCard";
+import VendorCardLoading from "~/app/_components/_/VendorCardLoading";
 import { Button } from "~/components/ui/button";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import { toast } from "~/hooks/use-toast";
 import useWindowDimensions from "~/hooks/useWindowDimensions";
 import { cn } from "~/lib/utils";
@@ -19,9 +22,9 @@ export interface MapBounds {
 }
 
 const Search = ({
-  params,
+  searchParams,
 }: {
-  params: {
+  searchParams: {
     query: string;
   };
 }) => {
@@ -38,10 +41,9 @@ const Search = ({
     data: searchBusinesses,
     isLoading: isDataFetching,
     isError,
-    refetch,
   } = api.business.search.useQuery(
     {
-      query: params.query,
+      query: searchParams.query,
       bounds: bounds!,
     },
     {
@@ -159,7 +161,7 @@ const Search = ({
                 <Filter />
               </div>
             </div>
-            {/* <ScrollArea className="">
+            <ScrollArea className="">
               <div className="grid grid-cols-1 gap-4 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
                 {isDataFetching ? (
                   <>
@@ -190,7 +192,7 @@ const Search = ({
                   </div>
                 )}
               </div>
-            </ScrollArea> */}
+            </ScrollArea>
           </div>
           <div
             className={cn(

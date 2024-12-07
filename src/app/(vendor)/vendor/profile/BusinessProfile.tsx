@@ -20,6 +20,7 @@ import BusinessHours from "./components/BusinessHours";
 import CreateFAQs from "./components/CreateFAQs";
 import GeneralInfo from "./components/GeneralInfo";
 import LocationDetails from "./components/LocationDetails";
+import PaymentDetails from "./components/PaymentDetails";
 import ShopImages from "./components/ShopImages";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
@@ -190,14 +191,20 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
         }, 2500);
       }
 
+      const url = data?.user.vendor_setup_complete
+        ? "/vendor/vehicles"
+        : "/dashboard";
+
       toast({
-        title: "Profile Updated. Redirecting to Vehicles Page...",
+        title: data?.user.vendor_setup_complete
+          ? "Profile Updated. Redirecting to Dashboard..."
+          : "Profile Updated. Redirecting to Vehicles Page...",
         description: "Your profile has been updated successfully",
       });
 
       await update(newUser);
 
-      router.push("/vendor/vehicles");
+      router.push(url);
     } catch (error) {
       console.error("Error updating profile:", error);
       toast({
@@ -228,6 +235,7 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
               <GeneralInfo />
               <ShopImages form={imageForm} images={images} />
               <BusinessHours />
+              <PaymentDetails />
               <CreateFAQs />
               <LocationDetails />
 

@@ -1,11 +1,8 @@
 "use client";
 
-import axios from "axios";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import VendorCard from "~/app/_components/_/VendorCard";
-import VendorCardLoading from "~/app/_components/_/VendorCardLoading";
-import { type IpInfoResponse } from "~/app/api/ip/route";
 import { Button } from "~/components/ui/button";
 import {
   Carousel,
@@ -14,67 +11,14 @@ import {
   type CarouselApi,
 } from "~/components/ui/carousel";
 import { Skeleton } from "~/components/ui/skeleton";
-import { env } from "~/env";
 import { cn } from "~/lib/utils";
-import { api as trpc } from "~/trpc/react";
-type LatLng = {
-  lat: number;
-  lng: number;
-  city: string;
-};
+import { type GetVendorAroundLocation } from "~/server/api/routers/business";
 
-const ShopsAround = () => {
-  const [userLocation, setUserLocation] = useState<LatLng | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const {
-    data: shopsAroundData,
-    isLoading,
-    refetch,
-  } = trpc.business.getVendorAroundLocation.useQuery(
-    {
-      lat: userLocation?.lat,
-      lng: userLocation?.lng,
-      maxDistance: 20, // 20 km radius
-      vehicleTypes: undefined, // No vehicle type filter
-      minRating: undefined, // No minimum rating filter
-      limit: 10,
-      offset: 0,
-    },
-    {
-      enabled: !!userLocation,
-    },
-  );
-
-  useEffect(() => {
-    if (shopsAroundData) {
-      setLoading(isLoading);
-    }
-  }, [isLoading, shopsAroundData]);
-
-  useLayoutEffect(() => {
-    const getLocation = async () => {
-      setLoading(true);
-      const { data: userLocation } = await axios.get<IpInfoResponse>(
-        env.NEXT_PUBLIC_APP_URL + "/api/ip",
-      );
-
-      if (!userLocation) {
-        return;
-      }
-
-      setUserLocation({
-        lat: parseFloat(userLocation.loc.split(",")[0]!),
-        lng: parseFloat(userLocation.loc.split(",")[1]!),
-        city: userLocation.city,
-      });
-    };
-
-    void getLocation().then(async () => {
-      await refetch();
-    });
-  }, []);
-
+const ShopsAround = ({
+  shopsAroundData,
+}: {
+  shopsAroundData: GetVendorAroundLocation;
+}) => {
   const [api, setApi] = useState<CarouselApi | undefined>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
@@ -96,11 +40,11 @@ const ShopsAround = () => {
             )}
           >
             <span>Rentals Near</span>
-            {!userLocation ? (
+            {!shopsAroundData.location ? (
               <Skeleton className="h-10 w-28 rounded-sm" />
             ) : (
               <span className="font-black capitalize text-secondary underline underline-offset-2">
-                {userLocation?.city}
+                {shopsAroundData.location}
               </span>
             )}
           </h2>
@@ -133,27 +77,18 @@ const ShopsAround = () => {
             opts={{ align: "start" }}
           >
             <CarouselContent>
-              {loading
-                ? Array.from({ length: 5 }).map((_, index) => (
-                    <CarouselItem
-                      key={index}
-                      className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
-                    >
-                      <VendorCardLoading />
-                    </CarouselItem>
-                  ))
-                : shopsAroundData?.vendors?.map((shop, index) => (
-                    <CarouselItem
-                      key={index}
-                      className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
-                    >
-                      <VendorCard shop={shop} />
-                    </CarouselItem>
-                  ))}
+              {shopsAroundData.vendors.map((shop, index) => (
+                <CarouselItem
+                  key={index}
+                  className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+                >
+                  <VendorCard shop={shop} />
+                </CarouselItem>
+              ))}
             </CarouselContent>
           </Carousel>
 
-          {shopsAroundData?.vendors.length === 0 && (
+          {shopsAroundData.vendors.length === 0 && (
             <div className="flex h-40 w-full items-center justify-center gap-4">
               <p className="text-center text-lg text-foreground">
                 Oops! No rentals are available near you.

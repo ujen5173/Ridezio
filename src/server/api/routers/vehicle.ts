@@ -104,12 +104,30 @@ export const vehicleRouter = createTRPCRouter({
         throw new Error("Business not found");
       }
 
-      const result = await ctx.db.query.vehicles.findMany({
-        where: eq(vehicles.businessId, businessId.id),
-        orderBy: [desc(vehicles.createdAt)],
-      });
+      const res = await ctx.db
+        .select({
+          id: vehicles.id,
+          name: vehicles.name,
+          slug: vehicles.slug,
+          basePrice: vehicles.basePrice,
+          type: vehicles.type,
+          inventory: vehicles.inventory,
+          category: vehicles.category,
+          images: vehicles.images,
+          features: vehicles.features,
+          createdAt: vehicles.createdAt,
+          totalRentals: sql<number>`(
+            SELECT COUNT(*)
+            FROM rental
+            WHERE vehicle_id = ${vehicles.id}
+          )`,
+        })
+        .from(vehicles)
+        .leftJoin(businesses, eq(vehicles.businessId, businesses.id))
+        .where(eq(vehicles.businessId, businessId.id))
+        .orderBy(desc(vehicles.createdAt));
 
-      return result;
+      return res;
     } catch (error) {
       console.log({ error });
     }

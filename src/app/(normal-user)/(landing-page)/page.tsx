@@ -9,34 +9,17 @@ import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/server";
 import ShopsAround from "./_components/ShopsAround";
 
-// const getUpcomingEvents = unstable_cache(
-//   () => api.events.getUpcomingEvents(),
-//   ["upcoming-events"],
-//   {
-//     revalidate: 60 * 60 * 60 * 24, // 24 hours
-//     tags: ["upcoming-events"],
-//   },
-// );
-
-// const getPopularShops = unstable_cache(
-//   () => api.business.getPopularShops(),
-//   ["popular-shops"],
-//   {
-//     revalidate: 60 * 60 * 60 * 24, // 24 hours
-//     tags: ["popular-shops"],
-//   },
-// );
-
 const Home = async () => {
-  const [popularShops, events] = await Promise.all([
+  const [popularShops, events, shopsAround] = await Promise.all([
     api.business.getPopularShops(),
     api.events.getUpcomingEvents(),
+    api.business.getVendorAroundLocation(),
   ]);
 
   return (
     <>
       <HeroSection />
-      <ShopsAround />
+      <ShopsAround shopsAroundData={shopsAround} />
       <PopularShops popularShopsData={popularShops} />
       <UpcomingEvent events={events} />
       <Button

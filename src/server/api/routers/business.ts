@@ -1,7 +1,19 @@
 import { type inferRouterOutputs, TRPCError } from "@trpc/server";
-import { and, desc, eq, getTableColumns, ilike, not, sql } from "drizzle-orm";
+import axios from "axios";
+import {
+  and,
+  desc,
+  eq,
+  getTableColumns,
+  ilike,
+  not,
+  or,
+  sql,
+} from "drizzle-orm";
 import slugify from "slugify";
 import { z, ZodError } from "zod";
+import { type IpInfoResponse } from "~/app/api/ip/route";
+import { env } from "~/env";
 import { slugifyDefault } from "~/lib/helpers";
 import {
   createTRPCRouter,
@@ -46,28 +58,6 @@ export interface DailyData {
   value: number;
   orders: number;
 }
-
-// Advanced input validation schema
-const VendorSearchInputSchema = z.object({
-  // Basic location info
-  lat: z.number().optional(),
-  lng: z.number().optional(),
-
-  // Distance and filtering options
-  maxDistance: z.number().default(10), // km
-  minRating: z.number().min(0).max(5).optional(),
-
-  // Vehicle type filtering
-  vehicleTypes: z.array(z.enum(["car", "bike", "scooter"])).optional(),
-
-  // Pagination and sorting
-  limit: z.number().max(100).default(20),
-  offset: z.number().default(0),
-
-  // Additional filtering options
-  sellsGears: z.boolean().optional(),
-  status: z.enum(["active", "setup-incomplete"]).optional(),
-});
 
 export const businessRouter = createTRPCRouter({
   getStoreName: protectedProcedure.query(async ({ ctx }) => {
@@ -430,75 +420,72 @@ export const businessRouter = createTRPCRouter({
 
   // Search shops with location and availability
   // TODO: add the bounding params instead of kmsgetVendorAroundLocation: publicProcedure
-  getVendorAroundLocation: publicProcedure
-    .input(VendorSearchInputSchema)
-    .query(async ({ ctx, input }) => {
-      try {
-        // Validate location for search
-        if (!input.lat || !input.lng) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Location coordinates are required",
-          });
-        }
+  getVendorAroundLocation: publicProcedure.query(async ({ ctx }) => {
+    try {
+      const { data: userLocation } = await axios.get<IpInfoResponse>(
+        env.NEXT_PUBLIC_APP_URL + "/api/ip",
+      );
 
-        // Define distance calculation as a reusable SQL fragment
-        const distanceCalculation = sql<number>`6371 * 2 * ASIN(
-        SQRT(
-          POWER(SIN((${input.lat} - (business.location->>'lat')::numeric) * PI()/180 / 2), 2) +
-          COS(${input.lat} * PI()/180) * COS((business.location->>'lat')::numeric * PI()/180) *
-          POWER(SIN((${input.lng} - (business.location->>'lng')::numeric) * PI()/180 / 2), 2)
-        )
-      )`;
+      const [lat, lng] = userLocation.loc.split(",").map(Number);
 
-        // Main query to fetch vendors
-        const vendorsQuery = await ctx.db
-          .select({
-            id: businesses.id,
-            name: businesses.name,
-            slug: businesses.slug,
-            rating: businesses.rating,
-            location: businesses.location,
-            availableVehiclesTypes: businesses.availableVehicleTypes,
-            satisfiedCustomers: businesses.satisfiedCustomers,
-            images: businesses.images,
-          })
-          .from(businesses)
-          .where(
-            and(
-              eq(businesses.status, "active"),
-              sql`${distanceCalculation} <= ${input.maxDistance}`,
-            ),
-          )
-          .orderBy(distanceCalculation)
-          .limit(input.limit)
-          .offset(input.offset);
-
-        // Count total matching vendors
-        const [countResult] = await ctx.db
-          .select({
-            total: sql<number>`COUNT(*)`,
-          })
-          .from(businesses)
-          .where(and(sql`${distanceCalculation} <= ${input.maxDistance}`));
-
-        return {
-          vendors: vendorsQuery,
-          total: countResult?.total ?? 0,
-          limit: input.limit,
-          offset: input.offset,
-        };
-      } catch (err) {
-        if (err instanceof TRPCError) {
-          throw err;
-        }
-
+      // Validate location for search
+      if (!lat || !lng) {
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to search vendors",
+          code: "BAD_REQUEST",
+          message: "Location coordinates are required",
         });
       }
-    }),
+
+      // Define distance calculation as a reusable SQL fragment
+      const distanceCalculation = sql<number>`6371 * 2 * ASIN(
+          SQRT(
+            POWER(SIN((${lat} - (business.location->>'lat')::numeric) * PI()/180 / 2), 2) +
+            COS(${lat} * PI()/180) * COS((business.location->>'lat')::numeric * PI()/180) *
+            POWER(SIN((${lng} - (business.location->>'lng')::numeric) * PI()/180 / 2), 2)
+          )
+        )`;
+
+      // Main query to fetch vendors
+      const vendorsQuery = await ctx.db
+        .select({
+          id: businesses.id,
+          name: businesses.name,
+          slug: businesses.slug,
+          rating: businesses.rating,
+          location: businesses.location,
+          availableVehiclesTypes: businesses.availableVehicleTypes,
+          satisfiedCustomers: businesses.satisfiedCustomers,
+          images: businesses.images,
+        })
+        .from(businesses)
+        .where(and(eq(businesses.status, "active")))
+        .orderBy(distanceCalculation)
+        .limit(5);
+
+      // Count total matching vendors
+      const [countResult] = await ctx.db
+        .select({
+          total: sql<number>`COUNT(*)`,
+        })
+        .from(businesses)
+        .where(and(sql`${distanceCalculation} <= 10`));
+
+      return {
+        vendors: vendorsQuery,
+        location: userLocation.city,
+        total: countResult?.total ?? 0,
+      };
+    } catch (err) {
+      if (err instanceof TRPCError) {
+        throw err;
+      }
+
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to search vendors",
+      });
+    }
+  }),
 
   search: publicProcedure
     .input(
@@ -515,10 +502,10 @@ export const businessRouter = createTRPCRouter({
           }),
         }),
         vehicleType: z.enum(vehicleTypeEnum.enumValues).optional(),
-        hasAvailableVehicles: z.boolean().default(true),
       }),
     )
     .query(async ({ ctx, input }) => {
+      console.log({ input });
       const { northEast, southWest } = input.bounds;
 
       const shops = await ctx.db
@@ -533,31 +520,34 @@ export const businessRouter = createTRPCRouter({
           images: businesses.images,
         })
         .from(businesses)
+        .innerJoin(vehicles, eq(vehicles.businessId, businesses.id))
         .where(
           and(
             eq(businesses.status, "active"),
+            // Modify the query condition to handle optional input more robustly
             input.query
-              ? ilike(businesses.name, `%${input.query}%`)
+              ? or(
+                  ilike(businesses.name, `%${input.query}%`),
+                  ilike(vehicles.name, `%${input.query}%`),
+                  ilike(vehicles.category, `%${input.query}%`),
+                )
               : undefined,
+            // input.vehicleType
+            //   ? inArray(businesses.availableVehicleTypes, [input.vehicleType])
+            //   : undefined,
+            // Use sql`jsonb_extract_scalar` for more robust JSON extraction
+            sql`(${businesses.location} ->> 'lat')::numeric >= ${southWest.lat}`,
+            sql`(${businesses.location} ->> 'lat')::numeric <= ${northEast.lat}`,
+            sql`(${businesses.location} ->> 'lng')::numeric >= ${southWest.lng}`,
+            sql`(${businesses.location} ->> 'lng')::numeric <= ${northEast.lng}`,
           ),
-        );
+        )
+        .limit(5)
+        .orderBy(desc(businesses.rating));
 
-      return shops.filter((shop) => {
-        const shopLocation = shop.location as {
-          lat?: number;
-          lng?: number;
-        };
+      console.log({ shops });
 
-        if (shopLocation.lat === undefined || shopLocation.lng === undefined)
-          return false;
-
-        return (
-          shopLocation.lat <= northEast.lat &&
-          shopLocation.lat >= southWest.lat &&
-          shopLocation.lng <= northEast.lng &&
-          shopLocation.lng >= southWest.lng
-        );
-      });
+      return shops;
     }),
 
   getMultiple: publicProcedure
@@ -1044,3 +1034,5 @@ export type GetPopularShops =
 export type GetSearchedShops = inferRouterOutputs<BusinessRouter>["search"];
 export type GetDashboardInfo =
   inferRouterOutputs<BusinessRouter>["getDashboardInfo"];
+export type GetVendorAroundLocation =
+  inferRouterOutputs<BusinessRouter>["getVendorAroundLocation"];
