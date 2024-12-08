@@ -74,8 +74,9 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
             className="h-full min-h-10 w-full flex-1 border-0 bg-transparent p-2 outline-none ring-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
             value={pendingDataPoint}
             onChange={(e) => setPendingDataPoint(e.target.value)}
+            onBlurCapture={addPendingDataPoint}
             onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === ",") {
+              if (e.key === "Enter" || e.key === "," || e.key === "Tab") {
                 e.preventDefault();
                 addPendingDataPoint();
               } else if (

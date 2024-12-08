@@ -24,10 +24,11 @@ const PaymentDetails = () => {
               name="merchantCode"
               render={({ field }) => (
                 <div className="flex-1 space-y-2">
-                  <Label className="block text-lg font-medium">
+                  <Label htmlFor={field.name} className="block font-medium">
                     Merchant Code
                   </Label>
                   <Input
+                    id={field.name}
                     {...field}
                     type="text"
                     placeholder="Business Esewa Merchant Code"
@@ -36,9 +37,9 @@ const PaymentDetails = () => {
               )}
             />
             <div className="flex flex-col items-center">
-              <div className="h-8 w-[2.5px] bg-slate-200"></div>
+              <div className="h-6 w-[2.5px] bg-slate-200"></div>
               <span className="text-sm uppercase text-slate-700">or</span>
-              <div className="h-8 w-[2.5px] bg-slate-200"></div>
+              <div className="h-6 w-[2.5px] bg-slate-200"></div>
             </div>
           </div>
           <FormField
@@ -46,11 +47,14 @@ const PaymentDetails = () => {
             name="paymentQR"
             render={({ field }) => (
               <div className="space-y-2">
-                <Label className="block text-lg font-medium">Qr Code</Label>
+                <Label htmlFor={field.name} className="block font-medium">
+                  Name
+                </Label>
                 <Input
                   {...field}
-                  type="file"
-                  placeholder="Upload Esewa QR Code"
+                  type="text"
+                  id={field.name}
+                  placeholder="E-Sewa Account Name"
                   className="leading-[2.5]"
                 />
               </div>
@@ -61,10 +65,15 @@ const PaymentDetails = () => {
             name="paymentNumber"
             render={({ field }) => (
               <div className="space-y-2">
-                <Label className="block text-lg font-medium">
-                  Personal Esewa ID
+                <Label htmlFor={field.name} className="block font-medium">
+                  Esewa ID
                 </Label>
-                <Input {...field} type="text" placeholder="97******" />
+                <Input
+                  type="text"
+                  placeholder="97******"
+                  id={field.name}
+                  {...field}
+                />
               </div>
             )}
           />

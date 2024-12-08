@@ -44,7 +44,7 @@
 ✅ - add loading for accpet and reject in orders
 ✅ - remove the refetch after accept or reject order
 ✅ - order in the images of the vendor page
-   - render booking model in server side. 
+✅ - render booking model in server side. 
    - personal account qr
    - useContext error: `TypeError: Cannot read properties of null (reading 'useContext')`
    - mobile ma isError true aayexa

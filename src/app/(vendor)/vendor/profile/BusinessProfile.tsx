@@ -178,10 +178,10 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
     }
 
     if (
-      // Check if at least one payment detail is provided
-      !result.merchantCode &&
-      !result.paymentQR &&
-      !result.paymentNumber
+      // Check if at least one payment detail is provided either merchant code or payment QR and payment number. payment QR and payment number should be there together
+      (result.merchantCode === "" &&
+        (result.paymentQR === "" || result.paymentNumber === "")) ||
+      (result.paymentQR === "" && result.paymentNumber === "")
     ) {
       toast({
         title: "Payment Details Required",
@@ -213,8 +213,8 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
       }
 
       const url = data?.user.vendor_setup_complete
-        ? "/vendor/vehicles"
-        : "/dashboard";
+        ? "/dashboard"
+        : "/vendor/vehicles";
 
       toast({
         title: data?.user.vendor_setup_complete
