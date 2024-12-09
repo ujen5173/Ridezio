@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { chakra_petch } from "~/app/utils/font";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
@@ -25,7 +26,9 @@ const BecomePartner = () => {
           let us handle the rest.
         </p>
 
-        <Button variant={"secondary"}>Become a Partner</Button>
+        <Link href="/auth/signin">
+          <Button variant={"secondary"}>Become a Partner</Button>
+        </Link>
       </div>
     </section>
   );

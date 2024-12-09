@@ -436,50 +436,48 @@ export const businessRouter = createTRPCRouter({
         });
       }
 
-      // Define distance calculation as a reusable SQL fragment
+      // Define distance calculation and radius filter
+      const radius = 10; // kilometers
       const distanceCalculation = sql<number>`6371 * 2 * ASIN(
-          SQRT(
-            POWER(SIN((${lat} - (business.location->>'lat')::numeric) * PI()/180 / 2), 2) +
-            COS(${lat} * PI()/180) * COS((business.location->>'lat')::numeric * PI()/180) *
-            POWER(SIN((${lng} - (business.location->>'lng')::numeric) * PI()/180 / 2), 2)
-          )
-        )`;
+      SQRT(
+        POWER(SIN((${lat} - (business.location->>'lat')::numeric) * PI()/180 / 2), 2) +
+        COS(${lat} * PI()/180) * COS((business.location->>'lat')::numeric * PI()/180) *
+        POWER(SIN((${lng} - (business.location->>'lng')::numeric) * PI()/180 / 2), 2)
+      )
+    )`;
 
-      // Main query to fetch vendors
+      // Main query with distance filtering
       const vendorsQuery = await ctx.db
         .select({
           id: businesses.id,
           name: businesses.name,
           slug: businesses.slug,
           rating: businesses.rating,
+          distance: distanceCalculation,
           location: businesses.location,
           availableVehiclesTypes: businesses.availableVehicleTypes,
           satisfiedCustomers: businesses.satisfiedCustomers,
           images: businesses.images,
         })
         .from(businesses)
-        .where(and(eq(businesses.status, "active")))
+        .where(
+          and(
+            eq(businesses.status, "active"),
+            sql`${distanceCalculation} <= ${radius}`,
+          ),
+        )
         .orderBy(distanceCalculation)
         .limit(5);
-
-      // Count total matching vendors
-      const [countResult] = await ctx.db
-        .select({
-          total: sql<number>`COUNT(*)`,
-        })
-        .from(businesses)
-        .where(and(sql`${distanceCalculation} <= 10`));
 
       return {
         vendors: vendorsQuery,
         location: userLocation.city,
-        total: countResult?.total ?? 0,
+        total: vendorsQuery.length,
       };
     } catch (err) {
       if (err instanceof TRPCError) {
         throw err;
       }
-
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to search vendors",
@@ -766,6 +764,7 @@ export const businessRouter = createTRPCRouter({
 
         return updatedBusiness[0];
       } catch (error) {
+        console.log({ error });
         if (error instanceof z.ZodError) {
           throw new TRPCError({
             code: "BAD_REQUEST",

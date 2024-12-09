@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { cn } from "~/lib/utils";
+import Logo from "~/svg/logo";
 
 const SignInPage = () => {
   return (
@@ -48,7 +49,7 @@ const SignInPage = () => {
                     <div>
                       <h3 className="font-medium">Verified Rentals</h3>
                       <p className="text-sm text-white/70">
-                        All vehicles are verified
+                        All vendors are verified
                       </p>
                     </div>
                   </div>
@@ -82,9 +83,7 @@ const SignInPage = () => {
             {/* Right content section */}
             <div className="p-6 md:col-span-3 md:p-8">
               <div className="mb-8 text-center">
-                <h1 className="bg-gradient-to-r from-rose-500 to-pink-700 bg-clip-text text-3xl font-bold text-transparent">
-                  Velocit
-                </h1>
+                <Logo tw="mx-auto fill-secondary h-6 mb-4 w-auto" />
                 <p className="mt-2 text-slate-600">
                   Choose your account type to continue
                 </p>

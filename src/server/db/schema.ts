@@ -90,8 +90,8 @@ export const businesses = createTable(
     ownerId: varchar("owner_id", { length: 36 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    name: varchar("name", { length: 100 }),
-    slug: varchar("slug", { length: 100 }),
+    name: varchar("name", { length: 130 }),
+    slug: varchar("slug", { length: 130 }),
     location: json("location")
       .$type<{
         city?: string | undefined;
@@ -106,7 +106,7 @@ export const businesses = createTable(
       .array()
       .notNull()
       .default([]),
-    instagramHandle: varchar("instagram_handle", { length: 10 }),
+    instagramHandle: varchar("instagram_handle", { length: 40 }),
     sellGears: boolean("sell_gears").notNull().default(false),
     businessHours: json("business_hours")
       .$type<Record<string, { open: string; close: string } | null>>()

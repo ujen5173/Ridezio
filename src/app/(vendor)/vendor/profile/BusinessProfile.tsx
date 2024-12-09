@@ -42,7 +42,9 @@ export const formSchema = z.object({
     .min(2, {
       message: "Business name must be at least 2 characters",
     })
-    .max(50),
+    .max(50, {
+      message: "Business name is too long",
+    }),
   location: z.object({
     map: z.string().url(),
     lat: z.number().min(1, { message: "Enter your business latitude" }),
@@ -50,7 +52,7 @@ export const formSchema = z.object({
     address: z
       .string()
       .min(2, { message: "Add Address of you business" })
-      .max(50),
+      .max(50, { message: "Address is too long" }),
     city: z.string().min(2, { message: "Enter City name" }).max(50),
   }),
   sellGears: z.boolean().default(false),
