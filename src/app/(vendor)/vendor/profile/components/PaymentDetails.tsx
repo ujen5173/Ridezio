@@ -15,10 +15,6 @@ const PaymentDetails = () => {
           <Image src="/esewa.svg" alt="Esewa Logo" width={20} height={20} />
         </div>
 
-        <p className="mb-4 text-lg font-medium text-slate-600">
-          Esewa Payment Details
-        </p>
-
         <div className="grid grid-cols-3 gap-4">
           <div className="flex gap-4">
             <FormField
@@ -28,9 +24,6 @@ const PaymentDetails = () => {
                 <div className="flex-1 space-y-2">
                   <Label htmlFor={field.name} className="block font-medium">
                     Merchant Code
-                    <div className="span text-sm italic text-slate-700">
-                      (Required to receive online payment)
-                    </div>
                   </Label>
                   <Input
                     id={field.name}
@@ -38,6 +31,9 @@ const PaymentDetails = () => {
                     type="text"
                     placeholder="Business Esewa Merchant Code"
                   />
+                  <div className="span text-sm italic text-slate-700">
+                    (Required to receive online payment)
+                  </div>
                 </div>
               )}
             />

@@ -46,7 +46,7 @@ const LocationDetails = () => {
   return (
     <div className="mb-6">
       <h1 className="mb-4 text-2xl font-semibold">Location Details</h1>
-      <div className="mb-6 grid grid-cols-2 gap-4">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
         <FormField
           control={form.control}
           name="location.address"
@@ -78,7 +78,7 @@ const LocationDetails = () => {
           )}
         />
       </div>
-      <div className="mb-6 grid grid-cols-2 gap-4">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
         <FormField
           control={form.control}
           name="location.lat"

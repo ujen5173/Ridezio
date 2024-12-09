@@ -2,6 +2,7 @@
 
 import { MapIcon } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { z } from "zod";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import VendorCard from "~/app/_components/_/VendorCard";
 import VendorCardLoading from "~/app/_components/_/VendorCardLoading";
@@ -11,9 +12,9 @@ import { toast } from "~/hooks/use-toast";
 import useWindowDimensions from "~/hooks/useWindowDimensions";
 import { cn } from "~/lib/utils";
 import { type GetSearchedShops } from "~/server/api/routers/business";
+import { vehicleTypeEnum } from "~/server/db/schema";
 import { api } from "~/trpc/react";
 import { chakra_petch } from "../../../utils/font";
-import Filter from "./_components/Filter";
 import MapArea from "./_components/MapArea";
 
 export interface MapBounds {
@@ -21,13 +22,21 @@ export interface MapBounds {
   southWest: { lat: number; lng: number };
 }
 
+const SearchParamsSchema = z.object({
+  query: z.string().optional(),
+  vehicleType: z.enum(vehicleTypeEnum.enumValues).optional(),
+});
+
 const Search = ({
   searchParams,
 }: {
-  searchParams: {
-    query: string;
-  };
+  searchParams: z.infer<typeof SearchParamsSchema>;
 }) => {
+  // for invalid vehicleType fallback
+  const validVehicleType = SearchParamsSchema.safeParse(searchParams).success
+    ? searchParams.vehicleType
+    : undefined;
+
   const { width } = useWindowDimensions();
   const [places, setPlaces] = useState<GetSearchedShops>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,6 +53,7 @@ const Search = ({
   } = api.business.search.useQuery(
     {
       query: searchParams.query,
+      vehicleType: validVehicleType,
       bounds: bounds!,
     },
     {
@@ -157,9 +167,6 @@ const Search = ({
               >
                 {places.length} Results found in visible area
               </span>
-              <div className="hidden sm:block">
-                <Filter />
-              </div>
             </div>
             <ScrollArea className="">
               <div className="grid grid-cols-1 gap-4 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">

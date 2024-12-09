@@ -42,6 +42,7 @@ const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
                       width={450}
                       height={450}
                       layout="fixed"
+                      priority
                       className="aspect-[4/3] cursor-pointer rounded-md object-cover"
                       key={index}
                       src={image.url}

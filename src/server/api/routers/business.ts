@@ -524,7 +524,6 @@ export const businessRouter = createTRPCRouter({
         .where(
           and(
             eq(businesses.status, "active"),
-            // Modify the query condition to handle optional input more robustly
             input.query
               ? or(
                   ilike(businesses.name, `%${input.query}%`),
@@ -532,10 +531,9 @@ export const businessRouter = createTRPCRouter({
                   ilike(vehicles.category, `%${input.query}%`),
                 )
               : undefined,
-            // input.vehicleType
-            //   ? inArray(businesses.availableVehicleTypes, [input.vehicleType])
-            //   : undefined,
-            // Use sql`jsonb_extract_scalar` for more robust JSON extraction
+            input.vehicleType
+              ? sql`${input.vehicleType} = ANY(${businesses.availableVehicleTypes})`
+              : undefined,
             sql`(${businesses.location} ->> 'lat')::numeric >= ${southWest.lat}`,
             sql`(${businesses.location} ->> 'lat')::numeric <= ${northEast.lat}`,
             sql`(${businesses.location} ->> 'lng')::numeric >= ${southWest.lng}`,
@@ -544,8 +542,6 @@ export const businessRouter = createTRPCRouter({
         )
         .limit(5)
         .orderBy(desc(businesses.rating));
-
-      console.log({ shops });
 
       return shops;
     }),

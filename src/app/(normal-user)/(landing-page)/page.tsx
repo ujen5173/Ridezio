@@ -7,6 +7,8 @@ import ShopsAroundWrapper from "~/app/_components/_/ShopsAroundWrapper";
 import UpcomingEvent from "~/app/_components/_/UpcomingEvent";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/server";
+import BecomePartner from "./_components/BecomePartner";
+import Faqs from "./_components/Faqs";
 import ShopsAroundLoading from "./_components/ShopsAroundLoading";
 
 const Home = async () => {
@@ -23,6 +25,8 @@ const Home = async () => {
       </Suspense>
       <PopularShops popularShopsData={popularShops} />
       <UpcomingEvent events={events} />
+      <BecomePartner />
+      <Faqs />
       <Button
         asChild
         className="fixed bottom-5 right-5 z-50 gap-1"

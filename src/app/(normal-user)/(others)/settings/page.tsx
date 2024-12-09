@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { cn } from "~/lib/utils";
@@ -8,6 +9,10 @@ import GeneralSettings from "./_components/general";
 
 const Settings = async () => {
   const userDetails = await api.user.current();
+
+  if (userDetails.role === "VENDOR") {
+    redirect("/vendor/profile");
+  }
 
   return (
     <>

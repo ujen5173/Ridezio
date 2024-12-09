@@ -272,7 +272,7 @@ const VendorWrapper = ({
 
         <VendorDetails />
 
-        <div className="[&>section:nth-child(odd)]:bg-slate-50 [&>section]:px-4 [&>section]:py-16">
+        <div className="[&>section:nth-child(odd)]:bg-slate-50 [&>section]:px-4 [&>section]:py-8 sm:[&>section]:py-16">
           <Vehicles />
 
           <Reviews

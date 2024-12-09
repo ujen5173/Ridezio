@@ -175,7 +175,7 @@ const GeneralSettings = ({
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="+977 9*********"
+                      placeholder="9*********"
                       autoComplete="off"
                       {...field}
                       value={field.value ?? ""}

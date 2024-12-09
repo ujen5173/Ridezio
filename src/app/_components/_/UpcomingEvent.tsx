@@ -37,12 +37,16 @@ const UpcomingEvent = ({ events }: { events: EventSlide[] | undefined }) => {
 
   return (
     <section className="w-full">
-      <div className="mx-auto max-w-[1440px] px-4 py-16">
+      <div className="mx-auto max-w-[1440px] px-4 py-8 sm:py-16">
         <div className="mb-5 flex items-center justify-between gap-4">
-          <h2 className={cn("block text-2xl font-bold xs:hidden")}>
+          <h2
+            className={cn(
+              "block items-center gap-2 text-xl font-bold xs:text-2xl sm:hidden sm:text-3xl",
+            )}
+          >
             Upcoming Events
           </h2>
-          <h2 className={cn("hidden text-2xl font-bold xs:block xs:text-3xl")}>
+          <h2 className={cn("hidden text-2xl font-bold sm:block sm:text-3xl")}>
             Participate on Upcoming Events
           </h2>
 
@@ -53,7 +57,7 @@ const UpcomingEvent = ({ events }: { events: EventSlide[] | undefined }) => {
                 size="icon"
                 onClick={() => api?.scrollPrev()}
                 disabled={current === 0}
-                className="size-10 border border-border bg-white"
+                className="size-8 border border-border bg-white sm:size-10"
               >
                 <ChevronLeft size={20} className="text-foreground" />
               </Button>
@@ -62,7 +66,7 @@ const UpcomingEvent = ({ events }: { events: EventSlide[] | undefined }) => {
                 size="icon"
                 onClick={() => api?.scrollNext()}
                 disabled={current === count - 1}
-                className="size-10 border border-border bg-white"
+                className="size-8 border border-border bg-white sm:size-10"
               >
                 <ChevronRight size={20} className="text-foreground" />
               </Button>

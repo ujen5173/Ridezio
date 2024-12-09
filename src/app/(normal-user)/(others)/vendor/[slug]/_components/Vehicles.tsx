@@ -72,34 +72,36 @@ const Vehicles = () => {
 
   return (
     <section>
-      <div className={cn("mx-auto max-w-[1240px]")}>
+      <div className="mx-auto max-w-[1240px]">
         <div className="mb-10 flex items-center justify-between gap-10">
-          <h1 className={cn("text-2xl font-bold xs:text-3xl")}>
+          <h1 className="mb-4 text-3xl font-semibold md:text-4xl">
             Pick Your Ride
           </h1>
-          <Select
-            onValueChange={(e) =>
-              setFilter(
-                e as (typeof vehicleTypeEnum.enumValues)[number] | "all",
-              )
-            }
-          >
-            <SelectTrigger className="w-[180px] bg-white capitalize">
-              <SelectValue placeholder="Select Vehicle Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem className="capitalize" key={"all"} value={"all"}>
-                  All
-                </SelectItem>
-                {vendor?.availableVehicleTypes?.map((type) => (
-                  <SelectItem className="capitalize" key={type} value={type}>
-                    {type}
+          <div className="hidden sm:block">
+            <Select
+              onValueChange={(e) =>
+                setFilter(
+                  e as (typeof vehicleTypeEnum.enumValues)[number] | "all",
+                )
+              }
+            >
+              <SelectTrigger className="w-[180px] bg-white capitalize">
+                <SelectValue placeholder="Select Vehicle Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem className="capitalize" key={"all"} value={"all"}>
+                    All
                   </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+                  {vendor?.availableVehicleTypes?.map((type) => (
+                    <SelectItem className="capitalize" key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <section

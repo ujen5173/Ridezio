@@ -48,7 +48,6 @@ const HeaderSearch = () => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const q = useSearchParams().get("query") ?? "";
-  console.log({ q });
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -88,13 +87,13 @@ const HeaderSearch = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const url = `/search?query=${inputRef.current?.value}`;
+    const url = `/search?location=${selectedLocation}&query=${inputRef.current?.value}`;
 
     router.push(url);
   };
 
   return (
-    <form className="flex items-center" onSubmit={handleSubmit}>
+    <form className="hidden items-center md:flex" onSubmit={handleSubmit}>
       <div className="my-auto flex h-10 items-center rounded-full border border-border px-[0.35rem] py-2 shadow-md">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>

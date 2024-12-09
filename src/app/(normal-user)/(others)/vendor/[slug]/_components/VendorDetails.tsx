@@ -196,7 +196,7 @@ const VendorDetails = () => {
               </h6>
             </div>
 
-            <h1 className="mb-4 text-3xl font-bold text-slate-700">
+            <h1 className="mb-4 text-2xl font-bold text-slate-700 sm:text-3xl">
               {vendor.name}
             </h1>
 
@@ -272,7 +272,7 @@ const VendorDetails = () => {
 
               <div className="mb-6">
                 <div className="mb-2 flex items-center justify-between gap-6">
-                  <h3 className="text-xl font-bold text-slate-600">
+                  <h3 className="text-lg font-bold text-slate-700">
                     Business Hours
                   </h3>
                   <div className="flex items-center gap-2">
