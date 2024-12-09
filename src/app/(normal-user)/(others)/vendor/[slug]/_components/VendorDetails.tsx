@@ -219,13 +219,18 @@ const VendorDetails = () => {
                   <Phone size={16} className="text-foreground" />
                   <span className="text-sm">{vendor.phoneNumbers[0]}</span>
                 </div>
-                {vendor.socials.instagram && (
+                {vendor.instagramHandle && (
                   <>
                     <Dot size={16} />
-                    <div className="flex items-center gap-1">
-                      <Instagram size={16} className="text-foreground" />
-                      <span className="text-sm">Instagram</span>
-                    </div>
+                    <Link
+                      target="_blank"
+                      href={`https://www.instagram.com/${vendor.instagramHandle}`}
+                    >
+                      <div className="flex items-center gap-1 text-secondary hover:underline">
+                        <Instagram size={16} className="text-inherit" />
+                        <span className="text-sm">Instagram</span>
+                      </div>
+                    </Link>
                   </>
                 )}
               </div>

@@ -22,6 +22,7 @@ import GeneralInfo from "./components/GeneralInfo";
 import LocationDetails from "./components/LocationDetails";
 import PaymentDetails from "./components/PaymentDetails";
 import ShopImages from "./components/ShopImages";
+import SocialHandle from "./components/SocialHandle";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 
@@ -91,9 +92,8 @@ export const formSchema = z.object({
       order: z.number(),
     }),
   ),
+  instagramHandle: z.string().default(""),
   merchantCode: z.string().default(""),
-  paymentQR: z.string().default(""),
-  paymentNumber: z.string().default(""),
 });
 
 export const imageSchema = z.object({
@@ -122,8 +122,7 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
     defaultValues: {
       ...business,
       name: business.name ?? "",
-      paymentNumber: business.paymentNumber ?? "",
-      paymentQR: business.paymentQR ?? "",
+      instagramHandle: business.instagramHandle ?? "",
       merchantCode: business.merchantCode ?? "",
       businessHours: WEEK_DAYS.reduce(
         (acc, day) => ({
@@ -171,21 +170,6 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
       toast({
         title: "Shop Images Required",
         description: "Please upload at least one image of your shop",
-        variant: "destructive",
-      });
-
-      return;
-    }
-
-    if (
-      // Check if at least one payment detail is provided either merchant code or payment QR and payment number. payment QR and payment number should be there together
-      (result.merchantCode === "" &&
-        (result.paymentQR === "" || result.paymentNumber === "")) ||
-      (result.paymentQR === "" && result.paymentNumber === "")
-    ) {
-      toast({
-        title: "Payment Details Required",
-        description: "Please enter at lesadcast one payment detail",
         variant: "destructive",
       });
 
@@ -258,6 +242,7 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
               <BusinessHours />
               <PaymentDetails />
               <CreateFAQs />
+              <SocialHandle />
               <LocationDetails />
 
               <div className="mt-10 flex justify-start gap-2">

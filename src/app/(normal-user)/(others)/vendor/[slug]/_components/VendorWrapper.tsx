@@ -249,6 +249,10 @@ const VendorWrapper = ({
               open={open}
               fromVendor={false}
               setOpen={setOpen}
+              paymentMethod={data?.merchantCode ? "merchant" : "personal"}
+              paymentDetails={{
+                merchantCode: data?.merchantCode,
+              }}
               bookingsDetails={bookingsDetails}
             />
           )}

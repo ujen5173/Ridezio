@@ -1,25 +1,26 @@
-// export const dynamic = "force-static";
-
 import { Map } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import HeroSection from "~/app/_components/_/HeroSection";
 import PopularShops from "~/app/_components/_/PopularShops";
+import ShopsAroundWrapper from "~/app/_components/_/ShopsAroundWrapper";
 import UpcomingEvent from "~/app/_components/_/UpcomingEvent";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/server";
-import ShopsAround from "./_components/ShopsAround";
+import ShopsAroundLoading from "./_components/ShopsAroundLoading";
 
 const Home = async () => {
-  const [popularShops, events, shopsAround] = await Promise.all([
+  const [popularShops, events] = await Promise.all([
     api.business.getPopularShops(),
     api.events.getUpcomingEvents(),
-    api.business.getVendorAroundLocation(),
   ]);
 
   return (
     <>
       <HeroSection />
-      <ShopsAround shopsAroundData={shopsAround} />
+      <Suspense fallback={<ShopsAroundLoading />}>
+        <ShopsAroundWrapper />
+      </Suspense>
       <PopularShops popularShopsData={popularShops} />
       <UpcomingEvent events={events} />
       <Button

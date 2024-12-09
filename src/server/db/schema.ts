@@ -106,13 +106,7 @@ export const businesses = createTable(
       .array()
       .notNull()
       .default([]),
-    socials: json("socials")
-      .$type<{
-        twitter?: string | undefined;
-        instagram?: string | undefined;
-      }>()
-      .notNull()
-      .default(sql`'{}'::json`),
+    instagramHandle: varchar("instagram_handle", { length: 10 }),
     sellGears: boolean("sell_gears").notNull().default(false),
     businessHours: json("business_hours")
       .$type<Record<string, { open: string; close: string } | null>>()
@@ -149,8 +143,6 @@ export const businesses = createTable(
       .notNull()
       .default(sql`'{}'::json[]`),
     status: businessStatusEnum("status").notNull().default("setup-incomplete"),
-    paymentQR: text("payment_qr"),
-    paymentNumber: varchar("payment_number", { length: 20 }),
     merchantCode: varchar("merchant_code", { length: 20 }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),

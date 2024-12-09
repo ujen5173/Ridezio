@@ -45,22 +45,22 @@
 ✅ - remove the refetch after accept or reject order
 ✅ - order in the images of the vendor page
 ✅ - render booking model in server side. 
-   - personal account qr
+✅ - search based on vehicle name.
+✅ - offline/onsite payment
    - useContext error: `TypeError: Cannot read properties of null (reading 'useContext')`
    - mobile ma isError true aayexa
-   - search based on vehicle name.
    - reduce the database load in `rent` procedure. (took >5sec to execute)
    - migrate to google maps asap
    - authentication error handling
    - handle upload errors in uploadthing.
    - test the esewa payment
    - proper error handling in the esewa payment
-⚠️ - fix the fucking huge chunk of re-renders in the setup vendor paged
-   - offline/onsite payment
    - socials of the vendor (just instagram)
    - draft data in updating settings.
    - draft saving for bookings.
    - store views
+   - rebuild landing page
+   - video of getting started
 
   -- Future features -- 
    - select any vehicle

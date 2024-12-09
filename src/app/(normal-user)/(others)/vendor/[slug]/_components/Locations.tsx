@@ -1,13 +1,8 @@
 "use client";
-import { Globe, MapPin, Phone } from "lucide-react";
+import { Instagram, MapPin, Phone } from "lucide-react";
+import Link from "next/link";
 import "react-datepicker/dist/react-datepicker.css";
 import { chakra_petch } from "~/app/utils/font";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
 import { cn } from "~/lib/utils";
 import useVendorDetailsContext from "../hooks/useVendorDetails";
 
@@ -33,8 +28,8 @@ const Locations = () => {
           </p>
         </div>
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-          <div className="flex items-start gap-4">
-            <div className="flex size-14 items-center justify-center rounded-md border border-border bg-white">
+          <div className="group flex items-center gap-4">
+            <div className="flex size-14 items-center justify-center rounded-md border border-border bg-white transition group-hover:bg-slate-100">
               <MapPin size={25} className="text-slate-600" />
             </div>
             <div>
@@ -46,8 +41,8 @@ const Locations = () => {
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-4">
-            <div className="flex size-14 items-center justify-center rounded-md border border-border bg-white">
+          <div className="group flex items-center gap-4">
+            <div className="flex size-14 items-center justify-center rounded-md border border-border bg-white transition group-hover:bg-slate-100">
               <Phone size={25} className="text-slate-600" />
             </div>
             <div>
@@ -57,41 +52,23 @@ const Locations = () => {
               </p>
             </div>
           </div>
-          {Object.values(vendor?.socials ?? {}).length > 1 ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <div className="flex justify-start gap-4">
-                  <div className="flex size-14 items-center justify-center rounded-md border border-border bg-white">
-                    <Globe size={25} className="text-slate-600" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-base text-foreground">Socials</p>
-                    <p className="text-base text-foreground">
-                      @epicmountainbike
-                    </p>
-                  </div>
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-screen max-w-72">
-                <DropdownMenuItem>Facebook</DropdownMenuItem>
-                <DropdownMenuItem>Instagram</DropdownMenuItem>
-                <DropdownMenuItem>Website</DropdownMenuItem>
-                <DropdownMenuItem>Twitter</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <div className="flex items-start gap-4">
-              <div className="flex size-14 items-center justify-center rounded-md border border-border bg-white">
-                <Globe size={25} className="text-slate-600" />
+
+          <Link
+            target="_blank"
+            href={`https://www.instagram.com/${vendor?.instagramHandle ?? ""}`}
+          >
+            <div className="group flex items-center gap-4">
+              <div className="flex size-14 items-center justify-center rounded-md border border-border bg-white transition group-hover:bg-slate-100">
+                <Instagram size={25} className="text-slate-600" />
               </div>
               <div>
-                <p className="text-base text-foreground">Socials</p>
+                <p className="text-base text-foreground">Instagram</p>
                 <p className="text-base font-medium text-slate-600">
-                  {Object.keys(vendor?.socials ?? {})[0] ?? "N/A"}
+                  {vendor?.instagramHandle ?? "N/A"}
                 </p>
               </div>
             </div>
-          )}
+          </Link>
         </div>
 
         <iframe

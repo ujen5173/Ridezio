@@ -40,9 +40,9 @@ const Reviews = ({
             Get to know what our customers have to say about our services.
           </p>
         </div>
-        <div className="mb-10 flex items-center text-xl font-bold text-slate-800">
+        <div className="mb-10 flex items-center text-xl font-medium text-slate-800">
           <div className="flex items-center gap-2">
-            <Star size={24} className="fill-slate-800 stroke-slate-800" />
+            <Star size={24} className="fill-yellow-500 stroke-yellow-500" />
             <span>{parseFloat(rating.toString()).toFixed(1)}</span>
           </div>
           <Dot size={24} className="fill-slate-800 stroke-slate-800" />

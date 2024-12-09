@@ -1,9 +1,14 @@
 "use client";
 
-// TODO: Not rendering the data from the url properly
-
 import { differenceInDays, format } from "date-fns";
-import { CalendarDays, Loader, Minus, Plus, X } from "lucide-react";
+import {
+  CalendarDays,
+  ChevronLeft,
+  Loader,
+  Minus,
+  Plus,
+  X,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -49,7 +54,11 @@ interface BookingsProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   bookingsDetails: GetBookingsType;
   vendorId: string;
+  paymentMethod: "merchant" | "personal";
   fromVendor: boolean;
+  paymentDetails: {
+    merchantCode: string | null;
+  };
 }
 
 const Bookings: React.FC<BookingsProps> = ({
@@ -57,10 +66,14 @@ const Bookings: React.FC<BookingsProps> = ({
   open,
   setOpen,
   vendorId,
+  paymentMethod,
+  paymentDetails,
   fromVendor = false,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
+
+  console.log({ paymentMethod, paymentDetails });
 
   const searchParams = useSearchParams();
   const type = searchParams.get("type") ?? "";
@@ -682,7 +695,18 @@ const Bookings: React.FC<BookingsProps> = ({
             </div>
           </>
         ) : (
-          <ScrollArea className="flex-1 pr-2">
+          <ScrollArea className="relative flex-1 pr-2">
+            <button
+              type="button"
+              onClick={() => {
+                setShowQR(false);
+              }}
+              className="absolute left-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span className="sr-only">Back</span>
+            </button>
+
             <div className="flex flex-col items-center gap-6 p-4">
               <div className="flex w-full flex-col items-center gap-4">
                 <div className="text-center">
@@ -716,34 +740,38 @@ const Bookings: React.FC<BookingsProps> = ({
               </div>
 
               <div>
-                <h1 className="mb-4 text-lg font-semibold">Payment Method</h1>
                 {fromVendor ? (
                   <div className="flex w-full flex-wrap items-center justify-center gap-4">
-                    <button
-                      className={cn(
-                        "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium text-slate-700 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
-                        "h-12 gap-2 px-6 py-3",
-                        "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-                        "rounded-md",
-                      )}
-                      type="button"
-                      onClick={() => {
-                        void continuePaymentOffline("online-payment");
-                      }}
-                    >
-                      {continueWithOnlineLoading ? (
-                        <>
-                          <Loader
-                            size={15}
-                            className="ml-2 animate-spin text-slate-600"
-                          />
-                          <span>Processing...</span>
-                        </>
-                      ) : (
-                        <span>Continue with Online payment</span>
-                      )}
-                    </button>
-                    <Separator orientation="vertical" className="h-10" />
+                    {paymentMethod === "merchant" && (
+                      <>
+                        <button
+                          className={cn(
+                            "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium text-slate-700 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+                            "h-12 gap-2 px-6 py-3",
+                            "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+                            "rounded-md",
+                          )}
+                          type="button"
+                          onClick={() => {
+                            void continuePaymentOffline("online-payment");
+                          }}
+                        >
+                          {continueWithOnlineLoading ? (
+                            <>
+                              <Loader
+                                size={15}
+                                className="ml-2 animate-spin text-slate-600"
+                              />
+                              <span>Processing...</span>
+                            </>
+                          ) : (
+                            <span>Continue with Online payment</span>
+                          )}
+                        </button>
+
+                        <Separator orientation="vertical" className="h-10" />
+                      </>
+                    )}
                     <Button
                       variant={"outline"}
                       onClick={async () => {
@@ -786,26 +814,36 @@ const Bookings: React.FC<BookingsProps> = ({
                         </ul>
                       </div>
                     </div>
+
+                    <h1 className="mb-4 text-lg font-semibold">
+                      Payment Method
+                    </h1>
+
                     <div className="flex w-full flex-wrap items-center justify-center gap-4">
-                      <button
-                        className={cn(
-                          "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium text-slate-700 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
-                          "h-12 gap-2 px-6 py-3",
-                          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-                          "rounded-md",
-                        )}
-                        type="button"
-                        onClick={() => void handlePayment()}
-                      >
-                        <Image
-                          src="/esewa.svg"
-                          width={23}
-                          height={23}
-                          alt="EWallet"
-                        />
-                        <span>Continue with Esewa</span>
-                      </button>
-                      <Separator orientation="vertical" className="h-10" />
+                      {paymentMethod === "merchant" && (
+                        <>
+                          <button
+                            className={cn(
+                              "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium text-slate-700 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+                              "h-12 gap-2 px-6 py-3",
+                              "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+                              "rounded-md",
+                            )}
+                            type="button"
+                            onClick={() => void handlePayment()}
+                          >
+                            <Image
+                              src="/esewa.svg"
+                              width={23}
+                              height={23}
+                              alt="EWallet"
+                            />
+                            <span>Continue with Esewa</span>
+                          </button>
+                          <Separator orientation="vertical" className="h-10" />
+                        </>
+                      )}
+
                       <Button
                         variant={"outline"}
                         onClick={() => {

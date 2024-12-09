@@ -14,9 +14,11 @@ const PaymentDetails = () => {
           <h1 className="text-2xl font-semibold">Payment via Esewa</h1>
           <Image src="/esewa.svg" alt="Esewa Logo" width={20} height={20} />
         </div>
+
         <p className="mb-4 text-lg font-medium text-slate-600">
           Esewa Payment Details
         </p>
+
         <div className="grid grid-cols-3 gap-4">
           <div className="flex gap-4">
             <FormField
@@ -26,6 +28,9 @@ const PaymentDetails = () => {
                 <div className="flex-1 space-y-2">
                   <Label htmlFor={field.name} className="block font-medium">
                     Merchant Code
+                    <div className="span text-sm italic text-slate-700">
+                      (Required to receive online payment)
+                    </div>
                   </Label>
                   <Input
                     id={field.name}
@@ -36,47 +41,9 @@ const PaymentDetails = () => {
                 </div>
               )}
             />
-            <div className="flex flex-col items-center">
-              <div className="h-6 w-[2.5px] bg-slate-200"></div>
-              <span className="text-sm uppercase text-slate-700">or</span>
-              <div className="h-6 w-[2.5px] bg-slate-200"></div>
-            </div>
           </div>
-          <FormField
-            control={form.control}
-            name="paymentQR"
-            render={({ field }) => (
-              <div className="space-y-2">
-                <Label htmlFor={field.name} className="block font-medium">
-                  Name
-                </Label>
-                <Input
-                  {...field}
-                  type="text"
-                  id={field.name}
-                  placeholder="E-Sewa Account Name"
-                  className="leading-[2.5]"
-                />
-              </div>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="paymentNumber"
-            render={({ field }) => (
-              <div className="space-y-2">
-                <Label htmlFor={field.name} className="block font-medium">
-                  Esewa ID
-                </Label>
-                <Input
-                  type="text"
-                  placeholder="97******"
-                  id={field.name}
-                  {...field}
-                />
-              </div>
-            )}
-          />
+          <div></div>
+          <div></div>
         </div>
       </div>
     </div>
