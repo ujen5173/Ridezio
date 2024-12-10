@@ -107,31 +107,36 @@ const FileUploaderWrapper = ({
     }
   };
 
-  useEffect(() => {
-    if (uploadedFile && uploadedFile.length > 0) {
-      // Filter out already uploaded images based on URL
-      const newUniqueUploads = uploadedFile.filter(
-        (newFile) =>
-          !localImages.some((existingImg) => existingImg.url === newFile.url),
+useEffect(() => {
+  if (uploadedFile && uploadedFile.length > 0) {
+    // Filter out already uploaded images based on URL
+    const newUniqueUploads = uploadedFile.filter(
+      (newFile) =>
+        !localImages.some((existingImg) => existingImg.url === newFile.url)
+    );
+
+    if (newUniqueUploads.length > 0) {
+      const newUploadedImages = newUniqueUploads.map((e, idx) => ({
+        id: e.key,
+        order: localImages.length + idx + 1,
+        url: e.url,
+      }));
+
+      const updatedImages = [...localImages, ...newUploadedImages];
+
+      // Use Set to ensure unique URLs before setting state
+      const uniqueImages = Array.from(
+        new Map(updatedImages.map(img => [img.url, img])).values()
       );
 
-      if (newUniqueUploads.length > 0) {
-        const newUploadedImages = newUniqueUploads.map((e, idx) => ({
-          id: e.key,
-          order: localImages.length + idx + 1,
-          url: e.url,
-        }));
-
-        const updatedImages = [...localImages, ...newUploadedImages];
-
-        setLocalImages(updatedImages);
-        form.setValue("images", updatedImages, {
-          shouldDirty: true,
-          shouldTouch: true,
-        });
-      }
+      setLocalImages(uniqueImages);
+      form.setValue("images", uniqueImages, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
     }
-  }, [uploadedFile, form]);
+  }
+}, [uploadedFile, form, localImages]);
 
   const imageIds = useMemo(
     () => localImages.map((img) => img.id),

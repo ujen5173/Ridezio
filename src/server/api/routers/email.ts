@@ -19,7 +19,11 @@ export type BookingDetails = {
   rentalStart: Date;
   rentalEnd: Date;
   quantity: number;
-  vehicleImages: string[];
+  vehicleImages: {
+    url: string;
+    id: string;
+    order: number;
+  }[];
   userName: string | null;
   userEmail: string;
   userPhoneNumber: string | null;

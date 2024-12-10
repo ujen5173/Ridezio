@@ -54,8 +54,7 @@ interface BookingsProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   bookingsDetails: GetBookingsType;
   vendorId: string;
-  paymentMethod: "merchant" | "personal";
-  fromVendor: boolean;
+   fromVendor: boolean;
   paymentDetails: {
     merchantCode: string | null;
   };
@@ -66,15 +65,13 @@ const Bookings: React.FC<BookingsProps> = ({
   open,
   setOpen,
   vendorId,
-  paymentMethod,
-  paymentDetails,
+   paymentDetails,
   fromVendor = false,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  console.log({ paymentMethod, paymentDetails });
-
+ 
   const searchParams = useSearchParams();
   const type = searchParams.get("type") ?? "";
   const category = searchParams.get("category") ?? "";
@@ -742,7 +739,7 @@ const Bookings: React.FC<BookingsProps> = ({
               <div>
                 {fromVendor ? (
                   <div className="flex w-full flex-wrap items-center justify-center gap-4">
-                    {paymentMethod === "merchant" && (
+                    {paymentDetails.merchantCode && (
                       <>
                         <button
                           className={cn(
@@ -820,7 +817,7 @@ const Bookings: React.FC<BookingsProps> = ({
                     </h1>
 
                     <div className="flex w-full flex-wrap items-center justify-center gap-4">
-                      {paymentMethod === "merchant" && (
+                    {paymentDetails.merchantCode && (
                         <>
                           <button
                             className={cn(

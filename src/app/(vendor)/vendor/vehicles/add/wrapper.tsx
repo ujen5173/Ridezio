@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {} from "cmdk";
+import { } from "cmdk";
 import { Check, ChevronsUpDown, Loader, Plus, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -167,6 +167,16 @@ const Wrapper = ({
     }
 
     const { inventory, ...rest } = values;
+
+    console.log({images})
+
+    if (images.length === 0) {
+      toast({
+        title: "Please upload at least one image",
+        variant: "destructive",
+      });
+      return;
+    }
 
     await mutateAsync({
       data: {

@@ -397,7 +397,10 @@ const OrdersTable = () => {
       {!bookingsDetailsLoading && bookingsDetails !== undefined && (
         <Bookings
           open={open}
-          setOpen={setOpen}
+           setOpen={setOpen}
+           paymentDetails={{
+            merchantCode: vendor?.merchantCode ?? null,
+           }}
           bookingsDetails={bookingsDetails}
           fromVendor={true}
           vendorId={vendor?.id ?? ""}
