@@ -78,6 +78,8 @@ const FileUploaderWrapper = ({
     }[]
   >(images);
 
+  const [processedUploadKeys, setProcessedUploadKeys] = useState<string[]>([]);
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -107,36 +109,44 @@ const FileUploaderWrapper = ({
     }
   };
 
-useEffect(() => {
-  if (uploadedFile && uploadedFile.length > 0) {
-    // Filter out already uploaded images based on URL
-    const newUniqueUploads = uploadedFile.filter(
-      (newFile) =>
-        !localImages.some((existingImg) => existingImg.url === newFile.url)
-    );
-
-    if (newUniqueUploads.length > 0) {
-      const newUploadedImages = newUniqueUploads.map((e, idx) => ({
-        id: e.key,
-        order: localImages.length + idx + 1,
-        url: e.url,
-      }));
-
-      const updatedImages = [...localImages, ...newUploadedImages];
-
-      // Use Set to ensure unique URLs before setting state
-      const uniqueImages = Array.from(
-        new Map(updatedImages.map(img => [img.url, img])).values()
+  useEffect(() => {
+    if (uploadedFile && uploadedFile.length > 0) {
+      // Filter out already uploaded and processed images
+      const newUniqueUploads = uploadedFile.filter(
+        (newFile) =>
+          !localImages.some((existingImg) => existingImg.url === newFile.url) &&
+          !processedUploadKeys.includes(newFile.key),
       );
 
-      setLocalImages(uniqueImages);
-      form.setValue("images", uniqueImages, {
-        shouldDirty: true,
-        shouldTouch: true,
-      });
+      if (newUniqueUploads.length > 0) {
+        const newUploadedImages = newUniqueUploads.map((e, idx) => ({
+          id: e.key,
+          order: localImages.length + idx + 1,
+          url: e.url,
+        }));
+
+        const updatedImages = [...localImages, ...newUploadedImages];
+
+        // Use Set to ensure unique URLs before setting state
+        const uniqueImages = Array.from(
+          new Map(updatedImages.map((img) => [img.url, img])).values(),
+        );
+
+        // Track processed upload keys to prevent re-processing
+        const newProcessedKeys = [
+          ...processedUploadKeys,
+          ...newUniqueUploads.map((file) => file.key),
+        ];
+
+        setProcessedUploadKeys(newProcessedKeys);
+        setLocalImages(uniqueImages);
+        form.setValue("images", uniqueImages, {
+          shouldDirty: true,
+          shouldTouch: true,
+        });
+      }
     }
-  }
-}, [uploadedFile, form, localImages]);
+  }, [uploadedFile, form, processedUploadKeys]);
 
   const imageIds = useMemo(
     () => localImages.map((img) => img.id),
