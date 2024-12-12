@@ -140,7 +140,7 @@ const Vehicles = () => {
                         width={850}
                         height={850}
                         layout="fixed"
-                        className="m-auto h-full w-auto rounded-md object-cover mix-blend-multiply"
+                        className="m-auto h-full w-auto rounded-md object-cover mix-blend-luminosity"
                         src={
                           (vehicle.images ?? []).sort(
                             (a, b) => a.order - b.order,

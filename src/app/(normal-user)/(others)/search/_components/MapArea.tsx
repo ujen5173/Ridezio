@@ -35,7 +35,9 @@ const MapArea = ({
   isDataFetching: boolean;
 }) => {
   const locationName = useSearchParams().get("location");
-  const [position, setPosition] = useState<[number, number] | null>(null);
+  const [position, setPosition] = useState<[number, number] | null>([
+    13.7563, 100.5018,
+  ]);
 
   useEffect(() => {
     const fetchLocation = async () => {

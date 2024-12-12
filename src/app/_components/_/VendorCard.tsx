@@ -26,7 +26,9 @@ const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
         <Carousel
           opts={{
             dragFree: false,
+            watchDrag: false,
           }}
+          draggable={false}
           className="w-full"
         >
           <CarouselPrevious />
@@ -82,20 +84,7 @@ const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
                       key={index + shop.id}
                       className={cn(
                         "flex items-center gap-1 rounded-sm border px-2 py-1 font-medium",
-                        {
-                          "border-car-color/50 bg-car-color/20 text-car-color":
-                            type === "car",
-                          "border-e-car-color/50 bg-e-car-color/20 text-e-car-color":
-                            type === "e-car",
-                          "border-bike-color/50 bg-bike-color/20 text-bike-color":
-                            type === "bike",
-                          "border-cycle-color/50 bg-cycle-color/20 text-cycle-color":
-                            type === "bicycle",
-                          "border-e-cycle-color/50 bg-e-cycle-color/20 text-e-cycle-color":
-                            type === "e-bicycle",
-                          "border-scooter-color/50 bg-scooter-color/20 text-scooter-color":
-                            type === "scooter",
-                        },
+                        `${type}-badge`,
                       )}
                     >
                       <div
@@ -103,8 +92,8 @@ const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
                           "bg-car-color": type === "car",
                           "bg-e-car-color": type === "e-car",
                           "bg-bike-color": type === "bike",
-                          "bg-cycle-color": type === "bicycle",
-                          "bg-e-cycle-color": type === "e-bicycle",
+                          "bg-bicycle-color": type === "bicycle",
+                          "bg-e-bicycle-color": type === "e-bicycle",
                           "bg-scooter-color": type === "scooter",
                         })}
                       ></div>

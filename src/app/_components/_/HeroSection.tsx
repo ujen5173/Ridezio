@@ -1,15 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { Bike, CalendarDays, Car, MapPin } from "lucide-react";
+import { Bike, Car, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { type DateRange } from "react-day-picker";
 import Balancer from "react-wrap-balancer";
 import { chakra_petch } from "~/app/utils/font";
 import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
 import {
   Command,
   CommandEmpty,
@@ -33,7 +30,6 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { env } from "~/env";
-import useWindowDimensions from "~/hooks/useWindowDimensions";
 import { Icons } from "~/lib/Icons";
 import { cn } from "~/lib/utils";
 
@@ -60,13 +56,13 @@ type Location = {
 };
 
 const HeroSection = () => {
-  const { width } = useWindowDimensions();
+  // const { width } = useWindowDimensions();
 
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
-  const [date, setDate] = useState<DateRange | undefined>(undefined);
+  // const [date, setDate] = useState<DateRange | undefined>(undefined);
   const [vehicleType, setVehicleType] = useState<string | null>(null);
 
   useEffect(() => {
@@ -196,7 +192,7 @@ const HeroSection = () => {
               </PopoverContent>
             </Popover>
 
-            <Popover>
+            {/* <Popover>
               <PopoverTrigger asChild>
                 <button
                   className={cn(
@@ -255,7 +251,7 @@ const HeroSection = () => {
                   }}
                 />
               </PopoverContent>
-            </Popover>
+            </Popover> */}
 
             <Select onValueChange={(value) => setVehicleType(value)}>
               <SelectTrigger
@@ -309,8 +305,8 @@ const HeroSection = () => {
                   pathname: "/search",
                   query: {
                     location: selectedLocation,
-                    from: date?.from?.toLocaleDateString(),
-                    to: date?.to?.toLocaleDateString(),
+                    // from: date?.from?.toLocaleDateString(),
+                    // to: date?.to?.toLocaleDateString(),
                     vehicleType,
                   },
                 }}

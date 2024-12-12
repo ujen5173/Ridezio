@@ -132,7 +132,7 @@ const VendorDetails = () => {
               >
                 <CarouselContent
                   className={cn(
-                    "max-h-[625px] py-2",
+                    "max-h-[500px] py-2",
                     imageOrientation === "horizontal" ? "px-3" : "py-3",
                   )}
                 >

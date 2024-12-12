@@ -5,7 +5,13 @@ import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet/dist/leaflet.css";
 import { Loader2 } from "lucide-react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   MapContainer,
   Marker,
@@ -34,60 +40,56 @@ const BoundsHandler: React.FC<{
   initialBounds: MapBounds;
 }> = ({ setData, initialBounds }) => {
   const map = useMap();
-  const isInitialLoadRef = useRef(true);
   const [lastBounds, setLastBounds] = useState(initialBounds);
+  const isInitialLoadRef = useRef(true);
 
-  useEffect(() => {
-    // Set initial bounds without triggering a data fetch
-    if (isInitialLoadRef.current) {
-      const bounds = map.getBounds();
-      const newBounds = {
-        northEast: {
-          lat: bounds.getNorthEast().lat,
-          lng: bounds.getNorthEast().lng,
-        },
-        southWest: {
-          lat: bounds.getSouthWest().lat,
-          lng: bounds.getSouthWest().lng,
-        },
-      };
+  const updateBounds = useCallback(() => {
+    const bounds = map.getBounds();
+    const newBounds = {
+      northEast: {
+        lat: bounds.getNorthEast().lat,
+        lng: bounds.getNorthEast().lng,
+      },
+      southWest: {
+        lat: bounds.getSouthWest().lat,
+        lng: bounds.getSouthWest().lng,
+      },
+    };
+
+    // Only fetch data if bounds have significantly changed
+    const boundsChanged =
+      Math.abs(newBounds.northEast.lat - lastBounds.northEast.lat) > 0.01 ||
+      Math.abs(newBounds.northEast.lng - lastBounds.northEast.lng) > 0.01 ||
+      Math.abs(newBounds.southWest.lat - lastBounds.southWest.lat) > 0.01 ||
+      Math.abs(newBounds.southWest.lng - lastBounds.southWest.lng) > 0.01;
+
+    if (boundsChanged || isInitialLoadRef.current) {
       setData(newBounds);
       setLastBounds(newBounds);
       isInitialLoadRef.current = false;
-      return;
     }
+  }, [map, setData, lastBounds]);
 
-    const handleMoveEnd = () => {
-      const bounds = map.getBounds();
-      const newBounds = {
-        northEast: {
-          lat: bounds.getNorthEast().lat,
-          lng: bounds.getNorthEast().lng,
-        },
-        southWest: {
-          lat: bounds.getSouthWest().lat,
-          lng: bounds.getSouthWest().lng,
-        },
+  useEffect(() => {
+    // Ensure map is fully loaded before setting initial bounds
+    if (map) {
+      // Use setTimeout to ensure DOM is ready and map is fully initialized
+      const timerId = setTimeout(() => {
+        updateBounds();
+      }, 0);
+
+      const handleMoveEnd = () => {
+        updateBounds();
       };
 
-      // Only fetch data if bounds have significantly changed
-      const boundsChanged =
-        Math.abs(newBounds.northEast.lat - lastBounds.northEast.lat) > 0.01 ||
-        Math.abs(newBounds.northEast.lng - lastBounds.northEast.lng) > 0.01 ||
-        Math.abs(newBounds.southWest.lat - lastBounds.southWest.lat) > 0.01 ||
-        Math.abs(newBounds.southWest.lng - lastBounds.southWest.lng) > 0.01;
+      map.on("moveend", handleMoveEnd);
 
-      if (boundsChanged) {
-        setData(newBounds);
-        setLastBounds(newBounds);
-      }
-    };
-
-    map.on("moveend", handleMoveEnd);
-    return () => {
-      map.off("moveend", handleMoveEnd);
-    };
-  }, [map, setData]);
+      return () => {
+        clearTimeout(timerId);
+        map.off("moveend", handleMoveEnd);
+      };
+    }
+  }, [map, updateBounds]);
 
   return null;
 };
@@ -97,21 +99,28 @@ const ComponentResize = () => {
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
-    // Delay initial resize
-    const timeoutId = setTimeout(() => {
-      map.invalidateSize();
-    }, 100);
+    // Improved resize handling
+    const container = map.getContainer();
+
+    const resizeMap = () => {
+      // Add a small delay to ensure layout is stable
+      const timeoutId = setTimeout(() => {
+        map.invalidateSize();
+      }, 100);
+
+      return timeoutId;
+    };
+
+    // Initial resize
+    const initialTimeoutId = resizeMap();
 
     // Create a resize observer to handle dynamic size changes
-    const container = map.getContainer();
-    resizeObserverRef.current = new ResizeObserver(() => {
-      map.invalidateSize();
-    });
+    resizeObserverRef.current = new ResizeObserver(resizeMap);
     resizeObserverRef.current.observe(container);
 
     // Cleanup
     return () => {
-      clearTimeout(timeoutId);
+      clearTimeout(initialTimeoutId);
       if (resizeObserverRef.current) {
         resizeObserverRef.current.disconnect();
       }
@@ -134,8 +143,15 @@ const Map: React.FC<MapProps> = ({
         key={place.id ?? uuidv4()}
         position={[place.location.lat!, place.location.lng!]}
         icon={L.divIcon({
-          html: `<span class="block w-max px-4 py-2 bg-white text-slate-950 rounded-full text-xs sm:text-md font-medium shadow">${place.name ?? "Places"}</span>`,
+          html: `
+            <img
+              src="${place.logo}"
+              alt="Place Logo"
+              class="w-full h-full border border-border bg-white rounded-full object-cover"
+            />
+          `,
           className: "custom-div-icon",
+          iconSize: [40, 40], // Set a fixed size for the icon
         })}
       />
     ));
@@ -162,12 +178,12 @@ const Map: React.FC<MapProps> = ({
       key={JSON.stringify(location)}
       style={{ width: "100%", height: "100%" }}
       center={location}
-      zoom={20}
+      zoom={13} // Reduced zoom level for better initial view
       zoomAnimation={true}
       zoomControl={false}
-      zoomSnap={0}
-      zoomDelta={0.2}
-      wheelPxPerZoomLevel={500}
+      zoomSnap={0.5}
+      zoomDelta={0.5}
+      wheelPxPerZoomLevel={100}
       scrollWheelZoom={true}
     >
       <ComponentResize />

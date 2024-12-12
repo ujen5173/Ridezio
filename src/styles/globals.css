@@ -41,8 +41,8 @@
     --car: 0 72% 51%;
     --e-car: 0 72% 51%;
     --bike: 142 76% 36%;
-    --cycle: 221 83% 53%;
-    --e-cycle: 221 83% 53%;
+    --bicycle: 221 83% 53%;
+    --e-bicycle: 221 83% 53%;
     --scooter: 333 71% 51%;
   }
   .dark {
@@ -68,6 +68,46 @@ a {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.nunito-font {
+  font-family: "Inter", sans-serif;
+}
+
+.bicycle-badge {
+  border-color: hsl(var(--bicycle) / 0.5);
+  background-color: hsl(var(--bicycle) / 0.2);
+  color: hsl(var(--bicycle));
+}
+.e-bicycle-badge {
+  border-color: hsl(var(--e-bicycle) / 0.5);
+  background-color: hsl(var(--e-bicycle) / 0.2);
+  color: hsl(var(--e-bicycle));
+}
+.bike-badge {
+  border-color: hsl(var(--bike) / 0.5);
+  background-color: hsl(var(--bike) / 0.2);
+  color: hsl(var(--bike));
+}
+.scooter-badge {
+  border-color: hsl(var(--scooter) / 0.5);
+  background-color: hsl(var(--scooter) / 0.2);
+  color: hsl(var(--scooter));
+}
+.e-scooter-badge {
+  border-color: hsl(var(--e-scooter) / 0.5);
+  background-color: hsl(var(--e-scooter) / 0.2);
+  color: hsl(var(--e-scooter));
+}
+.car-badge {
+  border-color: hsl(var(--car) / 0.5);
+  background-color: hsl(var(--car) / 0.2);
+  color: hsl(var(--car));
+}
+.e-car-badge {
+  border-color: hsl(var(--e-car) / 0.5);
+  background-color: hsl(var(--e-car) / 0.2);
+  color: hsl(var(--e-car));
 }
 
 .chart-blur-bottom {
@@ -172,4 +212,9 @@ input[type="number"] {
 
 .remove-scroll::-webkit-scrollbar {
   display: none;
+}
+
+.custom-div-icon {
+  width: 3.5rem !important;
+  height: 3.5rem !important;
 }

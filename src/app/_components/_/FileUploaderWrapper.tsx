@@ -156,13 +156,13 @@ const FileUploaderWrapper = ({
   return (
     <FileUploader
       value={files}
+      dropzoneOptions={dropzone}
       onValueChange={(newFiles) => {
         setFiles(newFiles);
         if (newFiles) {
           onFileUpload(newFiles);
         }
       }}
-      dropzoneOptions={dropzone}
     >
       <FileInput>
         <div className="mb-4 flex h-72 w-full flex-col items-center justify-center rounded-md border bg-background hover:bg-slate-100">

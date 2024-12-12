@@ -503,7 +503,6 @@ export const businessRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      console.log({ input });
       const { northEast, southWest } = input.bounds;
 
       const shops = await ctx.db
@@ -511,6 +510,7 @@ export const businessRouter = createTRPCRouter({
           id: businesses.id,
           name: businesses.name,
           slug: businesses.slug,
+          logo: businesses.logo,
           rating: businesses.rating,
           location: businesses.location,
           availableVehiclesTypes: businesses.availableVehicleTypes,

@@ -43,7 +43,6 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import { Skeleton } from "~/components/ui/skeleton";
 import {
   Table,
@@ -71,7 +70,7 @@ export interface Vehicle {
     id: string;
   }[];
   status: "available" | "Unavailable";
-  features: string;
+  features: { key: string; value: string }[];
   category: string;
   createdAt: string;
 }
@@ -103,9 +102,9 @@ export const columns: ColumnDef<Vehicle>[] = [
           <Image
             src={image[0]!.url}
             alt="Vehicle"
-            width={500}
-            height={700}
-            className="h-20 w-28 max-w-prose rounded-sm object-cover"
+            width={640}
+            height={390}
+            className="aspect-video max-w-28 rounded-sm object-cover mix-blend-multiply"
           />
         </div>
       );
@@ -141,23 +140,17 @@ export const columns: ColumnDef<Vehicle>[] = [
           <div
             className={cn(
               "flex w-fit items-center gap-1 rounded-sm border px-2 py-1 font-medium",
-              {
-                "border-blue-500 bg-blue-50 text-blue-500": type === "bike",
-                "border-red-500 bg-red-50 text-red-500": type === "car",
-                "border-orange-500 bg-orange-50 text-orange-500":
-                  type === "scooter",
-                "border-green-500 bg-green-50 text-green-500":
-                  type === "e-bicycle",
-              },
+              `${type}-badge`,
             )}
           >
             <div
               className={cn("size-1.5 rounded-full", {
-                "bg-slate-500": type === "bicycle",
-                "bg-red-500": type === "car",
-                "bg-orange-500": type === "scooter",
-                "bg-blue-500": type === "bike",
-                "bg-green-500": type === "e-bicycle",
+                "bg-car-color": type === "car",
+                "bg-e-car-color": type === "e-car",
+                "bg-bike-color": type === "bike",
+                "bg-bicycle-color": type === "bicycle",
+                "bg-e-bicycle-color": type === "e-bicycle",
+                "bg-scooter-color": type === "scooter",
               })}
             />
             <span className="text-xs capitalize">{type}</span>
@@ -212,6 +205,7 @@ export const columns: ColumnDef<Vehicle>[] = [
     accessorKey: "features",
     header: () => <div className="w-max break-keep px-4">Features</div>,
     cell: ({ row }) => {
+      console.log({ features: row.getValue("features") });
       return (
         <div className="px-4">
           <Dialog>
@@ -221,7 +215,7 @@ export const columns: ColumnDef<Vehicle>[] = [
                 Expand to view
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[625px]">
               <DialogHeader>
                 <DialogTitle className="text-xl">
                   Features of{" "}
@@ -231,26 +225,26 @@ export const columns: ColumnDef<Vehicle>[] = [
                 </DialogTitle>
               </DialogHeader>
               <div className="mb-2 border border-border">
-                {
-                  // row and value
-                  row
-                    .getValue<string>("features")
-                    .split(",")
-                    .map((feature) => (
-                      <div key={feature} className="grid grid-cols-2">
-                        {feature.split(": ").map((value, index) => (
-                          <div
-                            key={value}
-                            className={cn("border border-border p-2 text-xl", {
-                              "bg-slate-100": index % 2 === 0,
-                            })}
-                          >
-                            <Label>{value}</Label>
-                          </div>
-                        ))}
+                {row
+                  .getValue<
+                    {
+                      key: string;
+                      value: string;
+                    }[]
+                  >("features")
+                  .map((feature, index) => {
+                    return (
+                      <div
+                        key={index}
+                        className="flex border-b border-border last:border-0"
+                      >
+                        <span className="h-full w-40 border-r border-border bg-slate-100 p-4 text-sm font-semibold">
+                          {feature.key}
+                        </span>
+                        <span className="p-4 text-sm">{feature.value}</span>
                       </div>
-                    ))
-                }
+                    );
+                  })}
               </div>
               <DialogFooter className="flex items-center">
                 <Link
@@ -282,9 +276,7 @@ const transformApiData = (data: GetBusinessVehicleType = []): Vehicle[] =>
     images: vehicle.images,
     status: vehicle.inventory === 0 ? "Unavailable" : "available",
     totalRentals: vehicle.totalRentals,
-    features: vehicle.features
-      .map((feature) => `${feature.key}: ${feature.value}`)
-      .join(", "),
+    features: vehicle.features,
     category: vehicle.category,
     createdAt: formatDate(new Date(vehicle.createdAt), "dd MMM, yyyy"),
   }));
