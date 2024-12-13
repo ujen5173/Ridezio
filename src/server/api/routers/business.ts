@@ -418,13 +418,13 @@ export const businessRouter = createTRPCRouter({
     return business?.vehicleTypes;
   }),
 
-  // Search shops with location and availability
-  // TODO: add the bounding params instead of kmsgetVendorAroundLocation: publicProcedure
   getVendorAroundLocation: publicProcedure.query(async ({ ctx }) => {
     try {
+      console.time("Grabbing user location through IP: ");
       const { data: userLocation } = await axios.get<IpInfoResponse>(
         env.NEXT_PUBLIC_APP_URL + "/api/ip",
       );
+      console.timeEnd("Grabbing user location through IP: ");
 
       const [lat, lng] = userLocation.loc.split(",").map(Number);
 
@@ -446,6 +446,7 @@ export const businessRouter = createTRPCRouter({
       )
     )`;
 
+      console.time("Fetching vendors around location: ");
       // Main query with distance filtering
       const vendorsQuery = await ctx.db
         .select({
@@ -468,6 +469,7 @@ export const businessRouter = createTRPCRouter({
         )
         .orderBy(distanceCalculation)
         .limit(5);
+      console.timeEnd("Fetching vendors around location: ");
 
       return {
         vendors: vendorsQuery,

@@ -397,10 +397,10 @@ const OrdersTable = () => {
       {!bookingsDetailsLoading && bookingsDetails !== undefined && (
         <Bookings
           open={open}
-           setOpen={setOpen}
-           paymentDetails={{
+          setOpen={setOpen}
+          paymentDetails={{
             merchantCode: vendor?.merchantCode ?? null,
-           }}
+          }}
           bookingsDetails={bookingsDetails}
           fromVendor={true}
           vendorId={vendor?.id ?? ""}
@@ -441,7 +441,11 @@ const OrdersTable = () => {
               variant={"secondary"}
               size="sm"
               disabled={bookingsDetailsLoading}
-              onClick={() => setOpen(true)}
+              onClick={() => {
+                if (!bookingsDetailsLoading && bookingsDetails !== undefined) {
+                  setOpen(true);
+                }
+              }}
             >
               <Plus size={16} className="mr-1" />
               Add Order

@@ -12,13 +12,14 @@ import {
 } from "~/components/ui/carousel";
 import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
-import { type GetVendorAroundLocation } from "~/server/api/routers/business";
+import { api as trpc } from "~/trpc/react";
 
-const ShopsAround = ({
-  shopsAroundData,
-}: {
-  shopsAroundData: GetVendorAroundLocation;
-}) => {
+const ShopsAround = () => {
+  const { data: shopsAroundData, isLoading } =
+    trpc.business.getVendorAroundLocation.useQuery(undefined, {
+      refetchOnWindowFocus: false,
+    });
+
   const [api, setApi] = useState<CarouselApi | undefined>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
@@ -40,11 +41,11 @@ const ShopsAround = ({
             )}
           >
             <span>Rentals Near</span>
-            {!shopsAroundData.location ? (
+            {isLoading ? (
               <Skeleton className="h-10 w-28 rounded-sm" />
             ) : (
               <span className="font-black capitalize text-secondary underline underline-offset-2">
-                {shopsAroundData.location}
+                {shopsAroundData?.location}
               </span>
             )}
           </h2>
@@ -77,18 +78,29 @@ const ShopsAround = ({
             opts={{ align: "start" }}
           >
             <CarouselContent>
-              {shopsAroundData.vendors.map((shop, index) => (
-                <CarouselItem
-                  key={index}
-                  className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
-                >
-                  <VendorCard shop={shop} />
-                </CarouselItem>
-              ))}
+              {isLoading
+                ? Array.from({ length: 5 }).map((_, index) => (
+                    <CarouselItem
+                      key={index}
+                      className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+                    >
+                      <Skeleton className="h-48 w-full rounded-md" />
+                      <Skeleton className="h-6 w-3/4 rounded-sm" />
+                      <Skeleton className="h-6 w-1/2 rounded-sm" />
+                    </CarouselItem>
+                  ))
+                : shopsAroundData?.vendors.map((shop, index) => (
+                    <CarouselItem
+                      key={index}
+                      className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+                    >
+                      <VendorCard shop={shop} />
+                    </CarouselItem>
+                  ))}
             </CarouselContent>
           </Carousel>
 
-          {shopsAroundData.vendors.length === 0 && (
+          {shopsAroundData?.vendors.length === 0 && (
             <div className="flex h-40 w-full items-center justify-center gap-4">
               <p className="text-center text-lg text-foreground">
                 Oops! No rentals are available near you.

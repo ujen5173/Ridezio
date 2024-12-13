@@ -171,8 +171,11 @@ export const rentalRouter = createTRPCRouter({
                 : rentalStatusEnum.enumValues[0],
             totalPrice: input.totalPrice,
             notes: input.notes,
-            paymentMethod:
-              (input.paymentMethod ?? input.paymentId) ? "online" : "onsite",
+            paymentMethod: input.paymentMethod
+              ? input.paymentMethod
+              : input.paymentId
+                ? "online"
+                : "onsite",
             paymentStatus: input.paymentStatus,
             quantity: input.quantity,
             num_of_days: numOfDays,

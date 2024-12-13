@@ -54,7 +54,7 @@ interface BookingsProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   bookingsDetails: GetBookingsType;
   vendorId: string;
-   fromVendor: boolean;
+  fromVendor: boolean;
   paymentDetails: {
     merchantCode: string | null;
   };
@@ -65,13 +65,12 @@ const Bookings: React.FC<BookingsProps> = ({
   open,
   setOpen,
   vendorId,
-   paymentDetails,
+  paymentDetails,
   fromVendor = false,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
 
- 
   const searchParams = useSearchParams();
   const type = searchParams.get("type") ?? "";
   const category = searchParams.get("category") ?? "";
@@ -663,7 +662,7 @@ const Bookings: React.FC<BookingsProps> = ({
               </div>
             </ScrollArea>
 
-            <div className="flex w-full items-center justify-between gap-4">
+            <div className="flex w-full flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
               <div className="flex flex-wrap gap-1 text-lg font-semibold">
                 <span className="text-nowrap">
                   Total: रु.{getSelectedVehiclePrice()}/-
@@ -762,7 +761,15 @@ const Bookings: React.FC<BookingsProps> = ({
                               <span>Processing...</span>
                             </>
                           ) : (
-                            <span>Continue with Online payment</span>
+                            <>
+                              <Image
+                                src="/esewa.svg"
+                                width={23}
+                                height={23}
+                                alt="EWallet"
+                              />
+                              <span>Continue with Online payment</span>
+                            </>
                           )}
                         </button>
 
@@ -785,7 +792,15 @@ const Bookings: React.FC<BookingsProps> = ({
                           <span>Processing...</span>
                         </>
                       ) : (
-                        <span>Continue with Cash</span>
+                        <>
+                          <Image
+                            src="/cash.svg"
+                            width={23}
+                            height={23}
+                            alt="Cash"
+                          />
+                          <span>Continue with Cash</span>
+                        </>
                       )}
                     </Button>
                   </div>
@@ -817,7 +832,7 @@ const Bookings: React.FC<BookingsProps> = ({
                     </h1>
 
                     <div className="flex w-full flex-wrap items-center justify-center gap-4">
-                    {paymentDetails.merchantCode && (
+                      {paymentDetails.merchantCode && (
                         <>
                           <button
                             className={cn(

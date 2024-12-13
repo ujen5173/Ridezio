@@ -116,6 +116,9 @@ export function constructMetadata({
     },
     icons,
     metadataBase: new URL(getBaseUrl()),
+    verification: {
+      google: "73j5rUHvDmusjX0zQ5nDZI5JuVsW2aC7Njmwi4-t2rE",
+    },
     robots: {
       index: !noIndex,
       follow: !noIndex,
