@@ -28,10 +28,10 @@ export const siteConfig = {
   name: "Velocit",
   namelower: "velocit",
   title:
-    "Affordable Vehicle Rentals | Cycles, Bikes, Scooters & Cars - Velocit",
+    "Rent Cycles, Bikes, Scooters & Cars | Affordable Vehicle Rentals Near You - Velocit",
   description:
-    "Velocit offers convenient and affordable rentals for cycles, bikes, scooters, and cars. Book your perfect ride instantly for daily commutes, weekend adventures, or city exploration. Experience hassle-free mobility with Velocit.",
-  tagline: "Your go-to for quick, easy, and affordable vehicle rentals",
+    "Discover flexible and affordable vehicle rentals with Velocit. Rent cycles, bikes, scooters, and cars for your commute, road trips, or weekend getaways. Find the perfect ride near you and book instantly with ease. Simplify your travel with Velocit today.",
+  tagline: "Flexible, affordable vehicle rentals for every journey",
   links,
   url: getBaseUrl(),
   ogImage: links.openGraphImage,
@@ -73,7 +73,6 @@ export function constructMetadata({
       url: "/favicon.ico",
     },
   ],
-  noIndex = false,
   url = getBaseUrl(),
   publishedTime,
 }: {
@@ -120,18 +119,15 @@ export function constructMetadata({
       google: "73j5rUHvDmusjX0zQ5nDZI5JuVsW2aC7Njmwi4-t2rE",
     },
     robots: {
-      index: !noIndex,
-      follow: !noIndex,
+      index: true,
+      follow: true,
       googleBot: {
-        index: !noIndex,
-        follow: !noIndex,
+        index: true,
+        follow: true,
         "max-video-preview": -1,
         "max-image-preview": "large",
         "max-snippet": -1,
       },
-    },
-    alternates: {
-      canonical: url,
     },
     keywords: siteConfig.keywords.join(", "),
   };

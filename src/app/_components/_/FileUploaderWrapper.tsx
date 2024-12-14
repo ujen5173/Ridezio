@@ -70,6 +70,8 @@ const FileUploaderWrapper = ({
   }[];
   form: UseFormReturn<z.infer<typeof imageSchema>>;
 }) => {
+  // Use state to keep track of unique uploaded file keys
+  const [uploadedFileKeys, setUploadedFileKeys] = useState<string[]>([]);
   const [localImages, setLocalImages] = useState<
     {
       id: string;
@@ -77,8 +79,6 @@ const FileUploaderWrapper = ({
       order: number;
     }[]
   >(images);
-
-  const [processedUploadKeys, setProcessedUploadKeys] = useState<string[]>([]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -111,42 +111,40 @@ const FileUploaderWrapper = ({
 
   useEffect(() => {
     if (uploadedFile && uploadedFile.length > 0) {
-      // Filter out already uploaded and processed images
+      // Create a Set for faster lookup of existing keys
+      const processedKeys = new Set(uploadedFileKeys);
+      const existingUrls = new Set(localImages.map((img) => img.url));
+
+      // Filter out files that are either already processed or exist in localImages
       const newUniqueUploads = uploadedFile.filter(
         (newFile) =>
-          !localImages.some((existingImg) => existingImg.url === newFile.url) &&
-          !processedUploadKeys.includes(newFile.key),
+          !processedKeys.has(newFile.key) && !existingUrls.has(newFile.url),
       );
 
       if (newUniqueUploads.length > 0) {
-        const newUploadedImages = newUniqueUploads.map((e, idx) => ({
-          id: e.key,
+        const newUploadedImages = newUniqueUploads.map((file, idx) => ({
+          id: file.key,
           order: localImages.length + idx + 1,
-          url: e.url,
+          url: file.url,
         }));
 
         const updatedImages = [...localImages, ...newUploadedImages];
 
-        // Use Set to ensure unique URLs before setting state
-        const uniqueImages = Array.from(
-          new Map(updatedImages.map((img) => [img.url, img])).values(),
-        );
-
-        // Track processed upload keys to prevent re-processing
-        const newProcessedKeys = [
-          ...processedUploadKeys,
+        // Update local images and file keys
+        setLocalImages(updatedImages);
+        setUploadedFileKeys((prev) => [
+          ...prev,
           ...newUniqueUploads.map((file) => file.key),
-        ];
+        ]);
 
-        setProcessedUploadKeys(newProcessedKeys);
-        setLocalImages(uniqueImages);
-        form.setValue("images", uniqueImages, {
+        // Update form state
+        form.setValue("images", updatedImages, {
           shouldDirty: true,
           shouldTouch: true,
         });
       }
     }
-  }, [uploadedFile, form, processedUploadKeys]);
+  }, [uploadedFile, form, uploadedFileKeys, localImages]);
 
   const imageIds = useMemo(
     () => localImages.map((img) => img.id),
@@ -158,9 +156,15 @@ const FileUploaderWrapper = ({
       value={files}
       dropzoneOptions={dropzone}
       onValueChange={(newFiles) => {
-        setFiles(newFiles);
-        if (newFiles) {
-          onFileUpload(newFiles);
+        // Only pass truly new files that haven't been uploaded yet
+        const actualNewFiles = newFiles?.filter(
+          (newFile) =>
+            !files?.some((existingFile) => existingFile.name === newFile.name),
+        );
+
+        if (actualNewFiles?.length) {
+          setFiles(actualNewFiles);
+          onFileUpload(actualNewFiles);
         }
       }}
     >

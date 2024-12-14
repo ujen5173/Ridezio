@@ -12,7 +12,6 @@ import {
 } from "drizzle-orm";
 import slugify from "slugify";
 import { z, ZodError } from "zod";
-import { type IpInfoResponse } from "~/app/api/ip/route";
 import { env } from "~/env";
 import { slugifyDefault } from "~/lib/helpers";
 import {
@@ -50,6 +49,16 @@ interface GrowthMetrics {
 interface ChartDataPoint {
   date: string;
   value: number;
+}
+
+interface IpInfoResponse {
+  ip: string;
+  city: string;
+  region: string;
+  country: string;
+  loc: string;
+  org: string;
+  timezone: string;
 }
 
 // Daily data interface
@@ -421,8 +430,15 @@ export const businessRouter = createTRPCRouter({
   getVendorAroundLocation: publicProcedure.query(async ({ ctx }) => {
     try {
       console.time("Grabbing user location through IP: ");
+      const IP =
+        ctx.headers.get("x-forwarded-for") ??
+        ctx.headers.get("remote-addr") ??
+        "124.41.204.21";
+
+      console.log({ IP });
+
       const { data: userLocation } = await axios.get<IpInfoResponse>(
-        env.NEXT_PUBLIC_APP_URL + "/api/ip",
+        `https://ipinfo.io/${IP}/json?token=${env.IPINFO_API_KEY}`,
       );
       console.timeEnd("Grabbing user location through IP: ");
 
@@ -439,12 +455,12 @@ export const businessRouter = createTRPCRouter({
       // Define distance calculation and radius filter
       const radius = 10; // kilometers
       const distanceCalculation = sql<number>`6371 * 2 * ASIN(
-      SQRT(
-        POWER(SIN((${lat} - (business.location->>'lat')::numeric) * PI()/180 / 2), 2) +
-        COS(${lat} * PI()/180) * COS((business.location->>'lat')::numeric * PI()/180) *
-        POWER(SIN((${lng} - (business.location->>'lng')::numeric) * PI()/180 / 2), 2)
-      )
-    )`;
+        SQRT(
+          POWER(SIN((${lat} - (business.location->>'lat')::numeric) * PI()/180 / 2), 2) +
+          COS(${lat} * PI()/180) * COS((business.location->>'lat')::numeric * PI()/180) *
+          POWER(SIN((${lng} - (business.location->>'lng')::numeric) * PI()/180 / 2), 2)
+        )
+      )`;
 
       console.time("Fetching vendors around location: ");
       // Main query with distance filtering
