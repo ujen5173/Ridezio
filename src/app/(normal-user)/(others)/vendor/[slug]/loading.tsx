@@ -12,9 +12,6 @@ const Loading = () => {
               <Skeleton className="size-16" />
               <Skeleton className="size-16" />
               <Skeleton className="size-16" />
-              <Skeleton className="size-16" />
-              <Skeleton className="size-16" />
-              <Skeleton className="size-16" />
             </div>
             <div className="relative h-full flex-1">
               <Skeleton className="h-full min-h-96 w-full lg:min-h-0" />

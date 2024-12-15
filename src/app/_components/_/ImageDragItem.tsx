@@ -41,7 +41,7 @@ const ImageDragItem = ({
         src={file}
         alt={`Image ${index + 1}`}
         fill
-        className="aspect-[16/13] h-full w-full rounded-md object-cover"
+        className="aspect-[16/13] h-full w-full rounded-md object-contain"
       />
     </div>
   );

@@ -1,4 +1,4 @@
-// TODO: Vehicle available status
+// TODO: Total sales
 
 "use client";
 
@@ -14,11 +14,9 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { formatDate } from "date-fns";
 import {
   ChevronDown,
   Edit,
-  Expand,
   Loader,
   Plus,
   RefreshCcw,
@@ -28,14 +26,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -54,14 +44,14 @@ import {
 } from "~/components/ui/table";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
-import { type GetBusinessVehicleType } from "~/server/api/routers/vehicle";
-import { type vehicleTypeEnum } from "~/server/db/schema";
 import { api } from "~/trpc/react";
 
-export interface Vehicle {
+export interface Accessory {
   id: string;
   name: string;
-  type: (typeof vehicleTypeEnum.enumValues)[number];
+  brand: string | null;
+  sizes: string[];
+  colors: string[];
   inventory: number;
   basePrice: number;
   images: {
@@ -69,13 +59,11 @@ export interface Vehicle {
     order: number;
     id: string;
   }[];
-  status: "available" | "Unavailable";
-  features: { key: string; value: string }[];
   category: string;
-  createdAt: string;
+  createdAt: Date;
 }
 
-export const columns: ColumnDef<Vehicle>[] = [
+export const columns: ColumnDef<Accessory>[] = [
   {
     accessorKey: "id",
     header: () => <div className="w-max break-keep px-4 pl-4">UUID</div>,
@@ -98,13 +86,14 @@ export const columns: ColumnDef<Vehicle>[] = [
       >("images");
 
       return (
-        <div className="px-4">
+        <div className="relative h-16 w-32">
+          <div className="absolute inset-0 z-0 animate-pulse rounded-md bg-slate-600/10"></div>
           <Image
             src={image[0]!.url}
-            alt="Vehicle"
+            alt="accessory"
             width={640}
             height={390}
-            className="aspect-video max-w-28 rounded-sm object-cover mix-blend-multiply"
+            className="relative z-10 h-16 w-32 rounded-sm bg-white object-contain"
           />
         </div>
       );
@@ -112,7 +101,7 @@ export const columns: ColumnDef<Vehicle>[] = [
   },
   {
     accessorKey: "name",
-    header: () => <div className="w-max break-keep px-4">Vehicle Name</div>,
+    header: () => <div className="w-max break-keep px-4">Name</div>,
     cell: ({ row }) => (
       <div className="w-max break-keep px-4 capitalize">
         {row.getValue("name")}
@@ -129,33 +118,12 @@ export const columns: ColumnDef<Vehicle>[] = [
     ),
   },
   {
-    accessorKey: "type",
-    header: () => <div className="w-max break-keep px-4">Type</div>,
+    accessorKey: "brand",
+    header: () => <div className="w-max break-keep px-4">Brand</div>,
     cell: ({ row }) => {
-      const type =
-        row.getValue<(typeof vehicleTypeEnum.enumValues)[number]>("type");
-
+      const brand = row.getValue<string | null>("brand");
       return (
-        <div className="px-4">
-          <div
-            className={cn(
-              "flex w-fit items-center gap-1 rounded-sm border px-2 py-1 font-medium",
-              `${type}-badge`,
-            )}
-          >
-            <div
-              className={cn("size-1.5 rounded-full", {
-                "bg-car-color": type === "car",
-                "bg-e-car-color": type === "e-car",
-                "bg-bike-color": type === "bike",
-                "bg-bicycle-color": type === "bicycle",
-                "bg-e-bicycle-color": type === "e-bicycle",
-                "bg-scooter-color": type === "scooter",
-              })}
-            />
-            <span className="text-xs capitalize">{type}</span>
-          </div>
-        </div>
+        <div className="w-max break-keep px-4 capitalize">{brand ?? "N/A"}</div>
       );
     },
   },
@@ -188,118 +156,28 @@ export const columns: ColumnDef<Vehicle>[] = [
       );
     },
   },
-  {
-    accessorKey: "totalRentals",
-    header: () => (
-      <div className="w-max break-keep px-4">Total Rented Count</div>
-    ),
-    cell: ({ row }) => {
-      return (
-        <div className="w-max break-keep px-4 capitalize">
-          {row.getValue<number>("totalRentals")}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "features",
-    header: () => <div className="w-max break-keep px-4">Features</div>,
-    cell: ({ row }) => {
-      console.log({ features: row.getValue("features") });
-      return (
-        <div className="px-4">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant={"outline"} size="sm">
-                <Expand size={13} className="mr-1 text-slate-600" />
-                Expand to view
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[625px]">
-              <DialogHeader>
-                <DialogTitle className="text-xl">
-                  Features of{" "}
-                  <span className="font-semibold italic text-secondary underline underline-offset-2">
-                    {row.getValue<string>("name")}
-                  </span>
-                </DialogTitle>
-              </DialogHeader>
-              <div className="mb-2 border border-border">
-                {row
-                  .getValue<
-                    {
-                      key: string;
-                      value: string;
-                    }[]
-                  >("features")
-                  .map((feature, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className="flex border-b border-border last:border-0"
-                      >
-                        <span className="h-full w-40 border-r border-border bg-slate-100 p-4 text-sm font-semibold">
-                          {feature.key}
-                        </span>
-                        <span className="p-4 text-sm">{feature.value}</span>
-                      </div>
-                    );
-                  })}
-              </div>
-              <DialogFooter className="flex items-center">
-                <Link
-                  href={`/vendor/vehicles/add?edit=${row.getValue<string>("id")}`}
-                >
-                  <Button variant={"primary"}>
-                    <Edit size={18} className="mr-2" />
-                    Edit
-                  </Button>
-                </Link>
-                <Button variant={"outline"}>Cancel</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      );
-    },
-  },
 ];
 
-// This function is just to transform the data from the API to the format that the table expects
-const transformApiData = (data: GetBusinessVehicleType = []): Vehicle[] =>
-  data.map((vehicle) => ({
-    id: vehicle.id,
-    name: vehicle.name,
-    type: vehicle.type,
-    inventory: vehicle.inventory,
-    basePrice: vehicle.basePrice,
-    images: vehicle.images,
-    status: vehicle.inventory === 0 ? "Unavailable" : "available",
-    totalRentals: vehicle.totalRentals,
-    features: vehicle.features,
-    category: vehicle.category,
-    createdAt: formatDate(new Date(vehicle.createdAt), "dd MMM, yyyy"),
-  }));
-
-const VehiclesTable = () => {
+const AccessoriesTable = () => {
   const {
     data = [],
     isLoading,
     refetch,
     isRefetching,
     isError,
-  } = api.vehicle.getVendorVehicles.useQuery();
-  console.log({ data });
+  } = api.accessories.getVendorAccessories.useQuery();
+
+  const accessories = useMemo<Accessory[]>(() => {
+    return data;
+  }, [data]);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const vehicles = useMemo(() => transformApiData(data), [data]);
-
   const table = useReactTable({
-    data: vehicles,
+    data: accessories,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -329,11 +207,11 @@ const VehiclesTable = () => {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Manage your Vehicles</h1>
-        <Link href={`/vendor/vehicles/add`}>
+        <h1 className="text-2xl font-semibold">Manage your Accessories</h1>
+        <Link href={`/vendor/accessories/add`}>
           <Button size="sm" variant="secondary">
             <Plus className="mr-1" size={15} />
-            Add Vehicle
+            Add New
           </Button>
         </Link>
       </div>
@@ -426,7 +304,7 @@ const VehiclesTable = () => {
                     </TableRow>
                   ))}
               </>
-            ) : vehicles.length ? (
+            ) : accessories.length ? (
               <>
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
@@ -448,7 +326,7 @@ const VehiclesTable = () => {
                       <TableCell className="">
                         <div className="flex items-center justify-end gap-2 px-4">
                           <Link
-                            href={`/vendor/vehicles/add?edit=${row.getValue<string>("id")}`}
+                            href={`/vendor/accessories/add?edit=${row.getValue<string>("id")}`}
                           >
                             <Button
                               className="text-slate-600"
@@ -484,7 +362,7 @@ const VehiclesTable = () => {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No vehicles found.
+                  No accessories found.
                 </TableCell>
               </TableRow>
             )}
@@ -514,4 +392,4 @@ const VehiclesTable = () => {
   );
 };
 
-export default VehiclesTable;
+export default AccessoriesTable;

@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-const Logo = ({ tw }: { tw?: string }) => {
+const Logo = ({ tw, link = "/" }: { link?: string; tw?: string }) => {
   return (
-    <Link href="/">
+    <Link href={link}>
       <svg
         className={tw}
         viewBox="0 0 958 168"

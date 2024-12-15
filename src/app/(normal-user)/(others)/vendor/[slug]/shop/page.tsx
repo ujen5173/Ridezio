@@ -1,11 +1,25 @@
+import { notFound } from "next/navigation";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import { handwritting } from "~/app/utils/font";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
+import { api } from "~/trpc/server";
 import AccessoriesCard from "./AccessoriesCard";
 
-const Shop = () => {
+const Shop = async ({
+  params,
+}: {
+  params: {
+    slug: string;
+  };
+}) => {
+  const business = await api.accessories.getAccessories({
+    slug: params.slug,
+  });
+
+  if (!business) notFound();
+
   return (
     <>
       <HeaderHeight />
@@ -25,7 +39,7 @@ const Shop = () => {
               "mb-10 text-4xl font-semibold md:text-5xl lg:text-6xl",
             )}
           >
-            Himalayan Rental Shop
+            {business.name}
           </h1>
           <div className="mx-auto mb-10 w-full md:w-7/12">
             <p className={cn("text-lg text-slate-600")}>
@@ -47,14 +61,16 @@ const Shop = () => {
         <div
           className={cn("grid gap-x-8 gap-y-4 pb-32")}
           style={{
-            gridTemplateColumns: "repeat(auto-fit,minmax(312px,1fr))",
+            gridTemplateColumns: "repeat(auto-fit,minmax(280px,290px))",
           }}
         >
-          {Array(15)
-            .fill("")
-            .map((_, i) => (
-              <AccessoriesCard i={i + 2} key={i} />
-            ))}
+          {business.accessories.map((accessory) => (
+            <AccessoriesCard
+              slug={params.slug}
+              accessory={accessory}
+              key={accessory.id}
+            />
+          ))}
         </div>
       </div>
     </>

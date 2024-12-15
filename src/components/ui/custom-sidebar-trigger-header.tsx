@@ -20,6 +20,20 @@ const CustomSidebarTriggerHeader = () => {
   const { data } = useSession();
   const { state, toggleSidebar } = useSidebar();
 
+  const getGreetings = () => {
+    const currentHour = new Date().getHours();
+
+    if (currentHour < 12) {
+      return "Good Morning";
+    }
+
+    if (currentHour < 18) {
+      return "Good Afternoon";
+    }
+
+    return "Good Evening";
+  };
+
   return (
     <header className="flex items-center justify-between border-b border-border px-6 py-4">
       <div className="flex items-center gap-4">
@@ -49,7 +63,7 @@ const CustomSidebarTriggerHeader = () => {
         )}
         <div>
           <h2 className="text-xl font-semibold">
-            Good Morning, {data?.user?.name}
+            {getGreetings()}, {data?.user?.name}
           </h2>
           <p className="text-base text-slate-600">
             {format(new Date(), "EEEE, MMM d yyyy")}

@@ -4,7 +4,6 @@ import {
   Bike,
   CalendarDays,
   ExternalLink,
-  Home,
   LayoutDashboard,
   LogOut,
   MessageCircleMore,
@@ -15,7 +14,7 @@ import {
 
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -48,9 +47,9 @@ const items = [
   },
   {
     title: "Accessories",
-    url: "/accessories",
+    url: "/vendor/accessories",
     icon: ShoppingCart,
-    disabled: true,
+    disabled: false,
   },
   {
     title: "Events",
@@ -74,15 +73,9 @@ const items = [
 
 export function AppSidebar({ slug }: { slug: string }) {
   const { toggleSidebar } = useSidebar();
-  const router = useRouter();
   const path = usePathname();
 
   const sideBarExtraItems = [
-    {
-      title: "Home",
-      url: "/",
-      icon: Home,
-    },
     {
       title: "Visit your page",
       url: `/vendor/${slug}`,
@@ -96,7 +89,7 @@ export function AppSidebar({ slug }: { slug: string }) {
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center justify-between border-b border-border py-[1.1rem]">
             <div className="scale-x-90">
-              <Logo tw="h-6 fill-secondary" />
+              <Logo link={"/dashboard"} tw="h-6 fill-secondary" />
             </div>
             <Button
               variant={"outline"}
@@ -114,6 +107,28 @@ export function AppSidebar({ slug }: { slug: string }) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
+              {items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <Link
+                    href={item.url}
+                    className={cn(
+                      "flex gap-2 rounded-md px-2 py-2",
+                      path === item.url
+                        ? "text-primary-500 border border-border bg-white shadow-sm hover:bg-slate-50"
+                        : "text-slate-600 hover:bg-gray-200",
+                      item.disabled
+                        ? "pointer-events-none cursor-not-allowed opacity-50"
+                        : "cursor-pointer",
+                    )}
+                  >
+                    <item.icon size={17} />
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+            <Separator className="my-4" />
+            <SidebarMenu>
               {sideBarExtraItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
@@ -121,27 +136,6 @@ export function AppSidebar({ slug }: { slug: string }) {
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-            <Separator className="my-4" />
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    className={cn(
-                      path === item.url
-                        ? "text-primary-500 flex border border-border bg-white shadow-sm hover:bg-slate-50"
-                        : "text-slate-600",
-                    )}
-                    onClick={() => {
-                      void router.push(item.url);
-                    }}
-                    disabled={item.disabled}
-                  >
-                    <item.icon />
-                    <span>{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

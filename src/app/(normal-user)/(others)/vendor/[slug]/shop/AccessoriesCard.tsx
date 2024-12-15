@@ -1,28 +1,46 @@
 import { Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { inter } from "~/app/utils/font";
-import { cn } from "~/lib/utils";
 
-const AccessoriesCard = ({ i }: { i: number }) => {
+const AccessoriesCard = ({
+  accessory,
+  slug,
+}: {
+  slug: string | undefined;
+  accessory: {
+    id: string;
+    name: string;
+    slug: string;
+    images: {
+      id: string;
+      order: number;
+      url: string;
+    }[];
+    basePrice: number;
+    inventory: number;
+    brand: string | null;
+    discount: number | null;
+    category: string;
+  };
+}) => {
   return (
-    <Link href="/shop/product/product1">
+    <Link href={`/vendor/${slug}/shop/${accessory.slug}`}>
       <div className="bg-white">
-        <div className="mb-4 rounded-lg bg-slate-200">
+        <div className="mb-4 flex aspect-square items-center justify-center rounded-lg border border-slate-100 bg-slate-50">
           <Image
-            src={`/p${i}.jpg`}
+            src={accessory.images[0]!.url}
             width={800}
             height={800}
-            className="aspect-square rounded-lg object-cover"
+            className="h-9/12 aspect-square w-9/12 rounded-lg object-contain mix-blend-multiply"
             alt=""
           />
         </div>
         <div>
           <h5 className="mb-1 text-base uppercase text-secondary">
-            Protection
+            {accessory.category}
           </h5>
-          <h1 className="mb-4 line-clamp-1 text-xl font-semibold">
-            LS2 Rookie Black Knee Protector
+          <h1 className="mb-2 line-clamp-1 text-xl font-semibold">
+            {accessory.name}
           </h1>
           <div className="mb-2 flex items-center gap-1">
             <Star size={20} className="fill-yellow-500 stroke-yellow-500" />
@@ -32,13 +50,8 @@ const AccessoriesCard = ({ i }: { i: number }) => {
             </span>
           </div>
           <p className="text-base font-medium uppercase">Starting at</p>
-          <h2
-            className={cn(
-              inter.className,
-              "text-2xl font-medium text-secondary",
-            )}
-          >
-            $19.99
+          <h2 className="mb-4 text-2xl font-bold text-secondary">
+            रु {accessory.basePrice}
           </h2>
         </div>
       </div>

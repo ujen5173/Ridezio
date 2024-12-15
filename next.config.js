@@ -20,6 +20,10 @@ const config = {
       },
       {
         protocol: "https",
+        hostname: "cdn.shopify.com",
+      },
+      {
+        protocol: "https",
         hostname: "embed.widencdn.net",
       },
       {

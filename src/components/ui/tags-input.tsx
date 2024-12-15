@@ -71,7 +71,7 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
         )}
         <div className="min-w-32 flex-1">
           <input
-            className="h-full min-h-10 w-full flex-1 border-0 bg-transparent p-2 outline-none ring-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
+            className="h-full min-h-10 w-full flex-1 border-0 bg-transparent px-3 py-2 outline-none ring-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
             value={pendingDataPoint}
             onChange={(e) => setPendingDataPoint(e.target.value)}
             onBlurCapture={addPendingDataPoint}

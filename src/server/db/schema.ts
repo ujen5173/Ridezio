@@ -289,6 +289,31 @@ export const reviews = createTable(
   }),
 );
 
+export const accessoriesReviews = createTable(
+  "accessories_review",
+  {
+    id: varchar("id", { length: 36 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: varchar("user_id", { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    accessoryId: varchar("accessory_id", { length: 36 })
+      .notNull()
+      .references(() => accessories.id, { onDelete: "cascade" }),
+    rating: integer("rating").notNull(),
+    review: text("review").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    userIdx: index("accesory_review_user_idx").on(table.userId),
+    accessoryIdx: index("accesory_review_accessory_idx").on(table.accessoryId),
+    ratingIdx: index("accesory_review_rating_idx").on(table.rating),
+  }),
+);
+
 export const payments = createTable(
   "payment",
   {
@@ -395,6 +420,81 @@ export const sessions = createTable(
   }),
 );
 
+export const accessories = createTable(
+  "accessories",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    name: varchar("name", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 255 }).notNull(),
+    images: json("images")
+      .array()
+      .$type<
+        {
+          id: string;
+          url: string;
+          order: number;
+        }[]
+      >()
+      .notNull()
+      .default(sql`'{}'::json[]`),
+    basePrice: integer("base_price").notNull(),
+    inventory: integer("inventory").notNull().default(1),
+    brand: varchar("brand", { length: 100 }),
+    businessId: varchar("business_id", { length: 255 }).references(
+      () => businesses.id,
+      { onDelete: "cascade" },
+    ),
+    rating: decimal("rating", { precision: 3, scale: 1 })
+      .$type<number>()
+      .notNull()
+      .default(0.0),
+    ratingCount: integer("rating_count").default(0),
+    category: varchar("category", { length: 100 }).notNull(),
+    description: text("description"),
+    sizes: varchar("sizes").array().notNull(),
+    colors: varchar("colors").array().notNull(),
+    discount: integer("discount"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    nameIdx: index("gear_name_idx").on(table.name),
+  }),
+);
+
+export const accessoriesOrder = createTable(
+  "accessories_order",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    accessoryId: varchar("accessory_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    businessId: varchar("business_id", { length: 255 })
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    total: integer("total").notNull(),
+    quantity: integer("quantity").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    userIdIdx: index("accessory_order_user_idx").on(table.userId),
+    businessIdIdx: index("accessory_order_business_idx").on(table.businessId),
+    accessoryIdIdx: index("accessory_order_accessory_id_idx").on(
+      table.accessoryId,
+    ),
+  }),
+);
+
 export const verificationTokens = createTable(
   "verification_token",
   {
@@ -420,6 +520,9 @@ export const usersRelations = relations(users, ({ many, one }) => ({
     fields: [users.id],
     references: [businesses.ownerId],
   }),
+  reviews: many(reviews),
+  accessoriesReviews: many(accessoriesReviews),
+  orders: many(accessoriesOrder),
 }));
 
 export const favouriteRelations = relations(favourite, ({ one }) => ({
@@ -434,7 +537,60 @@ export const businessesRelations = relations(businesses, ({ one, many }) => ({
   faqs: many(faq),
   vehicles: many(vehicles),
   rentals: many(rentals),
+  accessories: many(accessories),
+  reviews: many(reviews),
+  favourites: many(favourite),
+  orders: many(accessoriesOrder),
 }));
+
+export const accessoriesRelations = relations(accessories, ({ one, many }) => ({
+  business: one(businesses, {
+    fields: [accessories.businessId],
+    references: [businesses.id],
+  }),
+  accessoriesReviews: many(accessoriesReviews),
+  orders: many(accessoriesOrder),
+}));
+
+export const reviewsRelations = relations(reviews, ({ one }) => ({
+  business: one(businesses, {
+    fields: [reviews.businessId],
+    references: [businesses.id],
+  }),
+  user: one(users, { fields: [reviews.userId], references: [users.id] }),
+}));
+
+export const accessoryReviewsRelations = relations(
+  accessoriesReviews,
+  ({ one }) => ({
+    accessory: one(accessories, {
+      fields: [accessoriesReviews.accessoryId],
+      references: [accessories.id],
+    }),
+    user: one(users, {
+      fields: [accessoriesReviews.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const accessoriesOrderRelations = relations(
+  accessoriesOrder,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [accessoriesOrder.userId],
+      references: [users.id],
+    }),
+    accessory: one(accessories, {
+      fields: [accessoriesOrder.accessoryId],
+      references: [accessories.id],
+    }),
+    business: one(businesses, {
+      fields: [accessoriesOrder.businessId],
+      references: [businesses.id],
+    }),
+  }),
+);
 
 export const vehiclesRelations = relations(vehicles, ({ one, many }) => ({
   business: one(businesses, {
@@ -453,7 +609,7 @@ export const rentalsRelations = relations(rentals, ({ one, many }) => ({
   business: one(businesses, {
     fields: [rentals.businessId],
     references: [businesses.id],
-  }), // add this
+  }),
   payments: many(payments),
 }));
 

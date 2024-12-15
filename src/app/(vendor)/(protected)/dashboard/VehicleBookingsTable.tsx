@@ -61,7 +61,7 @@ const transformApiData = (data: GetOrdersType = []): Order[] =>
     createdAt: vehicle.createdAt,
   }));
 
-const OrdersTable = () => {
+const VehicleBookingsTable = () => {
   const { data: vendor } = api.business.current.useQuery();
   const { mutateAsync, status } = api.rental.updatedRentalStatus.useMutation();
   const {
@@ -94,7 +94,9 @@ const OrdersTable = () => {
       },
       {
         accessorKey: "customer",
-        header: () => <div className="w-max break-keep px-4">Customer</div>,
+        header: () => (
+          <div className="w-max break-keep px-4">Customer Name</div>
+        ),
         cell: ({ row }) => (
           <div className="w-max break-keep px-4 capitalize">
             {row.getValue("customer")}
@@ -104,7 +106,7 @@ const OrdersTable = () => {
       },
       {
         accessorKey: "createdAt",
-        header: () => <div className="w-max break-keep px-4">Ordered Date</div>,
+        header: () => <div className="w-max break-keep px-4">Booked On</div>,
         cell: ({ row }) => (
           <div className="space-y-1 px-4">
             <p className="w-max break-keep">
@@ -406,8 +408,8 @@ const OrdersTable = () => {
           vendorId={vendor?.id ?? ""}
         />
       )}
-      <div className="max-w-1440px mx-auto">
-        <h1 className="text-2xl font-semibold">Orders</h1>
+      <div className="">
+        <h1 className="text-2xl font-semibold">Vehicle Bookings</h1>
         <div className="flex items-center gap-4 py-4">
           <div className="flex-1">
             <Input
@@ -448,7 +450,7 @@ const OrdersTable = () => {
               }}
             >
               <Plus size={16} className="mr-1" />
-              Add Order
+              Add Booking
             </Button>
           </div>
         </div>
@@ -558,4 +560,4 @@ const OrdersTable = () => {
   );
 };
 
-export default OrdersTable;
+export default VehicleBookingsTable;
