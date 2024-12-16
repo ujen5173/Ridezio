@@ -208,8 +208,6 @@ export const businessRouter = createTRPCRouter({
       )
       .orderBy(sql`${rentals.createdAt}`);
 
-    console.log({ monthly });
-
     const formatDateToString = (date: Date): string => {
       const isoString = date.toISOString();
       return isoString.split("T")[0]!;
@@ -306,11 +304,6 @@ export const businessRouter = createTRPCRouter({
         false,
       ),
     };
-
-    console.log({
-      store_revenue_chart_data,
-      store_orders_chart_data,
-    });
 
     return {
       store: {
@@ -437,8 +430,6 @@ export const businessRouter = createTRPCRouter({
         ctx.headers.get("x-forwarded-for") ??
         ctx.headers.get("remote-addr") ??
         "124.41.204.21";
-
-      console.log({ IP });
 
       const { data: userLocation } = await axios.get<IpInfoResponse>(
         `https://ipinfo.io/${IP}/json?token=${env.IPINFO_API_KEY}`,

@@ -23,6 +23,7 @@ const AccessoryReviews = ({
     },
     {
       enabled: !!accessoryId,
+      refetchOnWindowFocus: false,
     },
   );
 

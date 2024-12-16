@@ -1,4 +1,4 @@
-import { type inferRouterOutputs } from "@trpc/server";
+import { TRPCError, type inferRouterOutputs } from "@trpc/server";
 import { and, desc, eq, getTableColumns, not } from "drizzle-orm";
 import slugify from "slugify";
 import { z } from "zod";
@@ -95,7 +95,10 @@ export const accessoriesRouter = createTRPCRouter({
           return true;
         }
       } catch (error) {
-        console.log({ error });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong, please try again",
+        });
       }
     }),
 
@@ -125,8 +128,6 @@ export const accessoriesRouter = createTRPCRouter({
         .from(accessories)
         .where(eq(accessories.businessId, businessId.id))
         .orderBy(desc(accessories.createdAt));
-
-      console.log({ res });
 
       return res;
     } catch (error) {
@@ -216,7 +217,6 @@ export const accessoriesRouter = createTRPCRouter({
         .innerJoin(users, eq(accessoriesReviews.userId, users.id))
         .where(eq(accessoriesReviews.accessoryId, input.accessoryId));
 
-      console.log({ res });
       return res;
     }),
 

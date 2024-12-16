@@ -22,6 +22,7 @@ const SimilarProducts = ({ product }: { product: string }) => {
       },
       {
         enabled: !!product,
+        refetchOnWindowFocus: false,
       },
     );
 

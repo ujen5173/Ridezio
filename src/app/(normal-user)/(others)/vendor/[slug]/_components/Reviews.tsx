@@ -21,6 +21,7 @@ const Reviews = ({
     },
     {
       enabled: !!businessId,
+      refetchOnWindowFocus: false,
     },
   );
 

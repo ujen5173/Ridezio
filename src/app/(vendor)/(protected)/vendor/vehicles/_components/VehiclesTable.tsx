@@ -205,7 +205,6 @@ export const columns: ColumnDef<Vehicle>[] = [
     accessorKey: "features",
     header: () => <div className="w-max break-keep px-4">Features</div>,
     cell: ({ row }) => {
-      console.log({ features: row.getValue("features") });
       return (
         <div className="px-4">
           <Dialog>
@@ -288,8 +287,10 @@ const VehiclesTable = () => {
     refetch,
     isRefetching,
     isError,
-  } = api.vehicle.getVendorVehicles.useQuery();
-  console.log({ data });
+  } = api.vehicle.getVendorVehicles.useQuery(undefined, {
+    refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
+    refetchOnWindowFocus: false,
+  });
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

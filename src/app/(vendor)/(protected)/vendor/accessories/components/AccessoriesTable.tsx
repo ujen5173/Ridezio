@@ -165,7 +165,9 @@ const AccessoriesTable = () => {
     refetch,
     isRefetching,
     isError,
-  } = api.accessories.getVendorAccessories.useQuery();
+  } = api.accessories.getVendorAccessories.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
 
   const accessories = useMemo<Accessory[]>(() => {
     return data;

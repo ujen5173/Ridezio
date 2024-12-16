@@ -71,8 +71,8 @@ const VehicleBookingsTable = () => {
     isError,
     refetch,
   } = api.business.getOrders.useQuery(undefined, {
-    refetchOnWindowFocus: false,
     refetchInterval: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
   });
 
   const [loadingOrderIds, setLoadingOrderIds] = React.useState<{

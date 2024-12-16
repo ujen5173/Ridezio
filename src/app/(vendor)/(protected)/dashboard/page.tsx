@@ -19,7 +19,6 @@ const Dashboard = async () => {
       </main>
     );
   } catch (err) {
-    console.log({ err });
     redirect("/vendor/profile");
   }
 };

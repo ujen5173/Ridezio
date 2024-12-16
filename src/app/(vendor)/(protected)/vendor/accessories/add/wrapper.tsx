@@ -79,7 +79,6 @@ const Wrapper = ({
   type: "edit" | "new";
   editData: GetSingleAccessoriesType | undefined;
 }) => {
-  console.log({ editData });
   const router = useRouter();
 
   const { data: business } = api.business.current.useQuery();
@@ -149,12 +148,6 @@ const Wrapper = ({
       });
       return;
     }
-
-    console.log({
-      ...rest,
-      inventory: inventory,
-      images: images,
-    });
 
     if (values.category === "") {
       toast({

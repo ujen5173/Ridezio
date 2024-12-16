@@ -7,8 +7,6 @@ import { generateEsewaSignature } from "~/server/utils/generate-payment-token";
 import { type PaymentMethod } from "~/types/payment";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
-const ESEWA_URL = env.ESEWA_URL;
-const MERCHANT_CODE = env.ESEWA_MERCHANT_CODE ?? "YOUR_MERCHANT_CODE";
 const ESEWA_VERIFICATION_URL =
   env.ESEWA_VERIFICATION_URL ?? "https://uat.esewa.com.np/epay/transrec";
 
@@ -26,7 +24,6 @@ export const paymentRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const path = ctx.headers.get("referer")?.split("?")[0] ?? "/";
-      console.log("Initiating payment:", input);
 
       try {
         const {
@@ -40,8 +37,6 @@ export const paymentRouter = createTRPCRouter({
 
         switch (method as PaymentMethod) {
           case "esewa": {
-            console.log("Initiating eSewa payment");
-
             const esewaConfig = {
               amount: amount,
               tax_amount: "0",
@@ -60,8 +55,6 @@ export const paymentRouter = createTRPCRouter({
               env.NEXT_PUBLIC_ESEWA_SECRET_KEY,
               signatureString,
             );
-
-            console.log("eSewa config:", { ...esewaConfig, signature });
 
             return {
               amount: amount,

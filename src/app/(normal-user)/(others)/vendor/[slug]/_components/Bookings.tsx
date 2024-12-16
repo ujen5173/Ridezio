@@ -134,8 +134,6 @@ const Bookings: React.FC<BookingsProps> = ({
     );
   }, [bookingsDetails.vehicleTypes]);
 
-  console.log({ allAvailableVehicles });
-
   const getSelectedVehicleId = (): string | undefined => {
     const vehicles = getCurrentVehicles();
     return vehicles.find((v) => v.name === selectedVehicle.vehicleModel)?.id;
@@ -444,13 +442,20 @@ const Bookings: React.FC<BookingsProps> = ({
                     className="border-red-300 bg-red-100"
                     variant="default"
                   >
-                    <AlertTitle className="text-red-600">
-                      Sign in to continue
-                    </AlertTitle>
-                    <AlertDescription className="text-red-600">
-                      You need to sign in to continue booking a vehicle. Please
-                      sign in to continue.
-                    </AlertDescription>
+                    <div className="flex flex-1 items-center gap-4">
+                      <div className="flex-1">
+                        <AlertTitle className="font-medium text-red-600">
+                          Sign in to continue
+                        </AlertTitle>
+                        <AlertDescription className="text-red-600">
+                          You need to sign in to continue booking a vehicle.
+                          Please sign in to continue.
+                        </AlertDescription>
+                      </div>
+                      <Button variant={"secondary"} size="sm">
+                        Sign in
+                      </Button>
+                    </div>
                   </Alert>
                 )}
 
@@ -494,58 +499,6 @@ const Bookings: React.FC<BookingsProps> = ({
                     )}
                   </div>
                 </div>
-
-                {/* {selectedVehicleType && (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-2 px-1">
-                      <Label>Vehicle Category</Label>
-                      <Select
-                        value={selectedVehicleSubType}
-                        onValueChange={(value) => {
-                          setSelectedVehicleSubType(value);
-                          setSelectedVehicleType("");
-                          setDate(undefined);
-                          setQuantity(1);
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {bookingsDetails.vehicleTypes[
-                            selectedVehicleType
-                          ]?.types.map((type) => (
-                            <SelectItem
-                              key={type.category}
-                              value={type.category}
-                            >
-                              {type.category}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2 px-1">
-                      <Label>Select Vehicle</Label>
-                      <Select
-                        value={selectedModel}
-                        onValueChange={handleModelSelect}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select vehicle" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {getCurrentVehicles().map((vehicle) => (
-                            <SelectItem key={vehicle.id} value={vehicle.name}>
-                              {vehicle.name} (${vehicle.basePrice}/day)
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )} */}
                 <div className="grid grid-cols-1 gap-x-2 gap-y-5 px-1 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label>Which Vehicle?</Label>
@@ -569,7 +522,7 @@ const Bookings: React.FC<BookingsProps> = ({
                       <PopoverContent className="w-full p-0" align="start">
                         <Command className="w-full">
                           <CommandInput placeholder="Search category..." />
-                          <ScrollArea className="h-80 w-full">
+                          <ScrollArea className="min-h-36 w-full">
                             <CommandList>
                               <CommandEmpty>No category found.</CommandEmpty>
                               <CommandGroup>

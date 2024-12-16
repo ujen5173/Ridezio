@@ -41,8 +41,8 @@ const AccessoriesOrdersTable = ({ data }: { data: GetDashboardInfo }) => {
     isLoading,
     isError,
   } = api.accessories.getOrders.useQuery(undefined, {
-    refetchOnWindowFocus: false,
     refetchInterval: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
   });
 
   const columns: ColumnDef<Order>[] = React.useMemo(

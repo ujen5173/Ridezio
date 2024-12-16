@@ -104,12 +104,12 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
 
       return false;
     } catch (err) {
-      console.log({ err });
       toast({
         variant: "destructive",
         title: "Payment Processing Failed",
         description: "Please contact support or vendor.",
       });
+
       router.push(pathname, { scroll: false });
     } finally {
       setLoading(false);

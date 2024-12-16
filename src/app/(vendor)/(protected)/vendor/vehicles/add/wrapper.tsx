@@ -93,7 +93,9 @@ const Wrapper = ({
 }) => {
   const router = useRouter();
 
-  const { data: business } = api.business.current.useQuery();
+  const { data: business } = api.business.current.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
 
   const { mutateAsync, status } = api.vehicle.create.useMutation();
   const [features, setFeatures] = useState<{ key: string; value: string }[]>(
@@ -167,8 +169,6 @@ const Wrapper = ({
     }
 
     const { inventory, ...rest } = values;
-
-    console.log({images})
 
     if (images.length === 0) {
       toast({

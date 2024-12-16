@@ -11,7 +11,9 @@ import { api } from "~/trpc/react";
 import VendorCard from "../../../_components/_/VendorCard";
 
 const Favourite = () => {
-  const { data, isLoading, error } = api.user.getFavourite.useQuery();
+  const { data, isLoading, error } = api.user.getFavourite.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
     if (error) {
