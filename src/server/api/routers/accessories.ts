@@ -81,8 +81,6 @@ export const accessoriesRouter = createTRPCRouter({
 
           return true;
         } else {
-          console.log({ a: "Hi" });
-
           await ctx.db.transaction(async (trx) => {
             await trx.insert(accessories).values({
               ...data,

@@ -62,7 +62,7 @@ interface IpInfoResponse {
 }
 
 // Daily data interface
-export interface DailyData {
+export interface MonthlyData {
   date: string;
   value: number;
   orders: number;
@@ -140,71 +140,63 @@ export const businessRouter = createTRPCRouter({
       (today.getTime() - signUpDate.getTime()) / (1000 * 60 * 60 * 24),
     );
 
-    signUpDate.setHours(0, 0, 0, 0);
-
     const currentPeriodStart =
       daysSinceSignUp <= 30
-        ? new Date(signUpDate)
+        ? signUpDate
         : (() => {
             const date = new Date(today);
             date.setDate(today.getDate() - 29);
+            date.setHours(0, 0, 0, 0);
             return date;
           })();
 
-    // For previous period
     const previousPeriodStart = new Date(currentPeriodStart);
     previousPeriodStart.setDate(previousPeriodStart.getDate() - 30);
 
-    // Format dates for SQL queries - convert to ISO string and take just the date part
     const formatDateForSQL = (date: Date) => date.toISOString().split("T")[0];
 
-    const currentPeriodStartFormatted = sql`${formatDateForSQL(currentPeriodStart)}`;
-    const previousPeriodStartFormatted = sql`${formatDateForSQL(previousPeriodStart)}`;
-
-    // Get metrics including current and previous period data
     const metrics = await ctx.db
       .select({
         total_revenue: sql<number>`COALESCE(SUM(${rentals.totalPrice}), 0)`,
         orders_total: sql<number>`COUNT(*)`,
         orders_today: sql<number>`COALESCE(SUM(CASE 
-          WHEN DATE(${rentals.createdAt}) = CURRENT_DATE 
-          THEN 1 ELSE 0 
-        END), 0)`,
+        WHEN DATE(${rentals.createdAt}) = CURRENT_DATE 
+        THEN 1 ELSE 0 
+      END), 0)`,
         orders_yesterday: sql<number>`COALESCE(SUM(CASE 
-          WHEN DATE(${rentals.createdAt}) = CURRENT_DATE - 1
-          THEN 1 ELSE 0 
-        END), 0)`,
+        WHEN DATE(${rentals.createdAt}) = CURRENT_DATE - INTERVAL '1 day'
+        THEN 1 ELSE 0 
+      END), 0)`,
         current_month_revenue: sql<number>`COALESCE(SUM(CASE 
-          WHEN DATE(${rentals.createdAt}) >= ${currentPeriodStartFormatted}
-          AND DATE(${rentals.createdAt}) <= CURRENT_DATE
-          THEN ${rentals.totalPrice} ELSE 0 
-        END), 0)`,
+        WHEN DATE(${rentals.createdAt}) >= ${formatDateForSQL(currentPeriodStart)}
+        AND DATE(${rentals.createdAt}) <= CURRENT_DATE
+        THEN ${rentals.totalPrice} ELSE 0 
+      END), 0)`,
         current_month_orders: sql<number>`COALESCE(SUM(CASE 
-          WHEN DATE(${rentals.createdAt}) >= ${currentPeriodStartFormatted}
-          AND DATE(${rentals.createdAt}) <= CURRENT_DATE
-          THEN 1 ELSE 0 
-        END), 0)`,
+        WHEN DATE(${rentals.createdAt}) >= ${formatDateForSQL(currentPeriodStart)}
+        AND DATE(${rentals.createdAt}) <= CURRENT_DATE
+        THEN 1 ELSE 0 
+      END), 0)`,
         previous_month_revenue: sql<number>`COALESCE(SUM(CASE 
-          WHEN DATE(${rentals.createdAt}) >= ${previousPeriodStartFormatted}
-          AND DATE(${rentals.createdAt}) < ${currentPeriodStartFormatted}
-          THEN ${rentals.totalPrice} ELSE 0 
-        END), 0)`,
+        WHEN DATE(${rentals.createdAt}) >= ${formatDateForSQL(previousPeriodStart)}
+        AND DATE(${rentals.createdAt}) < ${formatDateForSQL(currentPeriodStart)}
+        THEN ${rentals.totalPrice} ELSE 0 
+      END), 0)`,
         previous_month_orders: sql<number>`COALESCE(SUM(CASE 
-          WHEN DATE(${rentals.createdAt}) >= ${previousPeriodStartFormatted}
-          AND DATE(${rentals.createdAt}) < ${currentPeriodStartFormatted}
-          THEN 1 ELSE 0 
-        END), 0)`,
+        WHEN DATE(${rentals.createdAt}) >= ${formatDateForSQL(previousPeriodStart)}
+        AND DATE(${rentals.createdAt}) < ${formatDateForSQL(currentPeriodStart)}
+        THEN 1 ELSE 0 
+      END), 0)`,
       })
       .from(rentals)
-      .where(and(eq(rentals.businessId, business.id)))
+      .where(eq(rentals.businessId, business.id))
       .then((rows) => rows[0] as DashboardMetrics);
 
-    // Get daily aggregated data for charts
-    const dailyData = await ctx.db
+    const monthly = await ctx.db
       .select({
-        date: sql<string>`DATE(${rentals.createdAt})::text`,
-        value: sql<number>`COALESCE(SUM(${rentals.totalPrice}), 0)`,
-        orders: sql<number>`COUNT(*)`,
+        date: sql<string>`TO_CHAR(${rentals.createdAt}, 'YYYY-MM-DD')`,
+        value: sql<number>`${rentals.totalPrice}`, // Individual rental price
+        orders: sql<number>`1`, // Count each rental as an order
       })
       .from(rentals)
       .where(
@@ -214,8 +206,9 @@ export const businessRouter = createTRPCRouter({
           sql`${rentals.createdAt} < ${endDate.toISOString()}::timestamp`,
         ),
       )
-      .groupBy(sql`DATE(${rentals.createdAt})`)
-      .orderBy(sql`DATE(${rentals.createdAt})`);
+      .orderBy(sql`${rentals.createdAt}`);
+
+    console.log({ monthly });
 
     const formatDateToString = (date: Date): string => {
       const isoString = date.toISOString();
@@ -228,10 +221,12 @@ export const businessRouter = createTRPCRouter({
     ): ChartDataPoint[] => {
       const data: ChartDataPoint[] = [];
       const currentDate = new Date(currentPeriodStart);
+      const endDate = new Date(today);
 
-      while (formatDateToString(currentDate) <= formatDateToString(today)) {
+      // Ensure we cover a full 30-day period
+      while (formatDateToString(currentDate) <= formatDateToString(endDate)) {
         data.push({
-          date: formatDateToString(currentDate),
+          date: formatDateToString(currentDate).slice(0, 10), // Use full date, not just month
           value: 0,
         });
         currentDate.setDate(currentDate.getDate() + 1);
@@ -239,14 +234,18 @@ export const businessRouter = createTRPCRouter({
       return data;
     };
 
-    const mergeChartData = (
+    const mergeChartOrderData = (
       initialData: ChartDataPoint[],
-      actualData: DailyData[],
-      valueKey: keyof Pick<DailyData, "value" | "orders">,
+      actualData: MonthlyData[],
+      valueKey: keyof Pick<MonthlyData, "value" | "orders">,
     ): ChartDataPoint[] => {
-      const dataMap = new Map(
-        actualData.map((item) => [item.date, item[valueKey]]),
-      );
+      const dataMap = new Map<string, number>();
+
+      // Accumulate values for each date
+      actualData.forEach((item) => {
+        const currentValue = dataMap.get(item.date) ?? 0;
+        dataMap.set(item.date, currentValue + item[valueKey]);
+      });
 
       return initialData.map((item) => ({
         date: item.date,
@@ -279,15 +278,14 @@ export const businessRouter = createTRPCRouter({
       today,
     );
 
-    const store_revenue_chart_data = mergeChartData(
-      initialChartData,
-      dailyData,
-      "value",
-    );
+    const store_revenue_chart_data = monthly.map((item) => ({
+      date: item.date,
+      value: +item.value.toFixed(2),
+    }));
 
-    const store_orders_chart_data = mergeChartData(
+    const store_orders_chart_data = mergeChartOrderData(
       initialChartData,
-      dailyData,
+      monthly,
       "orders",
     );
 
@@ -308,6 +306,11 @@ export const businessRouter = createTRPCRouter({
         false,
       ),
     };
+
+    console.log({
+      store_revenue_chart_data,
+      store_orders_chart_data,
+    });
 
     return {
       store: {

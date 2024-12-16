@@ -141,15 +141,26 @@ const VehicleBookingsTable = () => {
             vehicle_type: string;
           }>("vehicle");
           return (
-            <div className="flex w-max items-center gap-2 break-keep px-4 capitalize">
-              {value.vehicle}
+            <div className="flex items-center gap-2 px-4">
+              <span className="text-sm capitalize">{value.vehicle}</span>
+
               <div
                 className={cn(
-                  "border border-green-400 bg-green-50 text-green-600",
-                  "w-fit break-keep rounded-sm px-2 py-1 text-center text-xs font-semibold capitalize",
+                  "flex w-fit items-center gap-1 rounded-sm border px-2 py-1 font-medium",
+                  `${value.vehicle_type}-badge`,
                 )}
               >
-                {value.vehicle_type}
+                <div
+                  className={cn("size-1.5 rounded-full", {
+                    "bg-car-color": value.vehicle_type === "car",
+                    "bg-e-car-color": value.vehicle_type === "e-car",
+                    "bg-bike-color": value.vehicle_type === "bike",
+                    "bg-bicycle-color": value.vehicle_type === "bicycle",
+                    "bg-e-bicycle-color": value.vehicle_type === "e-bicycle",
+                    "bg-scooter-color": value.vehicle_type === "scooter",
+                  })}
+                />
+                <span className="text-xs capitalize">{value.vehicle_type}</span>
               </div>
             </div>
           );

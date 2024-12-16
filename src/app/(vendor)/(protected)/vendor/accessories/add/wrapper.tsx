@@ -86,14 +86,6 @@ const Wrapper = ({
 
   const { mutateAsync, status } = api.accessories.create.useMutation();
 
-  const [pastImages, setPastImages] = useState<
-    {
-      id: string;
-      order: number;
-      url: string;
-    }[]
-  >(editData?.images ?? []);
-
   const [files, setFiles] = useState<File[] | null>([]);
 
   const { uploadFiles, uploadedFile, isUploading } = useUploadFile(
@@ -153,6 +145,20 @@ const Wrapper = ({
     if (images.length === 0) {
       toast({
         title: "Please upload at least one image",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log({
+      ...rest,
+      inventory: inventory,
+      images: images,
+    });
+
+    if (values.category === "") {
+      toast({
+        title: "Please select a category",
         variant: "destructive",
       });
       return;

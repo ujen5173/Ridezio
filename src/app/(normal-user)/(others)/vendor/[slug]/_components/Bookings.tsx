@@ -1,9 +1,12 @@
 "use client";
 
+import { PopoverClose } from "@radix-ui/react-popover";
 import { differenceInDays, format } from "date-fns";
 import {
   CalendarDays,
+  Check,
   ChevronLeft,
+  ChevronsUpDown,
   Loader,
   Minus,
   Plus,
@@ -20,6 +23,14 @@ import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "~/components/ui/command";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -33,13 +44,6 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
 import { Separator } from "~/components/ui/separator";
 import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/hooks/use-toast";
@@ -78,19 +82,25 @@ const Bookings: React.FC<BookingsProps> = ({
 
   const { data: user } = useSession();
 
+  const [selectedVehicle, setSelectedVehicle] = useState<{
+    vehicleModel: string;
+    vehicleCategory: string;
+  }>({
+    vehicleModel: vehicle,
+    vehicleCategory: category,
+  });
+
+  // car | bike | scooter | scooter | bicycle
   const [selectedVehicleType, setSelectedVehicleType] = useState<string>(
     Object.keys(bookingsDetails.vehicleTypes)[0]!,
   );
 
-  const [selectedVehicleSubType, setSelectedVehicleSubType] =
-    useState<string>("");
-  const [selectedModel, setSelectedModel] = useState<string>("");
   const [date, setDate] = useState<DateRange | undefined>(undefined);
   const [quantity, setQuantity] = useState<number>(1);
-  const [message, setMessage] = useState<string>("");
-  const [showQR, setShowQR] = useState<boolean>(false);
-  const [userName, setUserName] = useState<string>(user?.user.name ?? "");
-  const [userNumber, setUserNumber] = useState<string>("");
+  const [message, setMessage] = useState("");
+  const [showQR, setShowQR] = useState(false);
+  const [userName, setUserName] = useState(user?.user.name ?? "");
+  const [userNumber, setUserNumber] = useState("");
 
   useMemo(() => {
     setSelectedVehicleType(
@@ -98,23 +108,47 @@ const Bookings: React.FC<BookingsProps> = ({
         ? type.charAt(0) + type.slice(1)
         : Object.keys(bookingsDetails.vehicleTypes)[0]!,
     );
-    setSelectedVehicleSubType(category.trim());
-    setSelectedModel(vehicle.trim());
+    setSelectedVehicle({
+      vehicleCategory: category.trim(),
+      vehicleModel: vehicle.trim(),
+    });
   }, [type, category, vehicle]);
+
+  const allAvailableVehicles = useMemo(() => {
+    return Object.values(bookingsDetails.vehicleTypes).reduce(
+      (acc, type) => {
+        return {
+          ...acc,
+          [type.label]: type.types.reduce(
+            (acc, subType) => {
+              return {
+                ...acc,
+                [subType.category]: subType.vehicles.map((v) => v.name),
+              };
+            },
+            {} as Record<string, string[]>,
+          ),
+        };
+      },
+      {} as Record<string, Record<string, string[]>>,
+    );
+  }, [bookingsDetails.vehicleTypes]);
+
+  console.log({ allAvailableVehicles });
 
   const getSelectedVehicleId = (): string | undefined => {
     const vehicles = getCurrentVehicles();
-    return vehicles.find((v) => v.name === selectedModel)?.id;
+    return vehicles.find((v) => v.name === selectedVehicle.vehicleModel)?.id;
   };
 
   const getCurrentVehicles = (): Vehicle[] => {
-    if (!selectedVehicleType || !selectedVehicleSubType) return [];
+    if (!selectedVehicleType || !selectedVehicle.vehicleCategory) return [];
 
     const type = bookingsDetails.vehicleTypes[selectedVehicleType];
     if (!type) return [];
 
     const subType = type.types.find(
-      (t) => t.category === selectedVehicleSubType,
+      (t) => t.category === selectedVehicle.vehicleCategory,
     );
 
     return subType?.vehicles ?? [];
@@ -191,7 +225,10 @@ const Bookings: React.FC<BookingsProps> = ({
   }, [date, quantity]);
 
   const handleModelSelect = (model: string) => {
-    setSelectedModel(model);
+    setSelectedVehicle((prev) => ({
+      ...prev,
+      vehicleModel: model,
+    }));
     setDate(undefined); // Reset date when model changes
     setQuantity(1); // Reset quantity when model changes
   };
@@ -202,9 +239,9 @@ const Bookings: React.FC<BookingsProps> = ({
 
   const getSelectedVehiclePrice = (): number => {
     const vehicles = getCurrentVehicles();
-    const selectedVehicle = vehicles.find((v) => v.name === selectedModel);
+    const sv = vehicles.find((v) => v.name === selectedVehicle.vehicleModel);
     const days = getRentalDays();
-    return selectedVehicle ? selectedVehicle.basePrice * quantity * days : 0;
+    return sv ? sv.basePrice * quantity * days : 0;
   };
 
   const handleClearDate = () => {
@@ -213,8 +250,12 @@ const Bookings: React.FC<BookingsProps> = ({
   };
 
   const isDateSelectionDisabled = useMemo(() => {
-    return !selectedVehicleType || !selectedVehicleSubType || !selectedModel;
-  }, [selectedVehicleType, selectedVehicleSubType, selectedModel]);
+    return (
+      !selectedVehicleType ||
+      !selectedVehicle.vehicleCategory ||
+      !selectedVehicle.vehicleModel
+    );
+  }, [selectedVehicleType, selectedVehicle]);
 
   const { mutateAsync: rentMutation } = api.rental.rent.useMutation();
   const [continueWithCashLoading, setContinueWithCashLoading] = useState(false);
@@ -237,18 +278,22 @@ const Bookings: React.FC<BookingsProps> = ({
 
   const handlePayment = async () => {
     const selectedVehicleId = getSelectedVehicleId();
+
     if (!selectedVehicleId || !date?.from || !date?.to) {
       return;
     }
 
     const maxAllowedQuantity = getMaxAllowedQuantity();
+
     if (quantity > maxAllowedQuantity) {
       toast({
         title: "Booking Exceeded Available Quantity",
         description: `The maximum available quantity for the selected dates is ${maxAllowedQuantity}. Please adjust your booking.`,
       });
+
       return;
     }
+
     const startDate = date.from;
     const endDate = date.to;
 
@@ -348,7 +393,6 @@ const Bookings: React.FC<BookingsProps> = ({
         notes: message,
       });
     } catch (err) {
-      console.log({ err });
       toast({
         variant: "destructive",
         title: "Something went wrong",
@@ -382,7 +426,7 @@ const Bookings: React.FC<BookingsProps> = ({
       <DialogContent
         className={cn(
           inter.className,
-          "flex h-[90vh] max-h-[800px] w-[90vw] flex-col gap-4 p-4 md:w-[80vw] lg:max-w-2xl",
+          "flex h-[90vh] max-h-[800px] w-[90vw] max-w-screen-2xl flex-col gap-4 px-2 py-4 sm:max-w-4xl sm:px-4 md:w-full md:max-w-3xl",
         )}
       >
         {!showQR ? (
@@ -409,6 +453,7 @@ const Bookings: React.FC<BookingsProps> = ({
                     </AlertDescription>
                   </Alert>
                 )}
+
                 {/* Vehicle Type Selection */}
                 <div className="mb-8 space-y-2 px-1">
                   <Label>Vehicle Type</Label>
@@ -425,8 +470,10 @@ const Bookings: React.FC<BookingsProps> = ({
                             }`}
                             onClick={() => {
                               setSelectedVehicleType(type);
-                              setSelectedVehicleSubType("");
-                              setSelectedModel("");
+                              setSelectedVehicle({
+                                vehicleCategory: "",
+                                vehicleModel: "",
+                              });
                               setDate(undefined);
                               setQuantity(1);
                             }}
@@ -448,7 +495,7 @@ const Bookings: React.FC<BookingsProps> = ({
                   </div>
                 </div>
 
-                {selectedVehicleType && (
+                {/* {selectedVehicleType && (
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-2 px-1">
                       <Label>Vehicle Category</Label>
@@ -456,7 +503,7 @@ const Bookings: React.FC<BookingsProps> = ({
                         value={selectedVehicleSubType}
                         onValueChange={(value) => {
                           setSelectedVehicleSubType(value);
-                          setSelectedModel("");
+                          setSelectedVehicleType("");
                           setDate(undefined);
                           setQuantity(1);
                         }}
@@ -498,87 +545,177 @@ const Bookings: React.FC<BookingsProps> = ({
                       </Select>
                     </div>
                   </div>
-                )}
+                )} */}
+                <div className="grid grid-cols-1 gap-x-2 gap-y-5 px-1 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label>Which Vehicle?</Label>
 
-                <div className="space-y-2 px-1">
-                  <Label>Pick up Date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={`w-full justify-between px-4 ${!date && "text-muted-foreground"}`}
-                        disabled={isDateSelectionDisabled}
-                      >
-                        <div className="flex items-center gap-2">
-                          <CalendarDays size={18} className="text-slate-700" />
-                          {date?.from ? (
-                            date.to ? (
-                              <>
-                                {format(date.from, "LLL dd, y")} -{" "}
-                                {format(date.to, "LLL dd, y")}
-                              </>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={open}
+                          className="w-full justify-between px-4"
+                        >
+                          <div className="line-clamp-1">
+                            {selectedVehicle.vehicleModel
+                              ? selectedVehicle.vehicleModel
+                              : "Select category..."}
+                          </div>
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command className="w-full">
+                          <CommandInput placeholder="Search category..." />
+                          <ScrollArea className="h-80 w-full">
+                            <CommandList>
+                              <CommandEmpty>No category found.</CommandEmpty>
+                              <CommandGroup>
+                                {Object.entries(allAvailableVehicles)
+                                  .map((data) => {
+                                    if (
+                                      data[0]
+                                        .toLowerCase()
+                                        .includes(
+                                          selectedVehicleType.toLowerCase(),
+                                        )
+                                    ) {
+                                      return Object.entries(data[1]);
+                                    }
+                                  })
+                                  .find((data) => data)
+                                  ?.map(([category, vehicles]) => {
+                                    return (
+                                      <div key={category}>
+                                        <CommandItem
+                                          disabled
+                                          className="px-2 py-1.5 font-semibold text-slate-950"
+                                        >
+                                          {category}
+                                        </CommandItem>
+                                        {vehicles.map((vehicleName) => (
+                                          <PopoverClose
+                                            className="flex w-full"
+                                            key={vehicleName}
+                                          >
+                                            <CommandItem
+                                              className="w-full pl-4"
+                                              value={vehicleName}
+                                              onSelect={() => {
+                                                setSelectedVehicle({
+                                                  vehicleModel: vehicleName,
+                                                  vehicleCategory: category,
+                                                });
+                                              }}
+                                            >
+                                              {vehicleName}
+                                              <Check
+                                                className={cn(
+                                                  "ml-auto h-4 w-4",
+                                                  selectedVehicle.vehicleModel ===
+                                                    vehicleName
+                                                    ? "opacity-100"
+                                                    : "opacity-0",
+                                                )}
+                                              />
+                                            </CommandItem>
+                                          </PopoverClose>
+                                        ))}
+                                      </div>
+                                    );
+                                  })}
+                              </CommandGroup>
+                            </CommandList>
+                          </ScrollArea>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2 px-1">
+                    <Label>Pick up Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={`w-full justify-between px-4 ${!date && "text-muted-foreground"}`}
+                          disabled={isDateSelectionDisabled}
+                        >
+                          <div className="flex items-center gap-2">
+                            <CalendarDays
+                              size={18}
+                              className="text-slate-700"
+                            />
+                            {date?.from ? (
+                              date.to ? (
+                                <>
+                                  {format(date.from, "LLL dd, y")} -{" "}
+                                  {format(date.to, "LLL dd, y")}
+                                </>
+                              ) : (
+                                format(date.from, "LLL dd, y")
+                              )
                             ) : (
-                              format(date.from, "LLL dd, y")
-                            )
-                          ) : (
-                            <span>Pick a date</span>
+                              <span>Pick a date</span>
+                            )}
+                          </div>
+                          {date && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleClearDate();
+                              }}
+                            >
+                              <X className="size-4" />
+                            </Button>
                           )}
-                        </div>
-                        {date && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleClearDate();
-                            }}
-                          >
-                            <X className="size-4" />
-                          </Button>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        initialFocus
-                        mode="range"
-                        disabled={isDateDisabled}
-                        defaultMonth={date?.from}
-                        selected={date}
-                        showOutsideDays={false}
-                        onSelect={(newDate) => {
-                          setDate(newDate);
-                          setQuantity(1);
-                        }}
-                        numberOfMonths={width < 640 ? 1 : 2}
-                        classNames={{
-                          cell: "relative w-[36px] p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
-                          head_cell: "font-normal text-sm w-[36px]",
-                          day: cn(
-                            "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-                            "hover:bg-accent hover:text-accent-foreground",
-                            "focus:bg-accent focus:text-accent-foreground focus:rounded-sm",
-                            "disabled:opacity-50 disabled:hover:bg-transparent disabled:cursor-not-allowed",
-                          ),
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  {date?.from && date?.to && (
-                    <Alert variant="default" className="mt-2">
-                      <AlertTitle>Booking Period</AlertTitle>
-                      <AlertDescription>
-                        {getRentalDays()} days rental period
-                        {getMaxAllowedQuantity() === 0 && (
-                          <p className="mt-1 text-red-500">
-                            No vehicles available for selected dates. Please
-                            choose different dates.
-                          </p>
-                        )}
-                      </AlertDescription>
-                    </Alert>
-                  )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          initialFocus
+                          mode="range"
+                          disabled={isDateDisabled}
+                          defaultMonth={date?.from}
+                          selected={date}
+                          showOutsideDays={false}
+                          onSelect={(newDate) => {
+                            setDate(newDate);
+                            setQuantity(1);
+                          }}
+                          numberOfMonths={width < 640 ? 1 : 2}
+                          classNames={{
+                            cell: "relative w-[36px] p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
+                            head_cell: "font-normal text-sm w-[36px]",
+                            day: cn(
+                              "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
+                              "hover:bg-accent hover:text-accent-foreground",
+                              "focus:bg-accent focus:text-accent-foreground focus:rounded-sm",
+                              "disabled:opacity-50 disabled:hover:bg-transparent disabled:cursor-not-allowed",
+                            ),
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {date?.from && date?.to && (
+                      <Alert variant="default" className="mt-2">
+                        <AlertTitle>Booking Period</AlertTitle>
+                        <AlertDescription>
+                          {getRentalDays()} days rental period
+                          {getMaxAllowedQuantity() === 0 && (
+                            <p className="mt-1 text-red-500">
+                              No vehicles available for selected dates. Please
+                              choose different dates.
+                            </p>
+                          )}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2 px-1">
@@ -712,7 +849,9 @@ const Bookings: React.FC<BookingsProps> = ({
                 <div className="w-full space-y-2 rounded-md border p-4 shadow-sm">
                   <div className="flex justify-between">
                     <span>Vehicle:</span>
-                    <span className="font-semibold">{selectedModel}</span>
+                    <span className="font-semibold">
+                      {selectedVehicle.vehicleModel}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Dates:</span>

@@ -224,7 +224,7 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
                   "h-8 cursor-default rounded-md px-3 text-xs",
                 )}
               >
-                Upcoming Feature
+                Coming Soon...
               </span>
             </div>
             <p className="mb-2 text-base font-medium text-slate-500">
@@ -243,12 +243,12 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
               <span>12% from last month</span>
             </div>
             <div className="chart-container absolute bottom-4 right-0 w-1/2 min-w-36">
-              <div className="chart-blur-bottom absolute bottom-0 z-[5] h-6 w-full"></div>
-              <div className="chart-blur-right absolute right-2 z-[5] h-12 w-6"></div>
+              {/* <div className="chart-blur-bottom absolute bottom-0 z-[5] h-6 w-full"></div> */}
+              {/* <div className="chart-blur-right absolute right-2 z-[5] h-12 w-6"></div> */}
               <Chart
                 chartColor="hsl(var(--color-2))"
                 chartData={[
-                  { date: "2024-01-01", value: 100 },
+                  { date: "2024-01-01", value: 0 },
                   { date: "2024-01-14", value: 220 },
                   { date: "2024-01-28", value: 210 },
                   { date: "2024-02-10", value: 190 },
@@ -288,9 +288,9 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
               <TrendingUp size={16} className="text-green-600" />
               <span>{data.growth.revenue_growth}% from last month</span>
             </div>
-            <div className="chart-container absolute bottom-4 right-0 w-1/2 min-w-36">
-              <div className="chart-blur-bottom absolute bottom-0 z-20 h-6 w-full"></div>
-              <div className="chart-blur-right absolute right-2 z-20 h-12 w-6"></div>
+            <div className="chart-container absolute bottom-4 right-0 z-40 w-1/2 min-w-36">
+              {/* <div className="chart-blur-bottom absolute bottom-0 z-20 h-6 w-full"></div> */}
+              {/* <div className="chart-blur-right absolute right-2 z-20 h-12 w-6"></div> */}
               <Chart
                 chartColor="hsl(var(--color-3))"
                 chartData={data.store_revenue_chart_data}
@@ -316,8 +316,8 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
               <span>{data.growth.orders_growth}% from last month</span>
             </div>
             <div className="chart-container absolute bottom-4 right-0 w-1/2 min-w-36">
-              <div className="chart-blur-bottom absolute bottom-0 z-20 h-6 w-full"></div>
-              <div className="chart-blur-right absolute right-2 z-20 h-12 w-6"></div>
+              {/* <div className="chart-blur-bottom absolute bottom-0 z-20 h-6 w-full"></div> */}
+              {/* <div className="chart-blur-right absolute right-2 z-20 h-12 w-6"></div> */}
               <Chart
                 chartColor="hsl(var(--color-4))"
                 chartData={data.store_orders_chart_data}

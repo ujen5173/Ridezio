@@ -1,6 +1,6 @@
 "use client";
 
-import { Area, AreaChart, CartesianGrid } from "recharts";
+import { Area, AreaChart, CartesianGrid, Tooltip } from "recharts";
 
 import { type ChartConfig, ChartContainer } from "~/components/ui/chart";
 
@@ -19,7 +19,7 @@ export function Chart({
   chartData: { date: string; value: number }[];
 }) {
   return (
-    <ChartContainer className="h-10 w-full" config={chartConfig}>
+    <ChartContainer className="h-16 w-full" config={chartConfig}>
       <AreaChart
         accessibilityLayer
         height={50}
@@ -30,6 +30,8 @@ export function Chart({
         }}
       >
         <CartesianGrid vertical={false} />
+
+        <Tooltip />
 
         <Area
           dataKey="value"
