@@ -2,8 +2,9 @@
 
 import { ArrowRight, Menu } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Button, buttonVariants } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -29,6 +30,8 @@ import SignOut from "./signout";
 
 const Header = ({ pth = "/" }: { pth?: string }) => {
   const { data } = useSession();
+
+  console.log({ data });
 
   const theme =
     pth === "/"
@@ -77,7 +80,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                   <ul className="pb-5">
                     <li>
                       <Link
-                        href="/"
+                        href="/search"
                         className="inline-flex w-full items-center justify-between py-2 text-base font-medium text-slate-800 hover:underline"
                       >
                         <span>Explore</span>
@@ -86,16 +89,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                     </li>
                     <li>
                       <Link
-                        href="/"
-                        className="inline-flex w-full items-center justify-between py-2 text-base font-medium text-slate-800 hover:underline"
-                      >
-                        <span>Locations</span>
-                        <ArrowRight className="text-slate-800" />
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/"
+                        href="/auth/login"
                         className="inline-flex w-full items-center justify-between py-2 text-base font-medium text-slate-800 hover:underline"
                       >
                         <span>For Business</span>
@@ -109,7 +103,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                   <ul className={cn("mb-10 flex-1 py-5")}>
                     <li>
                       <Link
-                        href="/"
+                        href="/search?vehicleType=bicycle"
                         className="inline-block py-2 text-base font-medium text-slate-700 hover:underline"
                       >
                         Reserve bicycle
@@ -117,7 +111,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                     </li>
                     <li>
                       <Link
-                        href="/"
+                        href="/search?vehicleType=bike"
                         className="inline-block py-2 text-base font-medium text-slate-700 hover:underline"
                       >
                         Reserve Bike
@@ -125,7 +119,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                     </li>
                     <li>
                       <Link
-                        href="/"
+                        href="/search?vehicleType=scooter"
                         className="inline-block py-2 text-base font-medium text-slate-700 hover:underline"
                       >
                         Reserve Scooter
@@ -133,7 +127,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                     </li>
                     <li>
                       <Link
-                        href="/"
+                        href="/search?vehicleType=car"
                         className="inline-block py-2 text-base font-medium text-slate-700 hover:underline"
                       >
                         <span>Reserve Car</span>
@@ -177,9 +171,12 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                       <DropdownMenuTrigger className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         {data.user.image && (
                           <Avatar className="h-9 w-9">
-                            <AvatarImage
-                              className="object-cover"
+                            <Image
                               src={data.user.image}
+                              alt={`${data.user.name}'s avatar`}
+                              width={36}
+                              height={36}
+                              priority
                             />
                             <AvatarFallback className="border border-border text-xs font-semibold">
                               {data.user.name
@@ -195,7 +192,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                       <div>
                         <DropdownMenuLabel>
                           <div className="">
-                            <div className="hidden sm:block">
+                            <div className="block">
                               <span>{data.user.name}</span>
                             </div>
                             <div className="">

@@ -35,7 +35,7 @@ export function Chart({
 
         <Area
           dataKey="value"
-          type="linear"
+          type="basis"
           fill={chartColor}
           fillOpacity={0.4}
           stroke={chartColor}

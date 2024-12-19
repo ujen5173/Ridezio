@@ -249,7 +249,7 @@ const VendorWrapper = ({
               open={open}
               fromVendor={false}
               setOpen={setOpen}
-               paymentDetails={{
+              paymentDetails={{
                 merchantCode: data?.merchantCode ?? null,
               }}
               bookingsDetails={bookingsDetails}

@@ -3,7 +3,7 @@
 import axios from "axios";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { toast } from "~/hooks/use-toast";
 import { type GetSearchedShops } from "~/server/api/routers/business";
 import { type MapBounds } from "../page";
@@ -39,8 +39,9 @@ const MapArea = ({
     13.7563, 100.5018,
   ]);
 
-  useEffect(() => {
+  useMemo(() => {
     const fetchLocation = async () => {
+      console.log("hi");
       try {
         if (locationName) {
           const response = await axios.get<GeocodeResponse[]>(
@@ -82,21 +83,28 @@ const MapArea = ({
                   try {
                     const ipResponse =
                       await axios.get<IpInfoResponse>("/api/ip");
+
                     const [lat, lng] = ipResponse.data.loc
                       .split(",")
                       .map(parseFloat) as [number, number];
+
                     const newPosition: [number, number] = [lat, lng];
+
                     setPosition(newPosition);
+
                     setBounds({
                       northEast: { lat: lat + 0.1, lng: lng + 0.1 },
                       southWest: { lat: lat - 0.1, lng: lng - 0.1 },
                     });
-                  } catch (ipError) {
+                  } catch (err) {
+                    console.log({ err });
+
                     toast({
                       title: "Location Error",
                       description: "Could not determine your location",
                       variant: "destructive",
                     });
+
                     setIsLoading(false);
                   }
                 }
@@ -122,6 +130,7 @@ const MapArea = ({
           description: "Could not determine your location",
           variant: "destructive",
         });
+
         setIsLoading(false);
       }
     };

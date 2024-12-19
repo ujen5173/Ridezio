@@ -5,7 +5,7 @@ import { cn } from "~/lib/utils";
 
 const BecomePartner = () => {
   return (
-    <section className="w-full bg-slate-50">
+    <section className="w-full">
       <div className="mx-auto max-w-[1440px] px-4 py-16">
         <p className="lg:7/12 w-full text-lg text-slate-600 md:w-9/12">
           Velocit for Vendors

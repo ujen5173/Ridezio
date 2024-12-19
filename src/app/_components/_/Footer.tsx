@@ -37,7 +37,7 @@ const Footer = () => {
               className="w-full border-rose-500/20 bg-rose-500/20 text-slate-200 placeholder:text-slate-200 sm:w-96"
               placeholder="Your email address"
               type="email"
-              defaultValue={user?.user.email}
+              defaultValue={user?.user?.email ?? undefined}
               disabled={!!user}
             />
             <Button disabled={!!user} variant={"secondary"}>
@@ -101,7 +101,7 @@ const Footer = () => {
                   <li>
                     <Link
                       className="hover:text-slate-200 hover:underline"
-                      href="/"
+                      href="/search?vehicleType=bicycle"
                     >
                       Ride a Bicycle
                     </Link>
@@ -109,7 +109,7 @@ const Footer = () => {
                   <li>
                     <Link
                       className="hover:text-slate-200 hover:underline"
-                      href="/"
+                      href="/search?vehicleType=bike"
                     >
                       Ride a Bike
                     </Link>
@@ -117,7 +117,7 @@ const Footer = () => {
                   <li>
                     <Link
                       className="hover:text-slate-200 hover:underline"
-                      href="/"
+                      href="/search?vehicleType=car"
                     >
                       Ride a Car
                     </Link>
@@ -125,15 +125,7 @@ const Footer = () => {
                   <li>
                     <Link
                       className="hover:text-slate-200 hover:underline"
-                      href="/"
-                    >
-                      Events
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="hover:text-slate-200 hover:underline"
-                      href="/"
+                      href="/auth/login"
                     >
                       Start Renting
                     </Link>
@@ -141,38 +133,46 @@ const Footer = () => {
                 </ul>
               </div>
               <div>
-                <h2 className="text-lg text-slate-300">Contact</h2>
+                <h2 className="text-lg text-slate-300">Company</h2>
                 <ul className="mt-4 flex flex-col gap-2 text-slate-100">
                   <li>
                     <Link
                       className="hover:text-slate-200 hover:underline"
-                      href="/"
+                      href="/terms-of-service"
                     >
-                      Help & Support
+                      Terms of Service
                     </Link>
                   </li>
                   <li>
                     <Link
                       className="hover:text-slate-200 hover:underline"
-                      href="/"
+                      href="/vendor-agggrement"
                     >
-                      Terms and Condition
+                      Vendor Aggrement
                     </Link>
                   </li>
                   <li>
                     <Link
                       className="hover:text-slate-200 hover:underline"
-                      href="/"
+                      href="/privacy-policy"
                     >
-                      Careers
+                      Privacy Policy
                     </Link>
                   </li>
                   <li>
                     <Link
                       className="hover:text-slate-200 hover:underline"
-                      href="/"
+                      href="/cookie-policy"
                     >
-                      Get in Touch
+                      Cookie Policy
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      className="hover:text-slate-200 hover:underline"
+                      href="/disclaimer"
+                    >
+                      Disclaimer
                     </Link>
                   </li>
                 </ul>

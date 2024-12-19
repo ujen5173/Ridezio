@@ -1,6 +1,7 @@
 "use client";
 
 import { MapIcon } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { z } from "zod";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
@@ -23,19 +24,26 @@ export interface MapBounds {
 }
 
 const SearchParamsSchema = z.object({
-  query: z.string().optional(),
-  vehicleType: z.enum(vehicleTypeEnum.enumValues).optional(),
+  q: z.string().optional().nullable().default(""),
+  vehicleType: z
+    .enum(vehicleTypeEnum.enumValues)
+    .optional()
+    .nullable()
+    .default("bicycle"),
 });
 
-const Search = ({
-  searchParams,
-}: {
-  searchParams: z.infer<typeof SearchParamsSchema>;
-}) => {
-  // for invalid vehicleType fallback
-  const validVehicleType = SearchParamsSchema.safeParse(searchParams).success
-    ? searchParams.vehicleType
-    : undefined;
+const Search = () => {
+  const vehicleType = useSearchParams().get("vehicleType");
+  const q = useSearchParams().get("query");
+
+  const safeParams = SearchParamsSchema.safeParse({ q, vehicleType });
+
+  // Get validVehicleType from parsed result
+  const validVehicleType = safeParams.success
+    ? safeParams.data.vehicleType
+    : vehicleTypeEnum.enumValues[0];
+
+  const query = safeParams.success ? safeParams.data.q : undefined;
 
   const { width } = useWindowDimensions();
   const [places, setPlaces] = useState<GetSearchedShops>([]);
@@ -46,14 +54,16 @@ const Search = ({
     "both",
   );
 
+  console.log({ query, validVehicleType, bounds });
+
   const {
     data: searchBusinesses,
     isLoading: isDataFetching,
     isError,
   } = api.business.search.useQuery(
     {
-      query: searchParams.query,
-      vehicleType: validVehicleType,
+      query: query ?? undefined,
+      vehicleType: validVehicleType!,
       bounds: bounds!,
     },
     {

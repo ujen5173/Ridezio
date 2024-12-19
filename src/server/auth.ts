@@ -1,4 +1,3 @@
-// auth.ts
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { eq } from "drizzle-orm";
 import {
@@ -53,7 +52,6 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     }),
   ],
-
   adapter: DrizzleAdapter(db, {
     usersTable: users,
     accountsTable: accounts,

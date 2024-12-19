@@ -136,9 +136,9 @@ const Reviews = ({
                   </div>
                 </div>
                 <div>
-                  <p className="line-clamp-4 text-base text-slate-700">
-                    {review.content}
-                  </p>
+                  <div className="mb-6 border-l-4 border-slate-200 pl-2">
+                    <p className="text-base text-slate-700">{review.content}</p>
+                  </div>
                 </div>
               </div>
             ))

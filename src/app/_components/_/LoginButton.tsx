@@ -111,7 +111,7 @@ const LoginButton = ({ children }: { children: React.ReactNode }) => {
               </div>
               <p className="mt-4 text-center">
                 By signing up, you agree to our{" "}
-                <Link href="/terms-and-service">
+                <Link href="/terms-of-service">
                   <span className="text-secondary underline hover:text-secondary/80">
                     terms of service
                   </span>

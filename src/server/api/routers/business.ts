@@ -426,10 +426,11 @@ export const businessRouter = createTRPCRouter({
   getVendorAroundLocation: publicProcedure.query(async ({ ctx }) => {
     try {
       console.time("Grabbing user location through IP: ");
-      const IP =
-        ctx.headers.get("x-forwarded-for") ??
-        ctx.headers.get("remote-addr") ??
-        "124.41.204.21";
+      let IP = "124.41.204.21";
+
+      if (env.NODE_ENV === "production") {
+        IP = ctx.headers.get("x-forwarded-for") ?? IP;
+      }
 
       const { data: userLocation } = await axios.get<IpInfoResponse>(
         `https://ipinfo.io/${IP}/json?token=${env.IPINFO_API_KEY}`,
@@ -530,24 +531,18 @@ export const businessRouter = createTRPCRouter({
           images: businesses.images,
         })
         .from(businesses)
-        .innerJoin(vehicles, eq(vehicles.businessId, businesses.id))
         .where(
           and(
             eq(businesses.status, "active"),
             input.query
-              ? or(
-                  ilike(businesses.name, `%${input.query}%`),
-                  ilike(vehicles.name, `%${input.query}%`),
-                  ilike(vehicles.category, `%${input.query}%`),
-                )
+              ? or(ilike(businesses.name, `%${input.query}%`))
               : undefined,
             input.vehicleType
               ? sql`${input.vehicleType} = ANY(${businesses.availableVehicleTypes})`
               : undefined,
-            sql`(${businesses.location} ->> 'lat')::numeric >= ${southWest.lat}`,
-            sql`(${businesses.location} ->> 'lat')::numeric <= ${northEast.lat}`,
-            sql`(${businesses.location} ->> 'lng')::numeric >= ${southWest.lng}`,
-            sql`(${businesses.location} ->> 'lng')::numeric <= ${northEast.lng}`,
+            // Use PostgreSQL JSON extraction and comparison
+            sql`(${businesses.location}->>'lat')::numeric BETWEEN ${southWest.lat} AND ${northEast.lat}`,
+            sql`(${businesses.location}->>'lng')::numeric BETWEEN ${southWest.lng} AND ${northEast.lng}`,
           ),
         )
         .limit(5)
@@ -1015,6 +1010,7 @@ export const businessRouter = createTRPCRouter({
         userId: ctx.session.user.id,
         rating: input.rating,
         review: input.review,
+        rentalId: hasUserBooked[0]!.id,
       });
 
       const totalRating =

@@ -10,12 +10,14 @@ import AccessoriesCard from "./AccessoriesCard";
 const Shop = async ({
   params,
 }: {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }) => {
+  const { slug } = await params;
+
   const business = await api.accessories.getAccessories({
-    slug: params.slug,
+    slug: slug,
   });
 
   if (!business) notFound();
@@ -59,14 +61,14 @@ const Shop = async ({
           </div>
         </div>
         <div
-          className={cn("grid gap-x-8 gap-y-4 pb-32")}
+          className={"grid gap-x-8 gap-y-4 pb-32"}
           style={{
             gridTemplateColumns: "repeat(auto-fit,minmax(280px,290px))",
           }}
         >
           {business.accessories.map((accessory) => (
             <AccessoriesCard
-              slug={params.slug}
+              slug={slug}
               accessory={accessory}
               key={accessory.id}
             />

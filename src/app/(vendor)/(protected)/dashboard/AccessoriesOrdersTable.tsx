@@ -15,7 +15,6 @@ import {
 import { formatDate } from "date-fns";
 import { Plus } from "lucide-react";
 import * as React from "react";
-import Bookings from "~/app/(normal-user)/(others)/vendor/[slug]/_components/Bookings";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -147,35 +146,10 @@ const AccessoriesOrdersTable = ({ data }: { data: GetDashboardInfo }) => {
     }
   }, [isError]);
 
-  const { data: bookingsDetails, isLoading: bookingsDetailsLoading } =
-    api.business.getBookingsDetails.useQuery(
-      {
-        businessId: vendor?.id ?? "",
-      },
-      {
-        enabled: !!vendor?.id,
-        refetchOnWindowFocus: false,
-      },
-    );
-
-  const [open, setOpen] = React.useState(false);
-
   return (
     <div className="w-full">
-      {!bookingsDetailsLoading && bookingsDetails !== undefined && (
-        <Bookings
-          open={open}
-          setOpen={setOpen}
-          paymentDetails={{
-            merchantCode: vendor?.merchantCode ?? null,
-          }}
-          bookingsDetails={bookingsDetails}
-          fromVendor={true}
-          vendorId={vendor?.id ?? ""}
-        />
-      )}
       <div className="mx-auto">
-        <h1 className="text-2xl font-semibold">Orders</h1>
+        <h1 className="text-2xl font-semibold">Accessories Orders</h1>
         <div className="flex items-center gap-4 py-4">
           <div className="flex-1">
             <Input
@@ -193,11 +167,11 @@ const AccessoriesOrdersTable = ({ data }: { data: GetDashboardInfo }) => {
             <Button
               variant={"secondary"}
               size="sm"
-              disabled={bookingsDetailsLoading}
               onClick={() => {
-                if (!bookingsDetailsLoading && bookingsDetails !== undefined) {
-                  setOpen(true);
-                }
+                toast({
+                  title: "Feature not implemented yet.",
+                  description: "We are working on it.",
+                });
               }}
             >
               <Plus size={16} className="mr-1" />

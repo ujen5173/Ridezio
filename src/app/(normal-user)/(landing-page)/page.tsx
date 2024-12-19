@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import HeroSection from "~/app/_components/_/HeroSection";
 import PopularShops from "~/app/_components/_/PopularShops";
 import ShopsAroundWrapper from "~/app/_components/_/ShopsAroundWrapper";
-import UpcomingEvent from "~/app/_components/_/UpcomingEvent";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/server";
 import BecomePartner from "./_components/BecomePartner";
@@ -24,7 +23,7 @@ const Home = async () => {
         <ShopsAroundWrapper />
       </Suspense>
       <PopularShops popularShopsData={popularShops} />
-      <UpcomingEvent events={events} />
+      {/* <UpcomingEvent events={events} /> */}
       <BecomePartner />
       <Faqs />
       <Button

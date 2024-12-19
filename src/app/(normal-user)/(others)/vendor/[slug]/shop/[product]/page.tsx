@@ -7,10 +7,12 @@ import SimilarProducts from "./SimilarProducts";
 const ProductPageWrapper = async ({
   params,
 }: {
-  params: { product: string };
+  params: Promise<{ product: string }>;
 }) => {
+  const { product } = await params;
+
   const data = await api.accessories.getSingleAccessory({
-    product: params.product,
+    product: product,
   });
 
   if (!data) notFound();

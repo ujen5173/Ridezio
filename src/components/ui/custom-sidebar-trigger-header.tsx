@@ -84,6 +84,7 @@ const CustomSidebarTriggerHeader = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuLabel>{data.user.name}</DropdownMenuLabel>
+              <p className="px-2 text-sm text-slate-600">{data.user.email}</p>
               <DropdownMenuSeparator />
               <Link href="/dashboard">
                 <DropdownMenuItem>Dashboard</DropdownMenuItem>

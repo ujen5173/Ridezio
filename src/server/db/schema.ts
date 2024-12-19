@@ -277,6 +277,9 @@ export const reviews = createTable(
     businessId: varchar("business_id", { length: 36 })
       .notNull()
       .references(() => businesses.id, { onDelete: "cascade" }),
+    rentalId: varchar("rental_id", { length: 36 })
+      .notNull()
+      .references(() => rentals.id, { onDelete: "cascade" }),
     rating: integer("rating").notNull(),
     review: text("review").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -286,6 +289,7 @@ export const reviews = createTable(
     userIdx: index("review_user_idx").on(table.userId),
     businessIdx: index("review_business_idx").on(table.businessId),
     ratingIdx: index("review_rating_idx").on(table.rating),
+    rentalIdx: index("review_rental_idx").on(table.rentalId),
   }),
 );
 
@@ -558,6 +562,10 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
     references: [businesses.id],
   }),
   user: one(users, { fields: [reviews.userId], references: [users.id] }),
+  rental: one(rentals, {
+    fields: [reviews.rentalId],
+    references: [rentals.id],
+  }),
 }));
 
 export const accessoryReviewsRelations = relations(
@@ -611,6 +619,7 @@ export const rentalsRelations = relations(rentals, ({ one, many }) => ({
     references: [businesses.id],
   }),
   payments: many(payments),
+  reviews: many(reviews),
 }));
 
 export const paymentsRelations = relations(payments, ({ one }) => ({

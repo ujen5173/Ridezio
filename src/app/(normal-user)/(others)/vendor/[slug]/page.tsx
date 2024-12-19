@@ -11,11 +11,12 @@ const VendorPage = async ({
   params: Promise<{
     slug: string;
   }>;
-  searchParams: {
+  searchParams: Promise<{
     data?: string;
-  };
+  }>;
 }) => {
   const { slug } = await params;
+  const { data: paramsData } = await searchParams;
 
   if (!slug) redirect("/");
 
@@ -34,7 +35,7 @@ const VendorPage = async ({
   return (
     <>
       <HeaderHeight />
-      <VendorWrapper bookingProcessData={searchParams.data} data={data} />
+      <VendorWrapper bookingProcessData={paramsData} data={data} />
     </>
   );
 };

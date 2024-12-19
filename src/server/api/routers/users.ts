@@ -196,7 +196,42 @@ export const userRouter = createTRPCRouter({
       console.log({ err });
     }
   }),
+
+  businessReviews: protectedProcedure.query(async ({ ctx }) => {
+    const result = await db.query.reviews.findMany({
+      where: eq(reviews.userId, ctx.session.user.id),
+      with: {
+        business: {
+          columns: {
+            name: true,
+            slug: true,
+          },
+        },
+        rental: {
+          columns: {
+            id: true,
+            quantity: true,
+            rentalStart: true,
+            rentalEnd: true,
+            totalPrice: true,
+          },
+          with: {
+            vehicle: {
+              columns: {
+                name: true,
+                images: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return result;
+  }),
 });
 export type UserRouter = typeof userRouter;
 
 export type GetUserOrdersType = inferRouterOutputs<UserRouter>["getUserOrders"];
+export type GetUserBusinessReviewType =
+  inferRouterOutputs<UserRouter>["businessReviews"];

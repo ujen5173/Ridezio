@@ -1,5 +1,6 @@
 "use client";
 
+import { type CheckedState } from "@radix-ui/react-checkbox";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { differenceInDays, format } from "date-fns";
 import {
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useMemo, useState } from "react";
 import { type DateRange } from "react-day-picker";
@@ -22,6 +24,7 @@ import { inter } from "~/app/utils/font";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
+import { Checkbox } from "~/components/ui/checkbox";
 import {
   Command,
   CommandEmpty,
@@ -101,6 +104,7 @@ const Bookings: React.FC<BookingsProps> = ({
   const [showQR, setShowQR] = useState(false);
   const [userName, setUserName] = useState(user?.user.name ?? "");
   const [userNumber, setUserNumber] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState<CheckedState>(false);
 
   useMemo(() => {
     setSelectedVehicleType(
@@ -216,20 +220,12 @@ const Bookings: React.FC<BookingsProps> = ({
   };
 
   const isCheckoutDisabled = useMemo(() => {
-    if (!date?.from || !date?.to || getRentalDays() === 0) return true;
+    if (!date?.from || !date?.to || getRentalDays() === 0 || !acceptTerms)
+      return true;
 
     const maxQuantity = getMaxAllowedQuantity();
     return maxQuantity === 0 || quantity > maxQuantity;
-  }, [date, quantity]);
-
-  const handleModelSelect = (model: string) => {
-    setSelectedVehicle((prev) => ({
-      ...prev,
-      vehicleModel: model,
-    }));
-    setDate(undefined); // Reset date when model changes
-    setQuantity(1); // Reset quantity when model changes
-  };
+  }, [date, quantity, acceptTerms]);
 
   const handleCheckout = () => {
     setShowQR(true);
@@ -444,7 +440,7 @@ const Bookings: React.FC<BookingsProps> = ({
                   >
                     <div className="flex flex-1 items-center gap-4">
                       <div className="flex-1">
-                        <AlertTitle className="font-medium text-red-600">
+                        <AlertTitle className="text-lg font-medium text-red-600">
                           Sign in to continue
                         </AlertTitle>
                         <AlertDescription className="text-red-600">
@@ -716,12 +712,13 @@ const Bookings: React.FC<BookingsProps> = ({
 
                 <Separator />
 
-                <div className="grid grid-cols-1 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                   <div className="space-y-2 px-1">
                     <Label>Username</Label>
                     <Input
                       value={userName}
                       placeholder="John Doe"
+                      className="text-sm md:text-base"
                       onChange={(e) => setUserName(e.target.value)}
                     />
                   </div>
@@ -730,6 +727,7 @@ const Bookings: React.FC<BookingsProps> = ({
                     <Input
                       value={userNumber}
                       placeholder="98********"
+                      className="text-sm md:text-base"
                       onChange={(e) => setUserNumber(e.target.value)}
                     />
                   </div>
@@ -748,6 +746,25 @@ const Bookings: React.FC<BookingsProps> = ({
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Any special requirements or requests?"
                   />
+                </div>
+
+                <div className="flex items-center space-x-2 px-1">
+                  <Checkbox
+                    onCheckedChange={(e) => setAcceptTerms(e)}
+                    id="terms"
+                  />
+                  <Label
+                    htmlFor="terms"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Accept{" "}
+                    <Link
+                      className="text-secondary underline"
+                      href="/terms-of-service"
+                    >
+                      terms of service
+                    </Link>
+                  </Label>
                 </div>
               </div>
             </ScrollArea>
