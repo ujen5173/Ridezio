@@ -1,6 +1,16 @@
 import { TriangleAlert } from "lucide-react";
+import { type Metadata } from "next";
+import { constructMetadata } from "~/app/utils/site";
+import { env } from "~/env";
 import { api } from "~/trpc/server";
 import VehiclesTable from "./_components/VehiclesTable";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    title: `All Vehicles | Velocit`,
+    url: `${env.NEXT_PUBLIC_APP_URL}/vendor/vehicles`,
+  });
+}
 
 const Vehicles = async () => {
   const business = await api.business.current();

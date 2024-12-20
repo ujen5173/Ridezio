@@ -1,5 +1,15 @@
+import { type Metadata } from "next";
+import { constructMetadata } from "~/app/utils/site";
+import { env } from "~/env";
 import { api } from "~/trpc/server";
 import AccessoriesTable from "./components/AccessoriesTable";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    title: `Accessories | Velocit`,
+    url: `${env.NEXT_PUBLIC_APP_URL}/vendor/accessories`,
+  });
+}
 
 const Accessories = async () => {
   const business = await api.business.current();

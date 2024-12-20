@@ -1,11 +1,21 @@
+import { type Metadata } from "next";
 import { redirect } from "next/navigation";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
+import { constructMetadata } from "~/app/utils/site";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { env } from "~/env";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/server";
 import AccountSettings from "./_components/account";
 import EmailNotificaiton from "./_components/email";
 import GeneralSettings from "./_components/general";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    title: `Settings | Velocit`,
+    url: `${env.NEXT_PUBLIC_APP_URL}/settings`,
+  });
+}
 
 const Settings = async () => {
   const userDetails = await api.user.current();

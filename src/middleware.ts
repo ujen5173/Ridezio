@@ -9,8 +9,17 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-url", request.url);
 
+  const protectedRoutes = [
+    "/vendor/vehicles",
+    "/vendor/vehicles/add",
+    "/vendor/accessories",
+    "/vendor/accessories/add",
+    "/vendor/profile",
+    "/dashboard",
+  ];
+
   // Logic for vendor routes
-  if (pathname.startsWith("/vendor") || pathname.startsWith("/dashboard")) {
+  if (protectedRoutes.includes(pathname)) {
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,

@@ -1,6 +1,17 @@
+import { type Metadata } from "next";
+import { constructMetadata } from "~/app/utils/site";
+import { env } from "~/env";
 import { type GetSingleVehicleType } from "~/server/api/routers/vehicle";
 import { api } from "~/trpc/server";
 import Wrapper from "./wrapper";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    title: `New Vehicle | Velocit`,
+    description: `Add new vehicle to your fleet`,
+    url: `${env.NEXT_PUBLIC_APP_URL}/vendor/vehicles/add`,
+  });
+}
 
 const VehicleCreatePage = async ({
   searchParams,

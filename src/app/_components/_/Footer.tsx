@@ -146,7 +146,7 @@ const Footer = () => {
                   <li>
                     <Link
                       className="hover:text-slate-200 hover:underline"
-                      href="/vendor-agggrement"
+                      href="/vendor-aggrement"
                     >
                       Vendor Aggrement
                     </Link>

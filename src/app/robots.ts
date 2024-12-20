@@ -4,6 +4,7 @@ import { env } from "~/env";
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
+      allow: "/",
       userAgent: "*",
       disallow: [
         "/dashboard/",
@@ -14,7 +15,6 @@ export default function robots(): MetadataRoute.Robots {
         "/vendor/vehicles/add",
         "/vendor/profile",
       ],
-      allow: "/",
     },
     sitemap: `${env.NEXT_PUBLIC_APP_URL}/sitemap.xml`,
   };

@@ -1,12 +1,22 @@
 import { TriangleAlert } from "lucide-react";
+import { type Metadata } from "next";
 import { redirect } from "next/navigation";
 import EmailNotificaiton from "~/app/(normal-user)/(others)/settings/_components/email";
 import GeneralSettings from "~/app/(normal-user)/(others)/settings/_components/general";
+import { constructMetadata } from "~/app/utils/site";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { env } from "~/env";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/server";
 import BusinessProfile from "./BusinessProfile";
 import BusinessAccountSettings from "./components/BusinessAccountSettings";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return constructMetadata({
+    title: `Profile | Velocit`,
+    url: `${env.NEXT_PUBLIC_APP_URL}/vendor/profile`,
+  });
+}
 
 const VendorSetup = async () => {
   const userDetails = api.user.current();
