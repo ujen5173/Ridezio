@@ -63,6 +63,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "critters": "^0.0.25",
+    "crypto": "^1.0.1",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.33.0",
     "drizzle-zod": "^0.5.1",

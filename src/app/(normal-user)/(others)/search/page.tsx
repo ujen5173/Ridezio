@@ -54,8 +54,6 @@ const Search = () => {
     "both",
   );
 
-  console.log({ query, validVehicleType, bounds });
-
   const {
     data: searchBusinesses,
     isLoading: isDataFetching,
@@ -63,7 +61,7 @@ const Search = () => {
   } = api.business.search.useQuery(
     {
       query: query ?? undefined,
-      vehicleType: validVehicleType!,
+      vehicleType: validVehicleType ?? undefined,
       bounds: bounds!,
     },
     {

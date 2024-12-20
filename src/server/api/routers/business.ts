@@ -276,7 +276,13 @@ export const businessRouter = createTRPCRouter({
       today,
     );
 
-    const store_revenue_chart_data = monthly.map((item) => ({
+    const store_revenue_chart_data = mergeChartOrderData(
+      initialChartData,
+      monthly,
+      "value",
+    );
+
+    monthly.map((item) => ({
       date: item.date,
       value: +item.value.toFixed(2),
     }));
@@ -518,7 +524,8 @@ export const businessRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { northEast, southWest } = input.bounds;
 
-      const shops = await ctx.db
+      // First, get businesses with their matching vehicles
+      const shopsWithVehicles = await ctx.db
         .select({
           id: businesses.id,
           name: businesses.name,
@@ -531,16 +538,20 @@ export const businessRouter = createTRPCRouter({
           images: businesses.images,
         })
         .from(businesses)
+        .leftJoin(vehicles, eq(vehicles.businessId, businesses.id))
         .where(
           and(
             eq(businesses.status, "active"),
             input.query
-              ? or(ilike(businesses.name, `%${input.query}%`))
+              ? or(
+                  ilike(vehicles.name, `%${input.query}%`),
+                  ilike(vehicles.slug, `%${input.query}%`),
+                  ilike(vehicles.category, `%${input.query}%`),
+                )
               : undefined,
             input.vehicleType
               ? sql`${input.vehicleType} = ANY(${businesses.availableVehicleTypes})`
               : undefined,
-            // Use PostgreSQL JSON extraction and comparison
             sql`(${businesses.location}->>'lat')::numeric BETWEEN ${southWest.lat} AND ${northEast.lat}`,
             sql`(${businesses.location}->>'lng')::numeric BETWEEN ${southWest.lng} AND ${northEast.lng}`,
           ),
@@ -548,7 +559,7 @@ export const businessRouter = createTRPCRouter({
         .limit(5)
         .orderBy(desc(businesses.rating));
 
-      return shops;
+      return shopsWithVehicles;
     }),
 
   getMultiple: publicProcedure

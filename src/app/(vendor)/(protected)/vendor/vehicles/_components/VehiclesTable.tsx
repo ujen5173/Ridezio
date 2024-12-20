@@ -218,7 +218,7 @@ export const columns: ColumnDef<Vehicle>[] = [
               <DialogHeader>
                 <DialogTitle className="text-xl">
                   Features of{" "}
-                  <span className="font-semibold italic text-secondary underline underline-offset-2">
+                  <span className="font-semibold text-secondary underline underline-offset-2">
                     {row.getValue<string>("name")}
                   </span>
                 </DialogTitle>

@@ -147,11 +147,12 @@ const Map: React.FC<MapProps> = ({
             <img
               src="${place.logo}"
               alt="Place Logo"
-              class="w-full h-full border border-border bg-white rounded-full object-cover"
+              style="width:100%; height:100%;"
+              class="w-full h-full border border-border bg-white rounded-full object-contain"
             />
           `,
           className: "custom-div-icon",
-          iconSize: [40, 40], // Set a fixed size for the icon
+          iconSize: [40, 40],
         })}
       />
     ));

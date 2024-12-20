@@ -175,7 +175,7 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-end">
           <div className="flex-1">
-            <h1 className={cn("text-2xl font-semibold md:text-3xl")}>
+            <h1 className={cn("text-2xl font-bold text-secondary md:text-3xl")}>
               {data.store.name}
             </h1>
           </div>

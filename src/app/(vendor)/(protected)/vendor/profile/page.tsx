@@ -1,3 +1,4 @@
+import { TriangleAlert } from "lucide-react";
 import { redirect } from "next/navigation";
 import EmailNotificaiton from "~/app/(normal-user)/(others)/settings/_components/email";
 import GeneralSettings from "~/app/(normal-user)/(others)/settings/_components/general";
@@ -20,13 +21,18 @@ const VendorSetup = async () => {
     <section className="w-full px-2 py-4 sm:px-4 sm:py-6">
       {!user.vendor_setup_complete && (
         <div className="mx-auto max-w-[1440px]">
-          <div className="mb-4 rounded-md border border-red-600 bg-red-50 p-4 text-red-600">
-            <p className="text-base font-semibold">
-              Setup your business information.
-            </p>
-            <p className="text-sm">
-              Before moving forward, please complete your business profile.
-            </p>
+          <div className="mb-4 flex items-center gap-4 rounded-md border border-red-600 bg-red-50 p-4 text-red-600">
+            <div>
+              <TriangleAlert size={24} className="text-red-600" />
+            </div>
+            <div>
+              <p className="text-base font-semibold">
+                Setup your business information.
+              </p>
+              <p className="text-sm">
+                Before moving forward, please complete your business profile.
+              </p>
+            </div>
           </div>
         </div>
       )}

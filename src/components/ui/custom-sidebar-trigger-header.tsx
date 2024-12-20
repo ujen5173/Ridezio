@@ -63,7 +63,8 @@ const CustomSidebarTriggerHeader = () => {
         )}
         <div>
           <h2 className="text-xl font-semibold">
-            {getGreetings()}, {data?.user?.name}
+            {getGreetings()},{" "}
+            <span className="text-secondary underline">{data?.user?.name}</span>
           </h2>
           <p className="text-base text-slate-600">
             {format(new Date(), "EEEE, MMM d yyyy")}

@@ -29,17 +29,16 @@ declare module "next-auth" {
       image?: string | null;
       phoneNumber?: string | null;
       vendor_setup_complete: boolean;
-      stripeCustomerId?: string | null;
     } & DefaultSession["user"];
   }
 
   interface User {
     id: string;
+    role: userRoleEnum;
+    email: string;
     name: string;
     phoneNumber: string | undefined;
-    email: string;
     vendor_setup_complete: boolean;
-    role: userRoleEnum;
     createdAt: Date;
     updatedAt: Date;
   }
@@ -139,7 +138,6 @@ export const authOptions: NextAuthOptions = {
       };
     },
   },
-  debug: process.env.NODE_ENV === "development",
 };
 
 export const getServerAuthSession = () => getServerSession(authOptions);
