@@ -9,7 +9,7 @@ const links = {
   instagram: "https://www.instagram.com/velocit",
   authorsWebsite: "https://ujenbasi.vercel.app",
   authorsGitHub: "https://github.com/ujen5173",
-  openGraphImage: env.NEXT_PUBLIC_APP_URL + "/api/og",
+  openGraphImage: new URL("/api/og", env.NEXT_PUBLIC_APP_URL).toString(),
 };
 
 export function getBaseUrl() {
@@ -40,7 +40,12 @@ export const siteConfig = {
     "Velocit",
     "Velocit vehicle rentals",
     "velocit",
+    "velocity",
     "Velocit rentals",
+    "Bike rental in nepal",
+    "Bike rental in kathmandu",
+    "Bike rental in lalitpur",
+    "Bike rental in pokhara",
     "Velocit rental",
     "affordable vehicle rentals",
     "cycle rental",
@@ -101,7 +106,7 @@ export const siteConfig = {
 export function constructMetadata({
   title = siteConfig.title,
   description = siteConfig.description,
-  image = `${getBaseUrl()}/favicon.ico`,
+  image = siteConfig.ogImage,
   icons = [
     {
       rel: "apple-touch-icon",
@@ -134,7 +139,7 @@ export function constructMetadata({
       url,
       siteName: siteConfig.name,
       locale: "en_US",
-      publishedTime,
+      type: "website",
       ...(image && {
         images: [
           {
