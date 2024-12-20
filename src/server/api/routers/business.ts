@@ -1,15 +1,6 @@
 import { type inferRouterOutputs, TRPCError } from "@trpc/server";
 import axios from "axios";
-import {
-  and,
-  desc,
-  eq,
-  getTableColumns,
-  ilike,
-  not,
-  or,
-  sql,
-} from "drizzle-orm";
+import { and, desc, eq, getTableColumns, ilike, not, sql } from "drizzle-orm";
 import slugify from "slugify";
 import { z, ZodError } from "zod";
 import { env } from "~/env";
@@ -524,8 +515,7 @@ export const businessRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { northEast, southWest } = input.bounds;
 
-      // First, get businesses with their matching vehicles
-      const shopsWithVehicles = await ctx.db
+      const shops = await ctx.db
         .select({
           id: businesses.id,
           name: businesses.name,
@@ -538,16 +528,19 @@ export const businessRouter = createTRPCRouter({
           images: businesses.images,
         })
         .from(businesses)
-        .leftJoin(vehicles, eq(vehicles.businessId, businesses.id))
         .where(
           and(
             eq(businesses.status, "active"),
             input.query
-              ? or(
-                  ilike(vehicles.name, `%${input.query}%`),
-                  ilike(vehicles.slug, `%${input.query}%`),
-                  ilike(vehicles.category, `%${input.query}%`),
+              ? sql`EXISTS (
+                SELECT 1 FROM ${vehicles}
+                WHERE ${vehicles.businessId} = ${businesses.id}
+                AND (
+                  ${ilike(vehicles.name, `%${input.query}%`)} OR
+                  ${ilike(vehicles.slug, `%${input.query}%`)} OR
+                  ${ilike(vehicles.category, `%${input.query}%`)}
                 )
+              )`
               : undefined,
             input.vehicleType
               ? sql`${input.vehicleType} = ANY(${businesses.availableVehicleTypes})`
@@ -557,9 +550,10 @@ export const businessRouter = createTRPCRouter({
           ),
         )
         .limit(5)
+        .leftJoin(vehicles, eq(vehicles.businessId, businesses.id))
         .orderBy(desc(businesses.rating));
 
-      return shopsWithVehicles;
+      return shops;
     }),
 
   getMultiple: publicProcedure

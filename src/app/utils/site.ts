@@ -27,10 +27,9 @@ export function getBaseUrl() {
 export const siteConfig = {
   name: "Velocit",
   namelower: "velocit",
-  title:
-    "Rent Cycles, Bikes, Scooters & Cars | Affordable Vehicle Rentals Near You - Velocit",
+  title: "Rent Cycles, Bikes, Scooters & Cars | Velocit Vehicle Rentals",
   description:
-    "Discover flexible and affordable vehicle rentals with Velocit. Rent cycles, bikes, scooters, and cars for your commute, road trips, or weekend getaways. Find the perfect ride near you and book instantly with ease. Simplify your travel with Velocit today.",
+    "Affordable and flexible rentals for cycles, bikes, scooters, and cars. Find rides near you and book instantly with Velocit",
   tagline: "Flexible, affordable vehicle rentals for every journey",
   links,
   url: getBaseUrl(),
@@ -120,7 +119,6 @@ export function constructMetadata({
     },
   ],
   url = getBaseUrl(),
-  publishedTime,
 }: {
   title?: string;
   description?: string;
@@ -128,7 +126,6 @@ export function constructMetadata({
   icons?: Metadata["icons"];
   noIndex?: boolean;
   url?: string;
-  publishedTime?: string;
 } = {}): Metadata {
   return {
     title,
