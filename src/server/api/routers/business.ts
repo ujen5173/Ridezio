@@ -550,7 +550,7 @@ export const businessRouter = createTRPCRouter({
           ),
         )
         .limit(5)
-        .leftJoin(vehicles, eq(vehicles.businessId, businesses.id))
+        // .leftJoin(vehicles, eq(vehicles.businessId, businesses.id))
         .orderBy(desc(businesses.rating));
 
       return shops;
