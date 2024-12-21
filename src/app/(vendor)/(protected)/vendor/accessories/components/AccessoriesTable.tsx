@@ -1,5 +1,3 @@
-// TODO: Total sales
-
 "use client";
 
 import {
@@ -207,190 +205,198 @@ const AccessoriesTable = () => {
   }, [isError]);
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Manage your Accessories</h1>
-        <Link href={`/vendor/accessories/add`}>
-          <Button size="sm" variant="secondary">
-            <Plus className="mr-1" size={15} />
-            Add New
-          </Button>
-        </Link>
-      </div>
-
-      <div className="flex items-center justify-between gap-4 py-4">
-        <Input
-          placeholder="Filter names..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
-          className="h-10 max-w-sm flex-1"
-        />
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            onClick={() => {
-              void refetch();
-            }}
-            size="sm"
-            variant={"outline"}
-          >
-            {isRefetching ? (
-              <Loader size={15} className="mr-1 animate-spin text-slate-600" />
-            ) : (
-              <RefreshCcw size={15} className="mr-1 text-slate-600" />
-            )}
-            {isRefetching ? "Refreshing" : "Refresh"}
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="primary" size="sm" className="ml-auto gap-1">
-                Columns <ChevronDown className="text-inherit" size={18} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="break-keep capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <>
+      <div className="w-full">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold">Manage your Accessories</h1>
+          <Link href={`/vendor/accessories/add`}>
+            <Button size="sm" variant="secondary">
+              <Plus className="mr-1" size={15} />
+              Add New
+            </Button>
+          </Link>
         </div>
-      </div>
 
-      <div className="overflow-hidden rounded-md border">
-        <Table>
-          <TableHeader className="bg-slate-100">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="h-14 w-max break-keep">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </TableHead>
-                ))}
-                <TableHead className="h-14 w-max break-keep"></TableHead>
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <>
-                {Array(4)
-                  .fill("____")
-                  .map((_, index) => (
-                    <TableRow key={index} className="h-14">
-                      {columns.map((_, cellIndex) => (
-                        <TableCell key={`${index}-${cellIndex} px-4`}>
-                          <Skeleton className="h-5 w-full" />
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-              </>
-            ) : accessories.length ? (
-              <>
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      className={cn("h-14", {
-                        "bg-red-50 hover:bg-red-50":
-                          row.getValue("inventory") === 0,
-                      })}
+        <div className="flex items-center justify-between gap-4 py-4">
+          <Input
+            placeholder="Filter names..."
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("name")?.setFilterValue(event.target.value)
+            }
+            className="h-10 max-w-sm flex-1"
+          />
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              onClick={() => {
+                void refetch();
+              }}
+              size="sm"
+              variant={"outline"}
+            >
+              {isRefetching ? (
+                <Loader
+                  size={15}
+                  className="mr-1 animate-spin text-slate-600"
+                />
+              ) : (
+                <RefreshCcw size={15} className="mr-1 text-slate-600" />
+              )}
+              {isRefetching ? "Refreshing" : "Refresh"}
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="primary" size="sm" className="ml-auto gap-1">
+                  Columns <ChevronDown className="text-inherit" size={18} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => {
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="break-keep capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) =>
+                          column.toggleVisibility(!!value)
+                        }
+                      >
+                        {column.id}
+                      </DropdownMenuCheckboxItem>
+                    );
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-md border">
+          <Table>
+            <TableHeader className="bg-slate-100">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className="h-14 w-max break-keep"
                     >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
                           )}
-                        </TableCell>
-                      ))}
-                      <TableCell className="">
-                        <div className="flex items-center justify-end gap-2 px-4">
-                          <Link
-                            href={`/vendor/accessories/add?edit=${row.getValue<string>("id")}`}
-                          >
-                            <Button
-                              className="text-slate-600"
-                              variant={"outline"}
-                              size="sm"
+                    </TableHead>
+                  ))}
+                  <TableHead className="h-14 w-max break-keep"></TableHead>
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <>
+                  {Array(4)
+                    .fill("____")
+                    .map((_, index) => (
+                      <TableRow key={index} className="h-14">
+                        {columns.map((_, cellIndex) => (
+                          <TableCell key={`${index}-${cellIndex} px-4`}>
+                            <Skeleton className="h-5 w-full" />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                </>
+              ) : accessories.length ? (
+                <>
+                  {table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row) => (
+                      <TableRow
+                        key={row.id}
+                        className={cn("h-14", {
+                          "bg-red-50 hover:bg-red-50":
+                            row.getValue("inventory") === 0,
+                        })}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
+                          </TableCell>
+                        ))}
+                        <TableCell className="">
+                          <div className="flex items-center justify-end gap-2 px-4">
+                            <Link
+                              href={`/vendor/accessories/add?edit=${row.getValue<string>("id")}`}
                             >
-                              <Edit size={13} className="mr-1" />
-                              Edit
+                              <Button
+                                className="text-slate-600"
+                                variant={"outline"}
+                                size="sm"
+                              >
+                                <Edit size={13} className="mr-1" />
+                                Edit
+                              </Button>
+                            </Link>
+                            <Button variant={"destructive"} size="sm">
+                              <Trash2 size={13} className="mr-1" />
+                              Delete
                             </Button>
-                          </Link>
-                          <Button variant={"destructive"} size="sm">
-                            <Trash2 size={13} className="mr-1" />
-                            Delete
-                          </Button>
-                        </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center"
+                      >
+                        No results.
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No results.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </>
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No accessories found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                  )}
+                </>
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No accessories found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
 
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

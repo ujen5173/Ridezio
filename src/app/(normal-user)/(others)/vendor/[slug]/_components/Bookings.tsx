@@ -256,7 +256,6 @@ const Bookings: React.FC<BookingsProps> = ({
   const [continueWithOnlineLoading, setContinueWithOnlineLoading] =
     useState(false);
 
-  // Updated quantity change handler
   const handleQuantityChange = (action: "increment" | "decrement") => {
     const maxQuantity = getMaxAllowedQuantity();
 

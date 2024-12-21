@@ -241,6 +241,7 @@ export const accessoriesRouter = createTRPCRouter({
 
       return result;
     }),
+
   getOrders: protectedProcedure.query(async ({ ctx }) => {
     const business = await ctx.db.query.businesses.findFirst({
       where: eq(businesses.ownerId, ctx.session.user.id),
@@ -253,18 +254,78 @@ export const accessoriesRouter = createTRPCRouter({
     const result = await ctx.db
       .select({
         id: accessoriesOrder.id,
-        customerName: getTableColumns(users).name,
+        customerName: accessoriesOrder.customerName,
         total: accessoriesOrder.total,
         quantity: accessoriesOrder.quantity,
         createdAt: accessoriesOrder.createdAt,
       })
       .from(accessoriesOrder)
       .where(eq(accessoriesOrder.businessId, business.id))
-      .leftJoin(users, eq(accessoriesOrder.userId, users.id))
       .orderBy(desc(accessoriesOrder.createdAt));
 
     return result;
   }),
+
+  placeOrder: protectedProcedure
+    .input(
+      z.object({
+        data: z.object({
+          accessoryId: z.string(),
+          quantity: z.number(),
+          customerName: z.string(),
+        }),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { data } = input;
+      try {
+        const business = await ctx.db.query.businesses.findFirst({
+          where: eq(businesses.ownerId, ctx.session.user.id),
+        });
+
+        if (!business) {
+          throw new TRPCError({
+            message: "Business not found",
+            code: "NOT_FOUND",
+          });
+        }
+
+        const accessory = await ctx.db.query.accessories.findFirst({
+          where: eq(accessories.id, data.accessoryId),
+        });
+
+        if (!accessory) {
+          throw new TRPCError({
+            message: "Accessory not found",
+            code: "NOT_FOUND",
+          });
+        }
+
+        const total = accessory.basePrice * data.quantity;
+
+        await ctx.db.transaction(async (trx) => {
+          await trx.insert(accessoriesOrder).values({
+            businessId: business.id,
+            accessoryId: data.accessoryId,
+            quantity: data.quantity,
+            customerName: data.customerName,
+            total,
+          });
+
+          await trx.update(accessories).set({
+            inventory: accessory.inventory - data.quantity,
+          });
+        });
+
+        return true;
+      } catch (error) {
+        console.log({ error });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong, please try again",
+        });
+      }
+    }),
 });
 
 export type GetSingleAccessoriesType = inferRouterOutputs<

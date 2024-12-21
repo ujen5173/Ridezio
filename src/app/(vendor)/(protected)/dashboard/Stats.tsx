@@ -179,19 +179,6 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
               {data.store.name}
             </h1>
           </div>
-          {/* <Select>
-            <SelectTrigger defaultValue={"24hr"} className="w-[180px]">
-              <SelectValue placeholder="Select duration" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="24hr">Last 24 Hour</SelectItem>
-                <SelectItem value="7day">Last 7 Days</SelectItem>
-                <SelectItem value="30day">Last 30 Days</SelectItem>
-                <SelectItem value="all">All Time</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select> */}
         </div>
         <div
           className={cn("grid gap-4")}
@@ -243,8 +230,6 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
               <span>12% from last month</span>
             </div>
             <div className="chart-container absolute bottom-4 right-0 w-1/2 min-w-36">
-              {/* <div className="chart-blur-bottom absolute bottom-0 z-[5] h-6 w-full"></div> */}
-              {/* <div className="chart-blur-right absolute right-2 z-[5] h-12 w-6"></div> */}
               <Chart
                 chartColor="hsl(var(--color-2))"
                 chartData={[
@@ -289,8 +274,6 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
               <span>{data.growth.revenue_growth}% from last month</span>
             </div>
             <div className="chart-container absolute bottom-4 right-0 z-40 w-1/2 min-w-36">
-              {/* <div className="chart-blur-bottom absolute bottom-0 z-20 h-6 w-full"></div> */}
-              {/* <div className="chart-blur-right absolute right-2 z-20 h-12 w-6"></div> */}
               <Chart
                 chartColor="hsl(var(--color-3))"
                 chartData={data.store_revenue_chart_data}
@@ -316,8 +299,6 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
               <span>{data.growth.orders_growth}% from last month</span>
             </div>
             <div className="chart-container absolute bottom-4 right-0 w-1/2 min-w-36">
-              {/* <div className="chart-blur-bottom absolute bottom-0 z-20 h-6 w-full"></div> */}
-              {/* <div className="chart-blur-right absolute right-2 z-20 h-12 w-6"></div> */}
               <Chart
                 chartColor="hsl(var(--color-4))"
                 chartData={data.store_orders_chart_data}

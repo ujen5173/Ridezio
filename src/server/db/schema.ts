@@ -469,6 +469,7 @@ export const accessories = createTable(
   }),
 );
 
+// fOREIGN KEY ERRORS...
 export const accessoriesOrder = createTable(
   "accessories_order",
   {
@@ -476,12 +477,10 @@ export const accessoriesOrder = createTable(
       .notNull()
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    userId: varchar("user_id", { length: 255 })
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+    customerName: varchar("customer_name", { length: 255 }).notNull(),
     accessoryId: varchar("accessory_id", { length: 255 })
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => accessories.id, { onDelete: "cascade" }),
     businessId: varchar("business_id", { length: 255 })
       .notNull()
       .references(() => businesses.id, { onDelete: "cascade" }),
@@ -491,7 +490,6 @@ export const accessoriesOrder = createTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => ({
-    userIdIdx: index("accessory_order_user_idx").on(table.userId),
     businessIdIdx: index("accessory_order_business_idx").on(table.businessId),
     accessoryIdIdx: index("accessory_order_accessory_id_idx").on(
       table.accessoryId,
@@ -585,10 +583,6 @@ export const accessoryReviewsRelations = relations(
 export const accessoriesOrderRelations = relations(
   accessoriesOrder,
   ({ one }) => ({
-    user: one(users, {
-      fields: [accessoriesOrder.userId],
-      references: [users.id],
-    }),
     accessory: one(accessories, {
       fields: [accessoriesOrder.accessoryId],
       references: [accessories.id],

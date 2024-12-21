@@ -98,7 +98,7 @@ const VehicleBookingsTable = () => {
           <div className="w-max break-keep px-4">Customer Name</div>
         ),
         cell: ({ row }) => (
-          <div className="w-max break-keep px-4 capitalize">
+          <div className="w-max break-keep px-4 font-semibold capitalize">
             {row.getValue("customer")}
           </div>
         ),
@@ -142,7 +142,9 @@ const VehicleBookingsTable = () => {
           }>("vehicle");
           return (
             <div className="flex items-center gap-2 px-4">
-              <span className="text-sm capitalize">{value.vehicle}</span>
+              <span className="whitespace-nowrap text-sm capitalize">
+                {value.vehicle}
+              </span>
 
               <div
                 className={cn(

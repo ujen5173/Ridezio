@@ -17,6 +17,7 @@ import {
   CarouselPrevious,
 } from "~/components/ui/carousel";
 import { Separator } from "~/components/ui/separator";
+import { toast } from "~/hooks/use-toast";
 import { extractDirectionsFromIframe } from "~/lib/helpers";
 import { cn } from "~/lib/utils";
 import FavroiteButton from "./FavroiteButton";
@@ -190,9 +191,19 @@ const VendorDetails = () => {
                 </span>
               </div>
               <Dot size={16} />
-              <div className="flex items-center gap-1">
+              <div
+                className="flex cursor-pointer items-center gap-1 text-sm transition hover:text-secondary hover:underline"
+                onClick={() => {
+                  void navigator.clipboard.writeText(
+                    vendor.phoneNumbers[0] ?? "0",
+                  );
+                  toast({
+                    title: "📋 Phone Number Copied!",
+                  });
+                }}
+              >
                 <Phone size={16} className="text-foreground" />
-                <span className="text-sm">{vendor.phoneNumbers[0]}</span>
+                <span>{vendor.phoneNumbers[0]}</span>
               </div>
               {vendor.instagramHandle && (
                 <>
@@ -296,7 +307,10 @@ const VendorDetails = () => {
                 </Button>
               </div>
               <div className="flex items-center gap-2">
-                <FavroiteButton id={vendor.id} />
+                <FavroiteButton
+                  role={vendor.owner.role ?? "USER"}
+                  id={vendor.id}
+                />
                 <Link
                   href={extractDirectionsFromIframe(vendor.location.map!)}
                   target="_blank"

@@ -4,9 +4,18 @@ import { Heart, HeartCrack, Loader } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/hooks/use-toast";
+import { type userRoleEnum } from "~/server/db/schema";
 import { api } from "~/trpc/react";
 
-const FavroiteButton = ({ id }: { id: string }) => {
+const FavroiteButton = ({
+  role,
+  id,
+}: {
+  role: (typeof userRoleEnum.enumValues)[number];
+  id: string;
+}) => {
+  const { data } = useSession();
+  const { mutateAsync, status } = api.user.bookmark.useMutation();
   const { data: favroite, refetch } = api.user.favourite.useQuery(
     {
       vendor: id,
@@ -18,17 +27,26 @@ const FavroiteButton = ({ id }: { id: string }) => {
       refetchOnWindowFocus: false,
     },
   );
-  const { mutateAsync, status } = api.user.bookmark.useMutation();
-  const { data } = useSession();
 
   return (
     <Button
+      disabled={role === "VENDOR"}
       onClick={async () => {
+        if (role === "VENDOR") {
+          toast({
+            title: "Vendors can't add to favourites",
+            variant: "destructive",
+          });
+          return;
+        }
+
         if (!!data?.user) {
           await mutateAsync({
             id,
           });
+
           void refetch();
+
           toast({
             title: `${favroite ? "Removed from" : "Added to"} favourites`,
           });

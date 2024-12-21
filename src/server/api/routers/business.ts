@@ -1,6 +1,15 @@
 import { type inferRouterOutputs, TRPCError } from "@trpc/server";
 import axios from "axios";
-import { and, desc, eq, getTableColumns, ilike, not, sql } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  getTableColumns,
+  ilike,
+  not,
+  or,
+  sql,
+} from "drizzle-orm";
 import slugify from "slugify";
 import { z, ZodError } from "zod";
 import { env } from "~/env";
@@ -373,15 +382,19 @@ export const businessRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const [result] = await ctx.db
-        .select()
-        .from(businesses)
-        .where(
-          and(
-            eq(businesses.slug, input.slug),
-            not(eq(businesses.status, "setup-incomplete")),
-          ),
-        );
+      const result = await ctx.db.query.businesses.findFirst({
+        where: and(
+          eq(businesses.slug, input.slug),
+          not(eq(businesses.status, "setup-incomplete")),
+        ),
+        with: {
+          owner: {
+            columns: {
+              role: true,
+            },
+          },
+        },
+      });
 
       return result;
     }),
@@ -422,7 +435,6 @@ export const businessRouter = createTRPCRouter({
 
   getVendorAroundLocation: publicProcedure.query(async ({ ctx }) => {
     try {
-      console.time("Grabbing user location through IP: ");
       let IP = "124.41.204.21";
 
       if (env.NODE_ENV === "production") {
@@ -432,7 +444,6 @@ export const businessRouter = createTRPCRouter({
       const { data: userLocation } = await axios.get<IpInfoResponse>(
         `https://ipinfo.io/${IP}/json?token=${env.IPINFO_API_KEY}`,
       );
-      console.timeEnd("Grabbing user location through IP: ");
 
       const [lat, lng] = userLocation.loc.split(",").map(Number);
 
@@ -444,7 +455,6 @@ export const businessRouter = createTRPCRouter({
         });
       }
 
-      // Define distance calculation and radius filter
       const radius = 10; // kilometers
       const distanceCalculation = sql<number>`6371 * 2 * ASIN(
         SQRT(
@@ -454,7 +464,6 @@ export const businessRouter = createTRPCRouter({
         )
       )`;
 
-      console.time("Fetching vendors around location: ");
       // Main query with distance filtering
       const vendorsQuery = await ctx.db
         .select({
@@ -477,7 +486,6 @@ export const businessRouter = createTRPCRouter({
         )
         .orderBy(distanceCalculation)
         .limit(5);
-      console.timeEnd("Fetching vendors around location: ");
 
       return {
         vendors: vendorsQuery,
@@ -531,17 +539,22 @@ export const businessRouter = createTRPCRouter({
         .where(
           and(
             eq(businesses.status, "active"),
-            input.query
-              ? sql`EXISTS (
-                SELECT 1 FROM ${vehicles}
-                WHERE ${vehicles.businessId} = ${businesses.id}
-                AND (
-                  ${ilike(vehicles.name, `%${input.query}%`)} OR
-                  ${ilike(vehicles.slug, `%${input.query}%`)} OR
-                  ${ilike(vehicles.category, `%${input.query}%`)}
-                )
-              )`
-              : undefined,
+            or(
+              ilike(businesses.name, `%${input.query}%`),
+              ilike(businesses.slug, `%${input.query}%`),
+              ilike(businesses.instagramHandle, `%${input.query}%`),
+              input.query
+                ? sql`EXISTS (
+                  SELECT 1 FROM ${vehicles}
+                  WHERE ${vehicles.businessId} = ${businesses.id}
+                  AND (
+                    ${ilike(vehicles.name, `%${input.query}%`)} OR
+                    ${ilike(vehicles.slug, `%${input.query}%`)} OR
+                    ${ilike(vehicles.category, `%${input.query}%`)}
+                  )
+                )`
+                : undefined,
+            ),
             input.vehicleType
               ? sql`${input.vehicleType} = ANY(${businesses.availableVehicleTypes})`
               : undefined,
@@ -550,7 +563,6 @@ export const businessRouter = createTRPCRouter({
           ),
         )
         .limit(5)
-        // .leftJoin(vehicles, eq(vehicles.businessId, businesses.id))
         .orderBy(desc(businesses.rating));
 
       return shops;
