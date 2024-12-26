@@ -8,6 +8,7 @@ import {
   ilike,
   not,
   or,
+  type SQL,
   sql,
 } from "drizzle-orm";
 import slugify from "slugify";
@@ -523,6 +524,37 @@ export const businessRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { northEast, southWest } = input.bounds;
 
+      const whereConditions: SQL<unknown>[] = [eq(businesses.status, "active")];
+
+      if (input.query) {
+        const sqlQuery = or(
+          ilike(businesses.name, `%${input.query}%`),
+          ilike(businesses.slug, `%${input.query}%`),
+          ilike(businesses.instagramHandle, `%${input.query}%`),
+          sql`EXISTS (
+              SELECT 1 FROM ${vehicles}
+              WHERE ${vehicles.businessId} = ${businesses.id}
+              AND (
+                ${ilike(vehicles.name, `%${input.query}%`)} OR
+                ${ilike(vehicles.slug, `%${input.query}%`)} OR
+                ${ilike(vehicles.category, `%${input.query}%`)}
+              )
+            )`,
+        )!;
+        whereConditions.push(sqlQuery);
+      }
+
+      if (input.vehicleType) {
+        whereConditions.push(
+          sql`${input.vehicleType} = ANY(${businesses.availableVehicleTypes})`,
+        );
+      }
+
+      whereConditions.push(
+        sql`(${businesses.location}->>'lat')::numeric BETWEEN ${southWest.lat} AND ${northEast.lat}`,
+        sql`(${businesses.location}->>'lng')::numeric BETWEEN ${southWest.lng} AND ${northEast.lng}`,
+      );
+
       const shops = await ctx.db
         .select({
           id: businesses.id,
@@ -536,32 +568,7 @@ export const businessRouter = createTRPCRouter({
           images: businesses.images,
         })
         .from(businesses)
-        .where(
-          and(
-            eq(businesses.status, "active"),
-            or(
-              ilike(businesses.name, `%${input.query}%`),
-              ilike(businesses.slug, `%${input.query}%`),
-              ilike(businesses.instagramHandle, `%${input.query}%`),
-              input.query
-                ? sql`EXISTS (
-                  SELECT 1 FROM ${vehicles}
-                  WHERE ${vehicles.businessId} = ${businesses.id}
-                  AND (
-                    ${ilike(vehicles.name, `%${input.query}%`)} OR
-                    ${ilike(vehicles.slug, `%${input.query}%`)} OR
-                    ${ilike(vehicles.category, `%${input.query}%`)}
-                  )
-                )`
-                : undefined,
-            ),
-            input.vehicleType
-              ? sql`${input.vehicleType} = ANY(${businesses.availableVehicleTypes})`
-              : undefined,
-            sql`(${businesses.location}->>'lat')::numeric BETWEEN ${southWest.lat} AND ${northEast.lat}`,
-            sql`(${businesses.location}->>'lng')::numeric BETWEEN ${southWest.lng} AND ${northEast.lng}`,
-          ),
-        )
+        .where(and(...whereConditions))
         .limit(5)
         .orderBy(desc(businesses.rating));
 

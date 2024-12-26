@@ -24,7 +24,7 @@ export const rentalRouter = createTRPCRouter({
         paymentId: z.string().nullable(),
         paymentStatus: z.enum(paymentStatusEnum.enumValues),
         notes: z.string().optional(),
-        paymentMethod: z.enum(["online", "onsite"]).nullable(),
+        paymentMethod: z.enum(["online", "cash"]).nullable(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -175,7 +175,7 @@ export const rentalRouter = createTRPCRouter({
               ? input.paymentMethod
               : input.paymentId
                 ? "online"
-                : "onsite",
+                : "cash",
             paymentStatus: input.paymentStatus,
             quantity: input.quantity,
             num_of_days: numOfDays,

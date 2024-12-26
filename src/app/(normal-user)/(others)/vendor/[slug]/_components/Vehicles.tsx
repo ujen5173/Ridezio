@@ -15,6 +15,7 @@ import {
 } from "~/components/ui/carousel";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -74,7 +75,7 @@ const Vehicles = () => {
     <section>
       <div className="mx-auto max-w-[1240px]">
         <div className="mb-10 flex items-center justify-between gap-10">
-          <h1 className="mb-4 text-3xl font-semibold md:text-4xl">
+          <h1 className="mb-4 text-3xl font-semibold text-slate-700 md:text-4xl">
             Pick Your Ride
           </h1>
           <div className="hidden sm:block">
@@ -104,11 +105,7 @@ const Vehicles = () => {
           </div>
         </div>
 
-        <section
-          className={cn(
-            "grid grid-cols-1 gap-4 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
-          )}
-        >
+        <section className="grid grid-cols-1 gap-4 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {isLoading ? (
             <>
               <Skeleton className="h-48" />
@@ -195,6 +192,7 @@ const Vehicles = () => {
                                         width={1440}
                                         height={1440}
                                         layout="fixed"
+                                        priority
                                         className="m-auto h-full w-auto rounded-md object-cover mix-blend-multiply"
                                         src={_.url}
                                       />
@@ -214,41 +212,51 @@ const Vehicles = () => {
                               Features
                             </h3>
                             <ul className="list-inside list-disc">
-                              {vehicle.features.map(({ key, value }, index) => (
-                                <div
-                                  key={value + key}
-                                  className="grid grid-cols-2"
-                                >
-                                  <div
-                                    className={cn(
-                                      "border border-border p-2 text-xl",
-                                      {
-                                        "bg-slate-100": index % 2 === 0,
-                                      },
-                                    )}
-                                  >
-                                    <Label>{key}</Label>
-                                  </div>
-                                  <div
-                                    className={cn(
-                                      "border border-border p-2 text-xl",
-                                      {
-                                        "bg-slate-100": index % 2 === 0,
-                                      },
-                                    )}
-                                  >
-                                    <Label>{value}</Label>
-                                  </div>
-                                </div>
-                              ))}
+                              {vehicle.features.length > 0 ? (
+                                vehicle.features.map(
+                                  ({ key, value }, index) => (
+                                    <div
+                                      key={value + key}
+                                      className="grid grid-cols-2"
+                                    >
+                                      <div
+                                        className={cn(
+                                          "border border-border p-2 text-xl",
+                                          {
+                                            "bg-slate-100": index % 2 === 0,
+                                          },
+                                        )}
+                                      >
+                                        <Label>{key}</Label>
+                                      </div>
+                                      <div
+                                        className={cn(
+                                          "border border-border p-2 text-xl",
+                                          {
+                                            "bg-slate-100": index % 2 === 0,
+                                          },
+                                        )}
+                                      >
+                                        <Label>{value}</Label>
+                                      </div>
+                                    </div>
+                                  ),
+                                )
+                              ) : (
+                                <p className="text-slate-600">
+                                  No features available
+                                </p>
+                              )}
                             </ul>
                           </div>
                         </div>
                       </div>
                       <DialogFooter>
-                        <Button type="button" size="sm" variant={"outline"}>
-                          Close
-                        </Button>
+                        <DialogClose>
+                          <Button type="button" size="sm" variant={"outline"}>
+                            Close
+                          </Button>
+                        </DialogClose>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>

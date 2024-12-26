@@ -182,7 +182,10 @@ const Wrapper = ({
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6 pb-10 md:pb-0"
+        >
           <div className="flex w-full flex-col gap-10 space-y-2 lg:flex-row">
             <div className="flex-[2]">
               <FormLabel className="text-slate-600">

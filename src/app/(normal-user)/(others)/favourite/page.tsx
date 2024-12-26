@@ -6,11 +6,8 @@ import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import VendorCardLoading from "~/app/_components/_/VendorCardLoading";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/hooks/use-toast";
-import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import VendorCard from "../../../_components/_/VendorCard";
-
-
 
 const Favourite = () => {
   const { data, isLoading, error } = api.user.getFavourite.useQuery(undefined, {
@@ -32,7 +29,9 @@ const Favourite = () => {
       <section className="w-full">
         <div className="mx-auto h-full max-w-[1440px] px-4 py-12">
           <div className="mb-4">
-            <h1 className={cn("text-4xl font-semibold")}>Favourites</h1>
+            <h1 className="mb-4 text-3xl font-semibold text-slate-700 md:text-4xl">
+              Favourites
+            </h1>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

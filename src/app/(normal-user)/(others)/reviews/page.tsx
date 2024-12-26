@@ -41,14 +41,15 @@ const Reviews = () => {
     <>
       <HeaderHeight />
 
-      <section className={cn("w-full bg-slate-50 px-4")}>
+      <section className={cn("w-full bg-slate-50 p-0 md:px-4")}>
         <div className="border-b border-border">
           <div className="mx-auto max-w-[1400px]">
-            <div className="px-4 pb-10 pt-20">
+            <div className="p-0 pb-10 pt-20 md:px-4">
               <h1 className="text-4xl font-bold text-secondary">
                 Your reviews
               </h1>
             </div>
+
             <ScrollArea className="w-full whitespace-nowrap">
               <ul className="flex w-max gap-1 pb-2">
                 {["all", "1 Star", "2 Star", "3 Star", "4 Star", "5 Star"].map(

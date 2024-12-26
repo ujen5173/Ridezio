@@ -243,7 +243,7 @@ export const rentals = createTable(
       .notNull()
       .default("pending"),
     paymentMethod: varchar("payment_method", {
-      enum: ["online", "onsite"],
+      enum: ["online", "cash"],
     }),
     totalPrice: integer("total_price").notNull(),
     num_of_days: integer("num_of_days").notNull().default(1),

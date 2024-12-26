@@ -125,7 +125,7 @@ const Footer = () => {
                   <li>
                     <Link
                       className="hover:text-slate-200 hover:underline"
-                      href="/auth/login"
+                      href="/auth/signin"
                     >
                       Start Renting
                     </Link>

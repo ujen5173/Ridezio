@@ -41,7 +41,6 @@ const MapArea = ({
 
   useMemo(() => {
     const fetchLocation = async () => {
-      console.log("hi");
       try {
         if (locationName) {
           const response = await axios.get<GeocodeResponse[]>(

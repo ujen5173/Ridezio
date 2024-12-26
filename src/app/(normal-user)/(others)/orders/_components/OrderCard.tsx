@@ -33,9 +33,11 @@ const OrderCard = ({
       </div>
       <div className="mt-4 flex items-center gap-1 font-medium text-slate-600">
         <Store size={20} className="text-slate-600" />
-        <p className="text-lg font-medium text-slate-600">
-          {orderDetails.vendorName}
-        </p>
+        <Link href={`/vendor/${orderDetails.vendorSlug!}`}>
+          <p className="text-lg font-medium text-slate-600 transition hover:text-secondary hover:underline">
+            {orderDetails.vendorName}
+          </p>
+        </Link>
       </div>
       <div className="flex flex-wrap items-center gap-1 py-4">
         <div className="flex items-center gap-1 font-medium text-slate-600">

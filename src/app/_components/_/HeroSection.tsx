@@ -56,13 +56,10 @@ type Location = {
 };
 
 const HeroSection = () => {
-  // const { width } = useWindowDimensions();
-
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
-  // const [date, setDate] = useState<DateRange | undefined>(undefined);
   const [vehicleType, setVehicleType] = useState<string | null>(null);
 
   useEffect(() => {

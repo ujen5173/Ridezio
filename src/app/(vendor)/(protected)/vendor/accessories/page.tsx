@@ -15,7 +15,7 @@ const Accessories = async () => {
   const business = await api.business.current();
 
   return (
-    <section className="w-full px-6 py-4">
+    <section className="w-full px-4 py-4 md:px-6">
       {business?.vehiclesCount === 0 ? (
         <div className="mb-4 rounded-md border border-orange-600 bg-orange-50 p-4 text-orange-600">
           <p className="text-base font-semibold">

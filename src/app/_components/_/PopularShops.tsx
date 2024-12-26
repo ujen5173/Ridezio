@@ -56,7 +56,7 @@ const PopularShops = ({
               size="icon"
               onClick={() => api?.scrollPrev()}
               disabled={current === 0}
-              className="size-8 border border-border bg-white sm:size-10"
+              className="size-8 border border-border bg-white text-foreground hover:border-secondary/80 hover:text-slate-50 sm:size-10"
             >
               <ChevronLeft size={20} className="text-foreground" />
             </Button>
@@ -65,7 +65,7 @@ const PopularShops = ({
               size="icon"
               onClick={() => api?.scrollNext()}
               disabled={current === count - 1}
-              className="size-8 border border-border bg-white sm:size-10"
+              className="size-8 border border-border bg-white text-foreground hover:border-secondary/80 hover:text-slate-50 sm:size-10"
             >
               <ChevronRight size={20} className="text-foreground" />
             </Button>

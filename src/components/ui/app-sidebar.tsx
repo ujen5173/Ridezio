@@ -6,7 +6,6 @@ import {
   ExternalLink,
   LayoutDashboard,
   LogOut,
-  MessageCircleMore,
   PanelLeft,
   Settings,
   ShoppingCart,
@@ -15,6 +14,7 @@ import {
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -27,52 +27,54 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
+import { env } from "~/env";
 import { cn } from "~/lib/utils";
 import Logo from "~/svg/logo";
 import { Button } from "./button";
 import { Separator } from "./separator";
 
-const items = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-    disabled: false,
-  },
-  {
-    title: "Vehicles",
-    url: "/vendor/vehicles",
-    icon: Bike,
-    disabled: false,
-  },
-  {
-    title: "Accessories",
-    url: "/vendor/accessories",
-    icon: ShoppingCart,
-    disabled: false,
-  },
-  {
-    title: "Events",
-    url: "/vendor/events",
-    icon: CalendarDays,
-    disabled: true,
-  },
-  {
-    title: "Messages",
-    url: "/chats",
-    icon: MessageCircleMore,
-    disabled: true,
-  },
-  {
-    title: "Accounts",
-    url: "/vendor/profile",
-    icon: Settings,
-    disabled: false,
-  },
-];
-
 export function AppSidebar({ slug }: { slug: string }) {
-  const { toggleSidebar } = useSidebar();
+  const items = useMemo(() => {
+    const baseItems = [
+      {
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: LayoutDashboard,
+        disabled: false,
+      },
+      {
+        title: "Vehicles",
+        url: "/vendor/vehicles",
+        icon: Bike,
+        disabled: false,
+      },
+      {
+        title: "Accessories",
+        url: "/vendor/accessories",
+        icon: ShoppingCart,
+        disabled: false,
+      },
+      {
+        title: "Accounts",
+        url: "/vendor/profile",
+        icon: Settings,
+        disabled: false,
+      },
+    ];
+
+    if (env.NEXT_PUBLIC_ENROLL_EVENTS === "true") {
+      baseItems.push({
+        title: "Events",
+        url: "/vendor/events",
+        icon: CalendarDays,
+        disabled: false,
+      });
+    }
+
+    return baseItems;
+  }, []);
+
+  const { toggleSidebar, setOpenMobile } = useSidebar();
   const path = usePathname();
 
   const sideBarExtraItems = [
@@ -111,6 +113,9 @@ export function AppSidebar({ slug }: { slug: string }) {
                 <SidebarMenuItem key={item.title}>
                   <Link
                     href={item.url}
+                    onClick={() => {
+                      setOpenMobile(false);
+                    }}
                     className={cn(
                       "flex gap-2 rounded-md px-2 py-2",
                       path === item.url

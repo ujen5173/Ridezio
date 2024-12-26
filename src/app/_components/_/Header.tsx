@@ -17,6 +17,7 @@ import {
 import { Separator } from "~/components/ui/separator";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -30,8 +31,6 @@ import SignOut from "./signout";
 
 const Header = ({ pth = "/" }: { pth?: string }) => {
   const { data } = useSession();
-
-  console.log({ data });
 
   const theme =
     pth === "/"
@@ -79,22 +78,26 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                 <div className="flex h-full flex-col">
                   <ul className="pb-5">
                     <li>
-                      <Link
-                        href="/search"
-                        className="inline-flex w-full items-center justify-between py-2 text-base font-medium text-slate-800 hover:underline"
-                      >
-                        <span>Explore</span>
-                        <ArrowRight className="text-slate-800" />
-                      </Link>
+                      <SheetClose className="w-full">
+                        <Link
+                          href="/search"
+                          className="inline-flex w-full items-center justify-between py-2 text-base font-medium text-slate-800 transition hover:text-secondary hover:underline"
+                        >
+                          <span>Explore</span>
+                          <ArrowRight className="text-inherit" />
+                        </Link>
+                      </SheetClose>
                     </li>
                     <li>
-                      <Link
-                        href="/auth/login"
-                        className="inline-flex w-full items-center justify-between py-2 text-base font-medium text-slate-800 hover:underline"
-                      >
-                        <span>For Business</span>
-                        <ArrowRight className="text-slate-800" />
-                      </Link>
+                      <SheetClose className="w-full">
+                        <Link
+                          href="/auth/signin"
+                          className="inline-flex w-full items-center justify-between py-2 text-base font-medium text-slate-800 transition hover:text-secondary hover:underline"
+                        >
+                          <span>For Business</span>
+                          <ArrowRight className="text-inherit" />
+                        </Link>
+                      </SheetClose>
                     </li>
                   </ul>
 
@@ -104,33 +107,41 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                     <li>
                       <Link
                         href="/search?vehicleType=bicycle"
-                        className="inline-block py-2 text-base font-medium text-slate-700 hover:underline"
+                        className="block py-2 text-base font-medium text-slate-700 transition hover:text-secondary hover:underline"
                       >
-                        Reserve bicycle
+                        <SheetClose className="w-full text-left">
+                          Reserve bicycle
+                        </SheetClose>
                       </Link>
                     </li>
                     <li>
                       <Link
                         href="/search?vehicleType=bike"
-                        className="inline-block py-2 text-base font-medium text-slate-700 hover:underline"
+                        className="block py-2 text-base font-medium text-slate-700 transition hover:text-secondary hover:underline"
                       >
-                        Reserve Bike
+                        <SheetClose className="w-full text-left">
+                          Reserve Bike
+                        </SheetClose>
                       </Link>
                     </li>
                     <li>
                       <Link
                         href="/search?vehicleType=scooter"
-                        className="inline-block py-2 text-base font-medium text-slate-700 hover:underline"
+                        className="block py-2 text-base font-medium text-slate-700 transition hover:text-secondary hover:underline"
                       >
-                        Reserve Scooter
+                        <SheetClose className="w-full text-left">
+                          Reserve Scooter
+                        </SheetClose>
                       </Link>
                     </li>
                     <li>
                       <Link
                         href="/search?vehicleType=car"
-                        className="inline-block py-2 text-base font-medium text-slate-700 hover:underline"
+                        className="block py-2 text-base font-medium text-slate-700 transition hover:text-secondary hover:underline"
                       >
-                        <span>Reserve Car</span>
+                        <SheetClose className="w-full text-left">
+                          <span>Reserve Car</span>
+                        </SheetClose>
                       </Link>
                     </li>
                   </ul>
@@ -164,7 +175,14 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                   <DropdownMenu>
                     <div className="flex items-center gap-2">
                       <div className="hidden sm:block">
-                        <span className={cn(theme, "text-sm font-semibold")}>
+                        <span
+                          className={cn(
+                            pth === "/"
+                              ? "text-slate-700 hover:text-slate-600 md:text-slate-100 md:hover:text-slate-200"
+                              : "text-slate-800 hover:text-slate-700",
+                            "text-sm font-semibold",
+                          )}
+                        >
                           {data.user.name}
                         </span>
                       </div>

@@ -2,6 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Trash2 } from "lucide-react";
 import Image from "next/image";
 import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
@@ -10,10 +11,12 @@ const ImageDragItem = ({
   file,
   id,
   index,
+  handleRemoveFile,
 }: {
   file: string;
   id: string;
   index: number;
+  handleRemoveFile: (index: number) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
@@ -29,20 +32,31 @@ const ImageDragItem = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={cn(
-        isCursorGrabbing ? "cursor-grabbing" : "cursor-grab",
-        "group relative h-full w-full",
-      )}
       {...attributes}
-      {...listeners}
+      className="relative h-full w-full"
     >
-      <Skeleton className="absolute inset-0" />
-      <Image
-        src={file}
-        alt={`Image ${index + 1}`}
-        fill
-        className="aspect-[16/13] h-full w-full rounded-md object-contain"
-      />
+      <button
+        type="button"
+        onClick={() => handleRemoveFile(index)}
+        className="absolute right-1 top-1 z-20 rounded-sm border border-slate-200/70 bg-slate-200/70 p-1 shadow-sm"
+      >
+        <Trash2 className="h-4 w-4 text-destructive" />
+      </button>
+      <div
+        className={cn(
+          isCursorGrabbing ? "cursor-grabbing" : "cursor-grab",
+          "group relative h-full w-full",
+        )}
+        {...listeners}
+      >
+        <Skeleton className="absolute inset-0" />
+        <Image
+          src={file}
+          alt={`Image ${index + 1}`}
+          fill
+          className="h-full w-full rounded-md object-cover"
+        />
+      </div>
     </div>
   );
 };

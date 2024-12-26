@@ -26,7 +26,7 @@ const SignInPage = () => {
                 <div>
                   <h2 className="mb-2 text-2xl font-bold">Welcome Back!</h2>
                   <p className="text-sm text-white/80">
-                    Access your account and discover amazing vehicles for rent
+                    Access your account and discover vehicles for rent
                   </p>
                 </div>
                 <div className="space-y-6">

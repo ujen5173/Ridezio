@@ -206,9 +206,9 @@ const AccessoriesTable = () => {
 
   return (
     <>
-      <div className="w-full">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Manage your Accessories</h1>
+      <div className="w-full py-4 md:py-0">
+        <div className="mb-4 flex items-center justify-between md:mb-0">
+          <h1 className="text-2xl font-semibold">Manage Accessories</h1>
           <Link href={`/vendor/accessories/add`}>
             <Button size="sm" variant="secondary">
               <Plus className="mr-1" size={15} />
@@ -367,7 +367,7 @@ const AccessoriesTable = () => {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-56 text-center text-base"
                   >
                     No accessories found.
                   </TableCell>

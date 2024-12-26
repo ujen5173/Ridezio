@@ -421,8 +421,11 @@ const VehicleBookingsTable = () => {
           vendorId={vendor?.id ?? ""}
         />
       )}
+
       <div className="">
-        <h1 className="text-2xl font-semibold">Vehicle Bookings</h1>
+        <h1 className="text-2xl font-semibold text-slate-700">
+          Vehicle Bookings
+        </h1>
         <div className="flex items-center gap-4 py-4">
           <div className="flex-1">
             <Input
@@ -455,7 +458,7 @@ const VehicleBookingsTable = () => {
             <Button
               variant={"secondary"}
               size="sm"
-              disabled={bookingsDetailsLoading}
+              disabled={bookingsDetailsLoading || bookingsDetails === undefined}
               onClick={() => {
                 if (!bookingsDetailsLoading && bookingsDetails !== undefined) {
                   setOpen(true);

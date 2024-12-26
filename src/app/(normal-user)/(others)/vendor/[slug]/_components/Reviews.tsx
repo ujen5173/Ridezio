@@ -145,8 +145,10 @@ const Reviews = ({
           )}
         </div>
         {allReviews?.length === 0 && (
-          <div className="text-center text-slate-600">
-            <p>No reviews yet.</p>
+          <div className="py-10">
+            <p className="text-center text-lg text-slate-600">
+              No reviews yet.
+            </p>
           </div>
         )}
       </div>

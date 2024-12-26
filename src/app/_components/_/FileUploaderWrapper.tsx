@@ -20,6 +20,7 @@ import { useEffect, useMemo, useState } from "react";
 import { type DropzoneOptions } from "react-dropzone";
 import { type UseFormReturn } from "react-hook-form";
 import { z } from "zod";
+import { Button } from "~/components/ui/button";
 import {
   FileInput,
   FileUploader,
@@ -151,6 +152,27 @@ const FileUploaderWrapper = ({
     [localImages],
   );
 
+  const handleRemoveFile = (index: number) => {
+    if (!setFiles) return;
+
+    setFiles((prevFiles) => {
+      if (prevFiles) {
+        const newFiles = [...prevFiles];
+        newFiles.splice(index, 1);
+        return newFiles;
+      }
+      return prevFiles;
+    });
+
+    const updatedLocalImages = localImages.filter((_, idx) => idx !== index);
+
+    setLocalImages(updatedLocalImages);
+    form.setValue("images", updatedLocalImages, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  };
+
   return (
     <FileUploader
       value={files}
@@ -169,39 +191,75 @@ const FileUploaderWrapper = ({
       }}
     >
       <FileInput>
-        <div className="mb-4 flex h-72 w-full flex-col items-center justify-center rounded-md border bg-background hover:bg-slate-100">
-          <p className="flex items-center gap-2 font-medium text-gray-700">
-            {isUploading ? (
-              <>
-                <Loader className="text-primary-500 animate-spin" />
-                <span>Uploading...</span>
-              </>
-            ) : (
-              "Drop files here"
-            )}
-          </p>
-        </div>
-      </FileInput>
-      <FileUploaderContent className="flex flex-row items-center space-x-2">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={imageIds}
-            strategy={horizontalListSortingStrategy}
+        {localImages.length > 0 && dropzone.maxFiles === 1 ? (
+          <div
+            className="relative mb-4 flex h-72 w-full cursor-default flex-col items-center justify-center rounded-md border bg-background hover:bg-slate-100"
+            style={{
+              backgroundImage: `url('${localImages[0]!.url}')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
           >
-            <div className="flex items-center gap-2">
-              {localImages.map((image, index) => (
-                <div key={image.id} className="relative h-28 w-32">
-                  <ImageDragItem id={image.id} file={image.url} index={index} />
-                </div>
-              ))}
+            <div className="absolute bottom-2 right-2">
+              <Button
+                type="button"
+                onClick={() => {
+                  setLocalImages([]);
+                  setFiles([]);
+                  form.setValue("images", [], {
+                    shouldDirty: true,
+                    shouldTouch: true,
+                  });
+                }}
+                variant="outline"
+                size="sm"
+              >
+                Remove Image
+              </Button>
             </div>
-          </SortableContext>
-        </DndContext>
-      </FileUploaderContent>
+          </div>
+        ) : (
+          <div className="mb-4 flex h-72 w-full flex-col items-center justify-center rounded-md border bg-background hover:bg-slate-100">
+            <p className="flex items-center gap-2 font-medium text-gray-700">
+              {isUploading ? (
+                <>
+                  <Loader className="text-primary-500 animate-spin" />
+                  <span>Uploading...</span>
+                </>
+              ) : (
+                "Drop files here"
+              )}
+            </p>
+          </div>
+        )}
+      </FileInput>
+      {dropzone.maxFiles === 1 ? null : (
+        <FileUploaderContent className="flex flex-row items-center space-x-2">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={imageIds}
+              strategy={horizontalListSortingStrategy}
+            >
+              <div className="flex items-center gap-2">
+                {localImages.map((image, index) => (
+                  <div key={image.id} className="relative h-24 w-32">
+                    <ImageDragItem
+                      id={image.id}
+                      file={image.url}
+                      index={index}
+                      handleRemoveFile={handleRemoveFile}
+                    />
+                  </div>
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </FileUploaderContent>
+      )}
     </FileUploader>
   );
 };

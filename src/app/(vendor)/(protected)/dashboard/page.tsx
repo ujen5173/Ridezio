@@ -24,7 +24,7 @@ const Dashboard = async () => {
         <div className="px-4 py-6">
           <Stats data={data} />
           <VehicleBookingsTable />
-          <AccessoriesOrdersTable data={data} />
+          <AccessoriesOrdersTable />
         </div>
       </main>
     );

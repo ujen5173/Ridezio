@@ -30,7 +30,7 @@ export type BookingDetails = {
   businessName: string | null;
   totalPrice: number;
   num_of_days: number;
-  paymentMethod: "online" | "onsite" | null;
+  paymentMethod: "online" | "cash" | null;
   notes: string | null;
   businessOwnerEmail: string | null;
 };

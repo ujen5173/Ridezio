@@ -104,7 +104,7 @@ const Bookings: React.FC<BookingsProps> = ({
   const [showQR, setShowQR] = useState(false);
   const [userName, setUserName] = useState(user?.user.name ?? "");
   const [userNumber, setUserNumber] = useState("");
-  const [acceptTerms, setAcceptTerms] = useState<CheckedState>(false);
+  const [acceptTerms, setAcceptTerms] = useState<CheckedState>(true);
 
   useMemo(() => {
     setSelectedVehicleType(
@@ -382,7 +382,7 @@ const Bookings: React.FC<BookingsProps> = ({
         quantity: quantity,
         paymentId: null,
         paymentStatus: "pending",
-        paymentMethod: method === "cash" ? "onsite" : "online",
+        paymentMethod: method === "cash" ? "cash" : "online",
         notes: message,
       });
     } catch (err) {
@@ -749,6 +749,7 @@ const Bookings: React.FC<BookingsProps> = ({
 
                 <div className="flex items-center space-x-2 px-1">
                   <Checkbox
+                    defaultChecked={acceptTerms}
                     onCheckedChange={(e) => setAcceptTerms(e)}
                     id="terms"
                   />

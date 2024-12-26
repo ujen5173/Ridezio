@@ -25,7 +25,7 @@ type RentalBookingData = {
   totalPrice: number;
   quantity: number;
   paymentId: string;
-  paymentMethod: "online" | "onsite" | null;
+  paymentMethod: "online" | "cash" | null;
   notes: string;
 };
 

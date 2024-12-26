@@ -29,8 +29,11 @@ const Settings = async () => {
       <HeaderHeight />
 
       <div className="w-full bg-slate-100 px-4 py-12">
-        <Tabs defaultValue="general" className="container flex gap-5">
-          <div className="h-min w-72 space-y-4">
+        <Tabs
+          defaultValue="general"
+          className="mx-auto flex max-w-[1440px] flex-col gap-5 lg:flex-row"
+        >
+          <div className="h-min w-full space-y-2 lg:w-64">
             <div className="rounded-md border border-slate-200 bg-white px-4 py-3 shadow-sm sm:px-6">
               <h2 className="text-lg text-foreground sm:text-xl">Settings</h2>
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import VendorCard from "~/app/_components/_/VendorCard";
 import { Button } from "~/components/ui/button";
@@ -37,10 +38,10 @@ const ShopsAround = () => {
         <div className="mb-5 flex items-center justify-between gap-4">
           <h2
             className={cn(
-              "flex items-center gap-2 text-xl font-bold xs:text-2xl sm:text-3xl",
+              "flex items-center gap-2 text-xl font-bold text-slate-700 xs:text-2xl sm:text-3xl",
             )}
           >
-            <span>Rentals Near</span>
+            <span>Rentals Around</span>
             {isLoading ? (
               <Skeleton className="h-10 w-28 rounded-sm" />
             ) : (
@@ -55,18 +56,18 @@ const ShopsAround = () => {
               size="icon"
               onClick={() => api?.scrollPrev()}
               disabled={current === 0}
-              className="size-8 border border-border bg-white sm:size-10"
+              className="size-8 border border-border bg-white text-foreground hover:border-secondary/80 hover:text-slate-50 sm:size-10"
             >
-              <ChevronLeft size={20} className="text-foreground" />
+              <ChevronLeft size={20} className="text-inherit" />
             </Button>
             <Button
               variant="secondary"
               size="icon"
               onClick={() => api?.scrollNext()}
               disabled={current === count - 1}
-              className="size-8 border border-border bg-white sm:size-10"
+              className="size-8 border border-border bg-white text-foreground hover:border-secondary/80 hover:text-slate-50 sm:size-10"
             >
-              <ChevronRight size={20} className="text-foreground" />
+              <ChevronRight size={20} className="text-inherit" />
             </Button>
           </div>
         </div>
@@ -100,12 +101,20 @@ const ShopsAround = () => {
             </CarouselContent>
           </Carousel>
 
-          {shopsAroundData?.vendors.length === 0 && (
+          {shopsAroundData?.vendors.length === 0 ? (
             <div className="flex h-40 w-full items-center justify-center gap-4">
               <p className="text-center text-lg text-foreground">
                 Oops! No rentals are available near you.
               </p>
             </div>
+          ) : (
+            shopsAroundData?.location && (
+              <Button variant={"outline"} asChild>
+                <Link href={`/search?location=${shopsAroundData?.location}`}>
+                  Explore on Maps
+                </Link>
+              </Button>
+            )
           )}
         </div>
       </div>

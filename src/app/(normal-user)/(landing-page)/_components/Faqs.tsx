@@ -12,7 +12,7 @@ import { faqs } from "./data/faqs";
 
 const Faqs = () => {
   return (
-    <section className="w-full bg-slate-50">
+    <section className="w-full bg-white">
       <div className="mx-auto max-w-[1440px] px-4 py-16">
         <div className="mb-10">
           <h1

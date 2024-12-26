@@ -46,6 +46,7 @@ const VendorSetup = async () => {
           </div>
         </div>
       )}
+
       <Tabs
         defaultValue="business"
         className="mx-auto flex max-w-[1440px] flex-col gap-5 lg:flex-row"

@@ -330,7 +330,9 @@ const VehiclesTable = () => {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Manage your Vehicles</h1>
+        <h1 className="text-2xl font-semibold text-slate-700">
+          Manage your Vehicles
+        </h1>
         <Link href={`/vendor/vehicles/add`}>
           <Button size="sm" variant="secondary">
             <Plus className="mr-1" size={15} />

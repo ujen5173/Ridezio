@@ -53,22 +53,24 @@ const Locations = () => {
             </div>
           </div>
 
-          <Link
-            target="_blank"
-            href={`https://www.instagram.com/${vendor?.instagramHandle ?? ""}`}
-          >
-            <div className="group flex items-center gap-4">
-              <div className="flex size-14 items-center justify-center rounded-md border border-border bg-white transition group-hover:bg-slate-100">
-                <Instagram size={25} className="text-slate-600" />
+          {vendor?.instagramHandle && (
+            <Link
+              target="_blank"
+              href={`https://www.instagram.com/${vendor?.instagramHandle}`}
+            >
+              <div className="group flex items-center gap-4">
+                <div className="flex size-14 items-center justify-center rounded-md border border-border bg-white transition group-hover:bg-slate-100">
+                  <Instagram size={25} className="text-slate-600" />
+                </div>
+                <div>
+                  <p className="text-base text-foreground">Instagram</p>
+                  <p className="text-base font-medium text-slate-600">
+                    {vendor?.instagramHandle}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-base text-foreground">Instagram</p>
-                <p className="text-base font-medium text-slate-600">
-                  {vendor?.instagramHandle ?? "N/A"}
-                </p>
-              </div>
-            </div>
-          </Link>
+            </Link>
+          )}
         </div>
 
         <iframe

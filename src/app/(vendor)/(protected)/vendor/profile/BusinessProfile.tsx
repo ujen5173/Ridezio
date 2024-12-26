@@ -198,20 +198,25 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
         }, 2500);
       }
 
-      const url = data?.user.vendor_setup_complete
-        ? "/dashboard"
-        : "/vendor/vehicles";
+      if (data?.user.vendor_setup_complete) {
+        toast({
+          title: "Profile Updated.",
+          description: "Your profile has been updated successfully",
+        });
 
-      toast({
-        title: data?.user.vendor_setup_complete
-          ? "Profile Updated. Redirecting to Dashboard..."
-          : "Profile Updated. Redirecting to Vehicles Page...",
-        description: "Your profile has been updated successfully",
-      });
+        return;
+      } else {
+        const url = "/vendor/vehicles";
 
-      await update(newUser);
+        toast({
+          title: "Profile Updated. Redirecting to Vehicles Page...",
+          description: "Your profile has been updated successfully",
+        });
 
-      router.push(url);
+        await update(newUser);
+
+        router.push(url);
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
       toast({

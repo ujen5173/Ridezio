@@ -35,7 +35,7 @@ const LoginButton = ({ children }: { children: React.ReactNode }) => {
               <div className="mb-8">
                 <h1
                   className={cn(
-                    "mb-2 text-center text-4xl font-semibold",
+                    "mb-2 text-center text-4xl font-semibold text-slate-700",
                     chakra_petch.className,
                   )}
                 >
@@ -90,7 +90,7 @@ const LoginButton = ({ children }: { children: React.ReactNode }) => {
                       });
 
                       const result = await signIn("google", {
-                        callbackUrl: "/vendor/profile",
+                        callbackUrl: "/dashboard",
                         redirect: true,
                       });
 

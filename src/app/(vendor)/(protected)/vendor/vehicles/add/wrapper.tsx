@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { } from "cmdk";
+import {} from "cmdk";
 import { Check, ChevronsUpDown, Loader, Plus, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -101,13 +101,6 @@ const Wrapper = ({
   const [features, setFeatures] = useState<{ key: string; value: string }[]>(
     editData?.features ?? [],
   );
-  const [pastImages, setPastImages] = useState<
-    {
-      id: string;
-      order: number;
-      url: string;
-    }[]
-  >(editData?.images ?? []);
 
   const [files, setFiles] = useState<File[] | null>([]);
 
@@ -128,6 +121,7 @@ const Wrapper = ({
       images: [],
     },
   });
+
   const imageForm = useForm<z.infer<typeof imageSchema>>({
     resolver: zodResolver(imageSchema),
     mode: "onBlur",

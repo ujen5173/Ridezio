@@ -2,19 +2,17 @@ import { Map } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import HeroSection from "~/app/_components/_/HeroSection";
-import PopularShops from "~/app/_components/_/PopularShops";
 import ShopsAroundWrapper from "~/app/_components/_/ShopsAroundWrapper";
 import { Button } from "~/components/ui/button";
-import { api } from "~/trpc/server";
 import BecomePartner from "./_components/BecomePartner";
 import Faqs from "./_components/Faqs";
 import ShopsAroundLoading from "./_components/ShopsAroundLoading";
 
 const Home = async () => {
-  const [popularShops, events] = await Promise.all([
-    api.business.getPopularShops(),
-    api.events.getUpcomingEvents(),
-  ]);
+  // const [popularShops, events] = await Promise.all([
+  //   api.business.getPopularShops(),
+  //   api.events.getUpcomingEvents(),
+  // ]);
 
   return (
     <>
@@ -22,7 +20,7 @@ const Home = async () => {
       <Suspense fallback={<ShopsAroundLoading />}>
         <ShopsAroundWrapper />
       </Suspense>
-      <PopularShops popularShopsData={popularShops} />
+      {/* <PopularShops popularShopsData={popularShops} /> */}
       {/* <UpcomingEvent events={events} /> */}
       <BecomePartner />
       <Faqs />

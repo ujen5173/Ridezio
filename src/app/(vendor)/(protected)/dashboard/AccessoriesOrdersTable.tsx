@@ -149,7 +149,6 @@ const AccessoriesOrdersTable = () => {
   }, [isError]);
 
   const refresh = () => {
-    console.log("hi");
     void refetch();
   };
 
@@ -158,18 +157,21 @@ const AccessoriesOrdersTable = () => {
       <PurchaseAccessory open={open} setOpen={setOpen} refresh={refresh} />
       <div className="w-full">
         <div className="mx-auto">
-          <h1 className="text-2xl font-semibold">Accessories Orders</h1>
+          <h1 className="text-2xl font-semibold text-slate-700">
+            Accessories Orders
+          </h1>
           <div className="flex items-center gap-4 py-4">
             <div className="flex-1">
               <Input
                 placeholder="Filter names..."
                 value={
-                  (table.getColumn("customer")?.getFilterValue() as string) ??
-                  ""
+                  (table
+                    .getColumn("customerName")
+                    ?.getFilterValue() as string) ?? ""
                 }
                 onChange={(event) =>
                   table
-                    .getColumn("customer")
+                    .getColumn("customerName")
                     ?.setFilterValue(event.target.value)
                 }
                 className="h-10 max-w-sm"
@@ -179,8 +181,11 @@ const AccessoriesOrdersTable = () => {
               <Button
                 variant={"secondary"}
                 size="sm"
+                disabled={isLoading || ordersData === undefined}
                 onClick={() => {
-                  setOpen(true);
+                  if (!isLoading && ordersData !== undefined) {
+                    setOpen(true);
+                  }
                 }}
               >
                 <Plus size={16} className="mr-1" />

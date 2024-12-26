@@ -161,7 +161,7 @@ const Search = () => {
                 ? "fixed left-0 top-0 -z-10 h-full w-full"
                 : "block w-full",
               showingArea === "both" ? "block" : "",
-              "px-8 md:px-4",
+              "px-4 md:px-4",
             )}
           >
             <HeaderHeight />
@@ -176,7 +176,14 @@ const Search = () => {
                 {places.length} Results found in visible area
               </span>
             </div>
-            <ScrollArea className="">
+            <ScrollArea className="pb-16">
+              {!isDataFetching && places.length === 0 && (
+                <div className="flex h-[80vh] items-center justify-center sm:h-auto">
+                  <span className="text-center text-lg font-medium text-foreground">
+                    Try Searching in a different area
+                  </span>
+                </div>
+              )}
               <div className="grid grid-cols-1 gap-4 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
                 {isDataFetching ? (
                   <>
@@ -186,7 +193,8 @@ const Search = () => {
                     <VendorCardLoading />
                     <VendorCardLoading />
                   </>
-                ) : places.length > 0 ? (
+                ) : (
+                  places.length > 0 &&
                   places.map((rental) => (
                     <div
                       className={cn("relative", chakra_petch.className)}
@@ -199,12 +207,6 @@ const Search = () => {
                       />
                     </div>
                   ))
-                ) : (
-                  <div className="flex h-[80vh] items-center justify-center sm:h-auto">
-                    <span className="text-lg font-medium text-foreground">
-                      Try Searching in a different area
-                    </span>
-                  </div>
                 )}
               </div>
             </ScrollArea>

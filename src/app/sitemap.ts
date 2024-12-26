@@ -12,7 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     },
     {
-      url: `${env.NEXT_PUBLIC_APP_URL}/auth/login`,
+      url: `${env.NEXT_PUBLIC_APP_URL}/auth/signin`,
     },
     {
       url: `${env.NEXT_PUBLIC_APP_URL}/terms-of-service`,

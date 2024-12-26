@@ -2,7 +2,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 
 const VendorCardLoading = () => {
   return (
-    <div>
+    <div className="flex-1">
       <Skeleton className="mb-4 aspect-[4/3]" />
       <Skeleton className="mb-2 h-5 w-11/12 rounded-sm" />
       <Skeleton className="mb-4 h-5 w-9/12 rounded-sm" />

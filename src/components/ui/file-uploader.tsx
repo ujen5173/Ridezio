@@ -349,13 +349,7 @@ export const FileInput = forwardRef<
   const { dropzoneState, isFileTooBig, isLOF } = useFileUpload();
   const rootProps = isLOF ? {} : dropzoneState.getRootProps();
   return (
-    <div
-      ref={ref}
-      {...props}
-      className={`relative w-full ${
-        isLOF ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-      }`}
-    >
+    <div ref={ref} {...props} className="relative w-full cursor-pointer">
       <div
         className={cn(
           `w-full rounded-lg duration-300 ease-in-out ${

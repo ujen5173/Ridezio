@@ -43,6 +43,7 @@ export const env = createEnv({
     NEXT_PUBLIC_FAILURE_URL: z
       .string()
       .default("http://localhost:3000/failure"),
+    NEXT_PUBLIC_ENROLL_EVENTS: z.enum(["true", "false"]).default("false"),
   },
 
   runtimeEnv: {
@@ -67,6 +68,8 @@ export const env = createEnv({
     ESEWA_MERCHANT_CODE: process.env.ESEWA_MERCHANT_CODE,
     NEXT_PUBLIC_SUCCESS_URL: process.env.NEXT_PUBLIC_SUCCESS_URL,
     NEXT_PUBLIC_FAILURE_URL: process.env.NEXT_PUBLIC_FAILURE_URL,
+
+    NEXT_PUBLIC_ENROLL_EVENTS: process.env.NEXT_PUBLIC_ENROLL_EVENTS,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,

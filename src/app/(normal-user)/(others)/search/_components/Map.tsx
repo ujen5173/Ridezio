@@ -144,15 +144,20 @@ const Map: React.FC<MapProps> = ({
         position={[place.location.lat!, place.location.lng!]}
         icon={L.divIcon({
           html: `
+          <div class="rotate-45 rounded-t-full w-9 h-9 rounded-l-full p-0.5 bg-white shadow-lg">
             <img
               src="${place.logo}"
               alt="Place Logo"
-              style="width:100%; height:100%;"
-              class="w-full h-full border border-border bg-white rounded-full object-contain"
+              width="100%"
+              height="100%"
+              class="w-full h-full border border-border bg-white rounded-full object-contain -rotate-45"
             />
+          </div>
           `,
           className: "custom-div-icon",
-          iconSize: [40, 40],
+          iconSize: [32, 32],
+          iconAnchor: [16, 32],
+          popupAnchor: [0, -32],
         })}
       />
     ));

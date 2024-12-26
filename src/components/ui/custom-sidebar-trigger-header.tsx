@@ -83,7 +83,7 @@ const CustomSidebarTriggerHeader = () => {
                 className="size-10 rounded-full object-cover"
               />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-60">
               <DropdownMenuLabel>{data.user.name}</DropdownMenuLabel>
               <p className="px-2 text-sm text-slate-600">{data.user.email}</p>
               <DropdownMenuSeparator />
