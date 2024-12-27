@@ -27,7 +27,7 @@ const Reviews = ({
 
   return (
     <section>
-      <div className="mx-auto max-w-[1240px]">
+      <div className="mx-auto max-w-[1240px] px-4">
         <div className="mb-10">
           <h1
             className={cn(

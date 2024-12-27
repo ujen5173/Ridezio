@@ -28,7 +28,7 @@ const AccessoryReviews = ({
   );
 
   return (
-    <section className="py-4">
+    <section className="p-4">
       <div className="mx-auto max-w-[1240px] py-10">
         <div className="mb-10">
           <h1
@@ -147,8 +147,8 @@ const AccessoryReviews = ({
           )}
         </div>
         {allReviews?.length === 0 && (
-          <div className="text-center text-slate-600">
-            <p>No reviews yet.</p>
+          <div className="flex h-52 w-full items-center justify-center">
+            <p className="text-center text-lg">No reviews yet.</p>
           </div>
         )}
       </div>

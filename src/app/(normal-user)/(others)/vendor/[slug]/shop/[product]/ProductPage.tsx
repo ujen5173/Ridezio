@@ -63,6 +63,7 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
   return (
     <>
       <HeaderHeight />
+
       <section className="px-4">
         <div className="mx-auto max-w-[1240px]">
           <div className="flex flex-col gap-5 py-6 md:flex-row md:py-10 lg:gap-10 lg:py-16">
@@ -251,28 +252,32 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
               </div>
             </div>
           </div>
-          <div className="flex items-start gap-16 py-10">
+
+          <div className="flex flex-col items-start gap-8 py-10 lg:flex-row lg:gap-16">
             <div className="flex-[2]">
               <h1 className="mb-8 text-3xl font-bold text-slate-700">
                 More Details
               </h1>
 
               <div className="space-y-4">
-                <div className="flex gap-4">
+                <div className="mb-10 flex flex-col gap-4">
                   <div className="w-40">
-                    <p className="text-lg font-semibold text-slate-600">
+                    <p className="text-xl font-semibold text-slate-700">
                       Description
                     </p>
                   </div>
                   <div className="flex-1 text-justify">
-                    <p className="text-lg text-slate-600">
-                      {data?.description ?? "N/A"}
-                    </p>
+                    <p
+                      className="text-lg text-slate-600"
+                      dangerouslySetInnerHTML={{
+                        __html: data?.description ?? "N/A",
+                      }}
+                    ></p>
                   </div>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex flex-col gap-4">
                   <div className="w-40">
-                    <p className="text-lg font-semibold text-slate-600">
+                    <p className="text-xl font-semibold text-slate-700">
                       Delivery
                     </p>
                   </div>
@@ -302,7 +307,7 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
                 )}
               </div>
             </div>
-            <div className="flex-1 rounded-md border border-gray-200 bg-gray-50 p-4">
+            <div className="w-full rounded-md border border-gray-200 bg-gray-50 p-4 lg:flex-1">
               <h1 className="mb-4 text-2xl font-semibold text-slate-700">
                 About the Seller
               </h1>
@@ -320,9 +325,12 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
                       .join("")}
                   </AvatarFallback>
                 </Avatar>
-                <h4 className="text-lg font-semibold text-slate-700">
-                  {data?.business!.name}
-                </h4>
+
+                <Link href={`/vendor/${data?.business!.slug}`}>
+                  <h4 className="text-lg font-semibold text-slate-700 transition hover:text-secondary">
+                    {data?.business!.name}
+                  </h4>
+                </Link>
               </div>
 
               <div className="mb-6 flex items-center gap-1">
@@ -372,7 +380,7 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
                     View Vehicles
                   </Link>
                 </Button>
-                <Button asChild variant={"outline"} className="gap-2">
+                <Button asChild variant={"outline"} className="flex-1 gap-2">
                   <Link
                     href={extractDirectionsFromIframe(
                       data?.business!.location.map ?? "",

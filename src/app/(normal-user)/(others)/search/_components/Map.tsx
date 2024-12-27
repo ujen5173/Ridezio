@@ -150,6 +150,7 @@ const Map: React.FC<MapProps> = ({
               alt="Place Logo"
               width="100%"
               height="100%"
+              style="width: 100%;"
               class="w-full h-full border border-border bg-white rounded-full object-contain -rotate-45"
             />
           </div>

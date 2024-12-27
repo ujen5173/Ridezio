@@ -39,7 +39,7 @@ const SimilarProducts = ({ product }: { product: string }) => {
 
   return (
     <section className="w-full">
-      <div className="mx-auto max-w-[1240px] py-8 sm:py-16">
+      <div className="mx-auto max-w-[1240px] px-4 py-8 sm:py-16">
         <div className="mb-5 flex items-center justify-between gap-4">
           <h1
             className={cn(
@@ -73,6 +73,11 @@ const SimilarProducts = ({ product }: { product: string }) => {
           </div>
         </div>
         <div className="flex flex-col items-center gap-8">
+          {(similarProducts ?? []).length === 0 && (
+            <div className="flex h-52 items-center text-center">
+              <p className="text-center text-lg">No similar products found</p>
+            </div>
+          )}
           <Carousel
             setApi={setApi}
             className="w-full"
@@ -89,7 +94,9 @@ const SimilarProducts = ({ product }: { product: string }) => {
               ))}
             </CarouselContent>
           </Carousel>
-          <Button variant={"outline"}>Explore all Accessories</Button>
+          {(similarProducts ?? []).length > 5 && (
+            <Button variant={"outline"}>Explore all Accessories</Button>
+          )}
         </div>
       </div>
     </section>
