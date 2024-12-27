@@ -1,18 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ExternalLink, Loader } from "lucide-react";
-import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 import { notFound, usePathname, useRouter } from "next/navigation";
 import { createContext, useEffect, useRef, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
+import { UserBookingProcessing } from "~/app/_components/dialog-box/BookingProcessing";
 import { Button } from "~/components/ui/button";
-import { Dialog, DialogContent } from "~/components/ui/dialog";
 import { toast } from "~/hooks/use-toast";
 import { type GetVendorType } from "~/server/api/routers/business";
 import { decodeEsewaSignature } from "~/server/utils/generate-payment-token";
 import { api } from "~/trpc/react";
-import Bookings from "./Bookings";
+import Bookings from "../../../../../_components/dialog-box/Bookings";
 import Faqs from "./Faqs";
 import Locations from "./Locations";
 import Reviews from "./Reviews";
@@ -194,52 +193,9 @@ const VendorWrapper = ({
       <main className="relative w-full">
         {bookingModelOpen && (
           // Booking Model
-          <Dialog open={bookingModelOpen} onOpenChange={setBookingModelOpen}>
-            <DialogContent className="py-20 text-center sm:max-w-[625px]">
-              {loading && (
-                <div className="mb-4">
-                  <h1 className="mb-2 text-3xl font-semibold text-green-500">
-                    Payment successful
-                  </h1>
-
-                  <p className="text-lg italic text-slate-600">
-                    Your payment has been successfully processed.
-                  </p>
-                </div>
-              )}
-
-              <div>
-                {isError ? (
-                  <div className="text-red-500">
-                    Something went wrong while booking. Please contact support
-                    and the vendor.
-                  </div>
-                ) : loading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <Loader size={24} className="animate-spin text-slate-700" />
-                    <span className="text-slate-700">
-                      Booking in progress...
-                    </span>
-                  </div>
-                ) : (
-                  <div className="">
-                    <h1 className="mb-4 text-5xl font-bold text-green-600">
-                      Booking successful.
-                    </h1>
-                    <p className="mb-10 text-lg font-medium italic text-slate-600">
-                      You will get a confirmation email shortly. Please wait for
-                      the vendor to confirm your booking.
-                    </p>
-                    <div className="flex justify-end">
-                      <Link href="/orders">
-                        <Button variant={"primary"}>Go to Orders</Button>
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
+          <UserBookingProcessing
+            {...{ bookingModelOpen, setBookingModelOpen, loading, isError }}
+          />
         )}
         {bookingsDetails !== null &&
           bookingsDetails !== undefined &&

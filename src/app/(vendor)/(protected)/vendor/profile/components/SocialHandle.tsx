@@ -1,10 +1,12 @@
+import { useFormContext } from "react-hook-form";
+import { type z } from "zod";
 import { FormField } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import useBusinessFormContext from "../hooks/useBusinessFormContext";
+import { type formSchema } from "../BusinessProfile";
 
 const SocialHandle = () => {
-  const { form } = useBusinessFormContext();
+  const form = useFormContext<z.infer<typeof formSchema>>();
 
   return (
     <FormField

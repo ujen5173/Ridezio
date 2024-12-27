@@ -31,7 +31,7 @@ const Reviews = ({
         <div className="mb-10">
           <h1
             className={cn(
-              "mb-4 text-3xl font-semibold md:text-4xl",
+              "mb-4 text-3xl font-semibold text-slate-700 md:text-4xl",
               chakra_petch.className,
             )}
           >

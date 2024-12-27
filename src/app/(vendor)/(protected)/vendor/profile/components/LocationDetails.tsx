@@ -1,5 +1,7 @@
 "use client";
 import { CircleHelp } from "lucide-react";
+import { useFormContext } from "react-hook-form";
+import { type z } from "zod";
 import { inter } from "~/app/utils/font";
 import { Button } from "~/components/ui/button";
 import {
@@ -14,10 +16,10 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
-import useBusinessFormContext from "../hooks/useBusinessFormContext";
+import { type formSchema } from "../BusinessProfile";
 
 const LocationDetails = () => {
-  const { form } = useBusinessFormContext();
+  const form = useFormContext<z.infer<typeof formSchema>>();
 
   const steps = [
     {

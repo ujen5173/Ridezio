@@ -18,7 +18,6 @@ import { formatDate } from "date-fns";
 import {
   ChevronDown,
   Edit,
-  Expand,
   Loader,
   Plus,
   RefreshCcw,
@@ -27,15 +26,9 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import VehicleDashboardFetaure from "~/app/_components/dialog-box/VehicleDashboardFetaure";
 import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
+
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -207,57 +200,16 @@ export const columns: ColumnDef<Vehicle>[] = [
     cell: ({ row }) => {
       return (
         <div className="px-4">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant={"outline"} size="sm">
-                <Expand size={13} className="mr-1 text-slate-600" />
-                Expand to view
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[625px]">
-              <DialogHeader>
-                <DialogTitle className="text-xl">
-                  Features of{" "}
-                  <span className="font-semibold text-secondary underline underline-offset-2">
-                    {row.getValue<string>("name")}
-                  </span>
-                </DialogTitle>
-              </DialogHeader>
-              <div className="mb-2 border border-border">
-                {row
-                  .getValue<
-                    {
-                      key: string;
-                      value: string;
-                    }[]
-                  >("features")
-                  .map((feature, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className="flex border-b border-border last:border-0"
-                      >
-                        <span className="h-full w-40 border-r border-border bg-slate-100 p-4 text-sm font-semibold">
-                          {feature.key}
-                        </span>
-                        <span className="p-4 text-sm">{feature.value}</span>
-                      </div>
-                    );
-                  })}
-              </div>
-              <DialogFooter className="flex items-center">
-                <Link
-                  href={`/vendor/vehicles/add?edit=${row.getValue<string>("id")}`}
-                >
-                  <Button variant={"primary"}>
-                    <Edit size={18} className="mr-2" />
-                    Edit
-                  </Button>
-                </Link>
-                <Button variant={"outline"}>Cancel</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <VehicleDashboardFetaure
+            vehicleName={row.getValue<string>("name")}
+            vehiclelId={row.getValue<string>("id")}
+            features={row.getValue<
+              {
+                key: string;
+                value: string;
+              }[]
+            >("features")}
+          />
         </div>
       );
     },

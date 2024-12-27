@@ -3,11 +3,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type inferRouterOutputs } from "@trpc/server";
+import { Loader } from "lucide-react";
 import { type Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { createContext, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { WEEK_DAYS } from "~/app/utils/helpers";
 import { Button } from "~/components/ui/button";
@@ -108,8 +109,6 @@ export const imageSchema = z.object({
     .array(),
 });
 
-export const BusinessFormContext = createContext({});
-
 const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
   const { update, data } = useSession(); // to update the user in the session
   const [success, setSuccess] = useState(false);
@@ -149,6 +148,11 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
     const isValid = await form.trigger();
 
     if (!isValid) {
+      toast({
+        title: "Form is invalid",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
       return; // Stop submission if form is invalid
     }
 
@@ -230,12 +234,7 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
 
   return (
     <>
-      <BusinessFormContext.Provider
-        value={{
-          form,
-          business,
-        }}
-      >
+      <FormProvider {...form}>
         <div>
           <h2 className="mb-2 text-2xl font-semibold">General</h2>
           <p className="mb-6 text-lg text-slate-600">
@@ -246,7 +245,7 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <GeneralInfo />
               <ShopImages form={imageForm} images={images} />
-              <BusinessHours />
+              <BusinessHours business={business} />
               <PaymentDetails />
               <CreateFAQs />
               <SocialHandle />
@@ -258,13 +257,16 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
                   onClick={() => onSubmit(form.getValues())}
                   variant={"primary"}
                 >
+                  {!loading ? (
+                    <Loader className="mr-1 size-5 animate-spin" />
+                  ) : null}
                   {loading ? "Saving Details..." : "Save Changes"}
                 </Button>
               </div>
             </form>
           </Form>
         </div>
-      </BusinessFormContext.Provider>
+      </FormProvider>
     </>
   );
 };

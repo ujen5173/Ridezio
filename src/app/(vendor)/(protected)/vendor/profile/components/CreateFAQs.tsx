@@ -21,6 +21,8 @@ import {
 } from "@dnd-kit/sortable";
 import { PlusCircle } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useFormContext } from "react-hook-form";
+import { type z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
@@ -33,7 +35,7 @@ import {
 import { FormField } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
-import useBusinessFormContext from "../hooks/useBusinessFormContext";
+import { type formSchema } from "../BusinessProfile";
 import DragItem from "./DragItem";
 
 interface FAQ {
@@ -44,13 +46,13 @@ interface FAQ {
 }
 
 export default function CreateFAQs() {
-  const { form } = useBusinessFormContext();
+  const form = useFormContext<z.infer<typeof formSchema>>();
   const [isOpen, setIsOpen] = useState(false);
   const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
   const [newFaq, setNewFaq] = useState({ question: "", answer: "" });
 
   // Watch the faqs field for changes
-  const faqs = form.watch("faqs");
+  const faqs = form.watch("faqs", []);
 
   // Get sorted FAQs using useMemo with the watched value
   const sortedFaqs = useMemo(() => {

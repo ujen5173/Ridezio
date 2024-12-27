@@ -1,22 +1,11 @@
 "use client";
 
-import { Loader } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
+import ReviewModel from "~/app/_components/dialog-box/Review";
 import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import Rating from "~/components/ui/ratting";
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
-import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
 import { type GetUserOrdersType } from "~/server/api/routers/users";
@@ -121,57 +110,19 @@ const OrdersPage = () => {
     <>
       <HeaderHeight />
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="line-clamp-1 text-xl">
-              Review for <span className="text-secondary">{vendorName}</span>
-            </DialogTitle>
-          </DialogHeader>
-          <div>
-            <div className="mb-4 space-y-2">
-              <Label>
-                <span className="text-slate-600">Rating</span>
-              </Label>
-              <Rating onChange={setRating} defaultValue={0} />
-            </div>
-            <div className="mb-4 space-y-2">
-              <Label>
-                <span className="text-slate-600">Review</span>
-              </Label>
-              <Textarea
-                onChange={(e) => setReview(e.target.value)}
-                placeholder={`How was your experience on ${vendorName}?`}
-                className="h-60 w-full"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <DialogClose>
-              <Button
-                disabled={status === "pending"}
-                type="button"
-                variant={"outline"}
-              >
-                Cancel
-              </Button>
-            </DialogClose>
-            <Button
-              onClick={submitReview}
-              disabled={status === "pending"}
-              type="button"
-              variant={"secondary"}
-            >
-              {status === "pending" && (
-                <Loader size={16} className="mr-2 animate-spin" />
-              )}
-              {status === "pending" ? "Publishing..." : "Publish"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ReviewModel
+        {...{
+          isOpen,
+          setIsOpen,
+          vendorName,
+          setRating,
+          setReview,
+          status,
+          submitReview,
+        }}
+      />
 
-      <section className={cn("w-full bg-slate-50 p-0 md:px-4")}>
+      <section className={cn("w-full bg-slate-50 p-0 px-4")}>
         <div className="border-b border-border">
           <div className="mx-auto max-w-[1400px]">
             <div className="p-0 pb-10 pt-20 md:px-4">

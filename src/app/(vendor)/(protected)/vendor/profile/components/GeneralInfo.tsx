@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
+import { type z } from "zod";
 import { buttonVariants } from "~/components/ui/button";
 import {
   FormControl,
@@ -15,7 +17,7 @@ import { InputTags as TagsInput } from "~/components/ui/tags-input";
 import { useUploadFile } from "~/hooks/useUploadthing";
 import { cn } from "~/lib/utils";
 import { vehicleTypeEnum } from "~/server/db/schema";
-import useBusinessFormContext from "../hooks/useBusinessFormContext";
+import { type formSchema } from "../BusinessProfile";
 
 type Option = {
   label: string;
@@ -28,7 +30,7 @@ const OPTIONS: Option[] = vehicleTypeEnum.enumValues.map((value) => ({
 }));
 
 const GeneralInfo = () => {
-  const { form } = useBusinessFormContext();
+  const form = useFormContext<z.infer<typeof formSchema>>();
 
   const {
     uploadFiles: logoUploadFiles,

@@ -1,6 +1,8 @@
 "use client";
 import { Clock, Moon } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useFormContext } from "react-hook-form";
+import { type z } from "zod";
 import { WEEK_DAYS } from "~/app/utils/helpers";
 import {
   FormControl,
@@ -18,10 +20,10 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Switch } from "~/components/ui/switch";
-import useBusinessFormContext from "../hooks/useBusinessFormContext";
+import { type CurrentBusinessType, type formSchema } from "../BusinessProfile";
 
-const BusinessHours = () => {
-  const { form, business } = useBusinessFormContext();
+const BusinessHours = ({ business }: { business: CurrentBusinessType }) => {
+  const form = useFormContext<z.infer<typeof formSchema>>();
 
   const timeOptionsForAM = useMemo(() => {
     const options = [];

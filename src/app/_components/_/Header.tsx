@@ -25,8 +25,8 @@ import {
 } from "~/components/ui/sheet";
 import { cn } from "~/lib/utils";
 import Logo from "~/svg/logo";
+import LoginButton from "../dialog-box/LoginButton";
 import HeaderSearch from "./HeaderSearch";
-import LoginButton from "./LoginButton";
 import SignOut from "./signout";
 
 const Header = ({ pth = "/" }: { pth?: string }) => {

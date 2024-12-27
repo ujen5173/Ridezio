@@ -29,7 +29,7 @@ import {
 import { toast } from "~/hooks/use-toast";
 import { type GetOrders } from "~/server/api/routers/accessories";
 import { api } from "~/trpc/react";
-import PurchaseAccessory from "../vendor/accessories/components/PurchaseAccessories";
+import PurchaseAccessory from "../../../_components/dialog-box/PurchaseAccessories";
 
 export type Order = GetOrders[0];
 

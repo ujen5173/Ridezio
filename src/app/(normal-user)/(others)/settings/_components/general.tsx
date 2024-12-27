@@ -2,6 +2,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader } from "lucide-react";
 import { type Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
@@ -193,6 +194,9 @@ const GeneralSettings = ({
               onClick={() => onSubmit(form.getValues())}
               variant={"primary"}
             >
+              {status === "pending" ? (
+                <Loader className="mr-1 size-5 animate-spin" />
+              ) : null}
               {status === "pending" ? "Saving..." : "Save Changes"}
             </Button>
           </div>

@@ -15,7 +15,7 @@ import {
 import { formatDate } from "date-fns";
 import { Check, Loader, Plus, RefreshCcw, Trash } from "lucide-react";
 import * as React from "react";
-import Bookings from "~/app/(normal-user)/(others)/vendor/[slug]/_components/Bookings";
+import Bookings from "~/app/_components/dialog-box/Bookings";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,

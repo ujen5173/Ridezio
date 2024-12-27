@@ -10,9 +10,11 @@ import {
   Trash2,
 } from "lucide-react";
 import React, { useState } from "react";
+import { useFormContext } from "react-hook-form";
+import { type z } from "zod";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
-import useBusinessFormContext from "../hooks/useBusinessFormContext";
+import { type formSchema } from "../BusinessProfile";
 
 interface FAQ {
   id: string;
@@ -34,7 +36,7 @@ const DragItem = ({
   >;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const { form } = useBusinessFormContext();
+  const form = useFormContext<z.infer<typeof formSchema>>();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const faqs = form.watch("faqs");
 

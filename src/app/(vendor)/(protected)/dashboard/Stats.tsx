@@ -1,11 +1,11 @@
 "use client";
 
-import { Loader, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
+import BookingProcessing from "~/app/_components/dialog-box/BookingProcessing";
 import { lato } from "~/app/utils/font";
-import { Dialog, DialogContent } from "~/components/ui/dialog";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
 import { type GetDashboardInfo } from "~/server/api/routers/business";
@@ -133,44 +133,9 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
     <>
       {bookingModelOpen && (
         // Booking Model
-        <Dialog
-          open={bookingModelOpen}
-          onOpenChange={(e) => setBookingModelOpen(e)}
-        >
-          <DialogContent className="py-20 text-center sm:max-w-[625px]">
-            {loading && (
-              <div className="mb-4">
-                <h1 className="mb-2 text-3xl font-semibold text-green-500">
-                  Payment successful
-                </h1>
-
-                <p className="text-lg italic text-slate-600">
-                  Your payment has been successfully processed.
-                </p>
-              </div>
-            )}
-
-            <div>
-              {isError ? (
-                <div className="text-red-500">
-                  Something went wrong while booking. Please contact support and
-                  the vendor.
-                </div>
-              ) : loading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <Loader size={24} className="animate-spin text-slate-700" />
-                  <span className="text-slate-700">Booking in progress...</span>
-                </div>
-              ) : (
-                <div className="">
-                  <h1 className="mb-4 text-5xl font-bold text-green-600">
-                    Booking successful.
-                  </h1>
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
+        <BookingProcessing
+          {...{ bookingModelOpen, setBookingModelOpen, loading, isError }}
+        />
       )}
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-end">
