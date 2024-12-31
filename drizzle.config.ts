@@ -9,5 +9,5 @@ export default {
     url: env.DATABASE_URL,
   },
   out: "./drizzle",
-  tablesFilter: ["velocit-re-build_*"],
+  tablesFilter: [""],
 } satisfies Config;

@@ -28,9 +28,10 @@ import {
   users,
   vehicles,
   vehicleTypeEnum,
+  views,
 } from "~/server/db/schema";
 
-interface DashboardMetrics {
+type DashboardMetrics = {
   total_revenue: number;
   orders_total: number;
   orders_today: number;
@@ -39,20 +40,27 @@ interface DashboardMetrics {
   current_month_orders: number;
   previous_month_revenue: number;
   previous_month_orders: number;
-}
+  total_views: number;
+  views_today: number;
+  views_yesterday: number;
+  current_month_views: number;
+  previous_month_views: number;
+};
 
-interface GrowthMetrics {
+type GrowthMetrics = {
   revenue_growth: number;
   orders_growth: number;
   daily_orders_growth: number;
-}
+  views_growth: number;
+  daily_views_growth: number;
+};
 
-interface ChartDataPoint {
+type ChartDataPoint = {
   date: string;
   value: number;
-}
+};
 
-interface IpInfoResponse {
+type IpInfoResponse = {
   ip: string;
   city: string;
   region: string;
@@ -60,14 +68,14 @@ interface IpInfoResponse {
   loc: string;
   org: string;
   timezone: string;
-}
+};
 
-// Daily data interface
-export interface MonthlyData {
+export type MonthlyData = {
   date: string;
-  value: number;
-  orders: number;
-}
+  value?: number;
+  orders?: number;
+  views?: number;
+};
 
 export const businessRouter = createTRPCRouter({
   getStoreName: protectedProcedure.query(async ({ ctx }) => {
@@ -193,11 +201,47 @@ export const businessRouter = createTRPCRouter({
       .where(eq(rentals.businessId, business.id))
       .then((rows) => rows[0] as DashboardMetrics);
 
+    // Views metrics
+    const viewsMetrics = await ctx.db
+      .select({
+        total_views: sql<number>`COUNT(*)`,
+        views_today: sql<number>`COALESCE(SUM(CASE 
+        WHEN DATE(${views.createdAt}) = CURRENT_DATE 
+        THEN 1 ELSE 0 
+      END), 0)`,
+        views_yesterday: sql<number>`COALESCE(SUM(CASE 
+        WHEN DATE(${views.createdAt}) = CURRENT_DATE - INTERVAL '1 day'
+        THEN 1 ELSE 0 
+      END), 0)`,
+        current_month_views: sql<number>`COALESCE(SUM(CASE 
+        WHEN DATE(${views.createdAt}) >= ${formatDateForSQL(currentPeriodStart)}
+        AND DATE(${views.createdAt}) <= CURRENT_DATE
+        THEN 1 ELSE 0 
+      END), 0)`,
+        previous_month_views: sql<number>`COALESCE(SUM(CASE 
+        WHEN DATE(${views.createdAt}) >= ${formatDateForSQL(previousPeriodStart)}
+        AND DATE(${views.createdAt}) < ${formatDateForSQL(currentPeriodStart)}
+        THEN 1 ELSE 0 
+      END), 0)`,
+      })
+      .from(views)
+      .where(eq(views.businessId, business.id))
+      .then(
+        (rows) =>
+          rows[0] as {
+            total_views: number;
+            views_today: number;
+            views_yesterday: number;
+            current_month_views: number;
+            previous_month_views: number;
+          },
+      );
+
     const monthly = await ctx.db
       .select({
         date: sql<string>`TO_CHAR(${rentals.createdAt}, 'YYYY-MM-DD')`,
-        value: sql<number>`${rentals.totalPrice}`, // Individual rental price
-        orders: sql<number>`1`, // Count each rental as an order
+        value: sql<number>`${rentals.totalPrice}`,
+        orders: sql<number>`1`,
       })
       .from(rentals)
       .where(
@@ -208,6 +252,22 @@ export const businessRouter = createTRPCRouter({
         ),
       )
       .orderBy(sql`${rentals.createdAt}`);
+
+    const monthlyViews = await ctx.db
+      .select({
+        date: sql<string>`TO_CHAR(${views.createdAt}, 'YYYY-MM-DD')`,
+        views: sql<number>`COUNT(*)`,
+      })
+      .from(views)
+      .where(
+        and(
+          eq(views.businessId, business.id),
+          sql`${views.createdAt} >= ${currentPeriodStart.toISOString()}::timestamp`,
+          sql`${views.createdAt} < ${endDate.toISOString()}::timestamp`,
+        ),
+      )
+      .groupBy(sql`TO_CHAR(${views.createdAt}, 'YYYY-MM-DD')`)
+      .orderBy(sql`TO_CHAR(${views.createdAt}, 'YYYY-MM-DD')`);
 
     const formatDateToString = (date: Date): string => {
       const isoString = date.toISOString();
@@ -222,10 +282,9 @@ export const businessRouter = createTRPCRouter({
       const currentDate = new Date(currentPeriodStart);
       const endDate = new Date(today);
 
-      // Ensure we cover a full 30-day period
       while (formatDateToString(currentDate) <= formatDateToString(endDate)) {
         data.push({
-          date: formatDateToString(currentDate).slice(0, 10), // Use full date, not just month
+          date: formatDateToString(currentDate).slice(0, 10),
           value: 0,
         });
         currentDate.setDate(currentDate.getDate() + 1);
@@ -233,17 +292,16 @@ export const businessRouter = createTRPCRouter({
       return data;
     };
 
-    const mergeChartOrderData = (
+    const mergeChartData = (
       initialData: ChartDataPoint[],
       actualData: MonthlyData[],
-      valueKey: keyof Pick<MonthlyData, "value" | "orders">,
+      valueKey: keyof MonthlyData,
     ): ChartDataPoint[] => {
       const dataMap = new Map<string, number>();
 
-      // Accumulate values for each date
       actualData.forEach((item) => {
         const currentValue = dataMap.get(item.date) ?? 0;
-        dataMap.set(item.date, currentValue + item[valueKey]);
+        dataMap.set(item.date, currentValue + (item[valueKey] as number));
       });
 
       return initialData.map((item) => ({
@@ -277,21 +335,22 @@ export const businessRouter = createTRPCRouter({
       today,
     );
 
-    const store_revenue_chart_data = mergeChartOrderData(
+    const store_revenue_chart_data = mergeChartData(
       initialChartData,
       monthly,
       "value",
     );
 
-    monthly.map((item) => ({
-      date: item.date,
-      value: +item.value.toFixed(2),
-    }));
-
-    const store_orders_chart_data = mergeChartOrderData(
+    const store_orders_chart_data = mergeChartData(
       initialChartData,
       monthly,
       "orders",
+    );
+
+    const store_views_chart_data = mergeChartData(
+      initialChartData,
+      monthlyViews,
+      "views",
     );
 
     const growth_metrics: GrowthMetrics = {
@@ -305,9 +364,19 @@ export const businessRouter = createTRPCRouter({
         metrics.previous_month_orders,
         isNewVendor,
       ),
+      views_growth: calculateGrowth(
+        viewsMetrics.current_month_views,
+        viewsMetrics.previous_month_views,
+        isNewVendor,
+      ),
       daily_orders_growth: calculateGrowth(
         metrics.orders_today,
         metrics.orders_yesterday,
+        false,
+      ),
+      daily_views_growth: calculateGrowth(
+        viewsMetrics.views_today,
+        viewsMetrics.views_yesterday,
         false,
       ),
     };
@@ -318,20 +387,48 @@ export const businessRouter = createTRPCRouter({
         name: business.name,
       },
       metrics: {
-        total_revenue: Math.max(metrics.total_revenue, 0),
-        orders_total: Math.max(metrics.orders_total, 0),
-        orders_today: Math.max(metrics.orders_today, 0),
-        orders_yesterday: Math.max(metrics.orders_yesterday, 0),
-        current_month_revenue: Math.max(metrics.current_month_revenue, 0),
-        current_month_orders: Math.max(metrics.current_month_orders, 0),
-        previous_month_revenue: Math.max(metrics.previous_month_revenue, 0),
-        previous_month_orders: Math.max(metrics.previous_month_orders, 0),
+        ...metrics,
+        total_views: Math.max(viewsMetrics.total_views, 0),
+        views_today: Math.max(viewsMetrics.views_today, 0),
+        views_yesterday: Math.max(viewsMetrics.views_yesterday, 0),
+        current_month_views: Math.max(viewsMetrics.current_month_views, 0),
+        previous_month_views: Math.max(viewsMetrics.previous_month_views, 0),
       },
       growth: growth_metrics,
       store_revenue_chart_data,
       store_orders_chart_data,
+      store_views_chart_data,
     };
   }),
+
+  views: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const business = await ctx.db.query.businesses.findFirst({
+        where: eq(businesses.slug, input.slug),
+      });
+
+      if (!business) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Vendor not found",
+        });
+      }
+
+      await ctx.db
+        .update(businesses)
+        .set({
+          totalViewCount: sql`${businesses.totalViewCount} + 1`,
+        })
+        .where(eq(businesses.slug, input.slug));
+
+      await ctx.db.insert(views).values({
+        businessId: business.id,
+        userId: ctx.session?.user.id,
+      });
+
+      return true;
+    }),
 
   getOrders: protectedProcedure.query(async ({ ctx }) => {
     // Get business ID

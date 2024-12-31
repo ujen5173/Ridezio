@@ -186,15 +186,11 @@ export const userRouter = createTRPCRouter({
     }),
 
   getUserDetails: protectedProcedure.query(async ({ ctx }) => {
-    try {
-      const user = await db.query.users.findFirst({
-        where: eq(users.id, ctx.session.user.id),
-      });
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, ctx.session.user.id),
+    });
 
-      return user;
-    } catch (err) {
-      console.log({ err });
-    }
+    return user;
   }),
 
   businessReviews: protectedProcedure.query(async ({ ctx }) => {

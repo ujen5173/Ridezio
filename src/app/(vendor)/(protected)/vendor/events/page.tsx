@@ -70,7 +70,6 @@ const Events = () => {
             {[...Object.entries(future)].length > 0 && (
               <div>
                 {[...Object.entries(future)].map((event, index) => {
-                  console.log({ event });
                   return (
                     <Event
                       key={index}

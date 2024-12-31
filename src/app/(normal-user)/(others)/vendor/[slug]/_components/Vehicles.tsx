@@ -121,14 +121,14 @@ const Vehicles = () => {
                   className="flex flex-col gap-2"
                 >
                   <div className="relative mb-2 flex aspect-video items-center justify-center">
-                    <div className="aspect-video h-[80%] w-auto">
+                    <div className="aspect-[16/10] w-auto">
                       <Image
                         alt={`${vehicle.name}`}
                         width={850}
                         height={850}
                         priority
                         layout="fixed"
-                        className="m-auto h-full w-auto rounded-md object-cover mix-blend-multiply"
+                        className="m-auto h-full w-full rounded-md object-fill mix-blend-multiply"
                         src={
                           (vehicle.images ?? []).sort(
                             (a, b) => a.order - b.order,
@@ -147,7 +147,10 @@ const Vehicles = () => {
                       </p>
 
                       <h2 className="mb-4 text-2xl font-bold text-secondary">
-                        रु {vehicle.basePrice}{" "}
+                        रु{" "}
+                        {Intl.NumberFormat("en-IN").format(
+                          vehicle.basePrice ?? 0,
+                        )}{" "}
                         <span className="text-base font-normal">/day</span>
                       </h2>
                     </div>

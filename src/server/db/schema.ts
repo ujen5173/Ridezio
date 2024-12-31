@@ -1,4 +1,4 @@
-import { relations, sql, type InferInsertModel } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   decimal,
@@ -6,7 +6,7 @@ import {
   integer,
   json,
   pgEnum,
-  pgTableCreator,
+  pgTable,
   primaryKey,
   text,
   timestamp,
@@ -14,7 +14,6 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
-export const createTable = pgTableCreator((name) => `${name}`);
 
 // Enums
 export const vehicleTypeEnum = pgEnum("vehicle_type", [
@@ -50,13 +49,13 @@ export const paymentStatusEnum = pgEnum("payment_status", [
   "pending",
   "complete",
   "full_refund",
-  "parial_refund",
+  "partial_refund",
   "ambiguous",
   "not_found",
   "canceled",
 ]);
 
-export const users = createTable(
+export const users = pgTable(
   "user",
   {
     id: varchar("id", { length: 36 })
@@ -70,7 +69,7 @@ export const users = createTable(
     role: userRoleEnum("role").default("USER"),
     deleted: boolean("deleted").default(false),
     phoneNumber: varchar("phone_number", { length: 20 }),
-    vendor_setup_complete: boolean("vendor_setup_complete"),
+    vendor_setup_complete: boolean("vendor_setup_complete").default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -80,7 +79,7 @@ export const users = createTable(
   }),
 );
 
-export const businesses = createTable(
+export const businesses = pgTable(
   "business",
   {
     id: varchar("id", { length: 36 })
@@ -94,11 +93,11 @@ export const businesses = createTable(
     slug: varchar("slug", { length: 130 }),
     location: json("location")
       .$type<{
-        city?: string | undefined;
-        address?: string | undefined;
-        lat?: number | undefined;
-        lng?: number | undefined;
-        map?: string | undefined;
+        city?: string;
+        address?: string;
+        lat?: number;
+        lng?: number;
+        map?: string;
       }>()
       .notNull()
       .default(sql`'{}'::json`),
@@ -110,13 +109,12 @@ export const businesses = createTable(
     sellGears: boolean("sell_gears").notNull().default(false),
     businessHours: json("business_hours")
       .$type<Record<string, { open: string; close: string } | null>>()
-      .notNull()
       .default(sql`'{}'::json`),
     vehiclesCount: integer("vehicles_count").default(0),
     rating: decimal("rating", { precision: 3, scale: 1 })
       .$type<number>()
       .notNull()
-      .default(0.0),
+      .default(0),
     ratingCount: integer("rating_count").default(0),
     satisfiedCustomers: integer("satisfied_customers").default(0),
     availableVehicleTypes: vehicleTypeEnum("available_vehicle_types")
@@ -124,24 +122,19 @@ export const businesses = createTable(
       .notNull()
       .default([]),
     logo: text("logo"),
+    totalViewCount: integer("total_view_count").default(0),
     images: json("images")
       .array()
-      .$type<
-        {
-          id: string;
-          url: string;
-          order: number;
-        }[]
-      >()
+      .$type<Array<{ id: string; url: string; order: number }>>()
       .notNull()
-      .default(sql`'{}'::json[]`),
+      .default([]),
     faqs: json("faqs")
       .array()
       .$type<
-        { question: string; answer: string; id: string; order: number }[]
+        Array<{ question: string; answer: string; id: string; order: number }>
       >()
       .notNull()
-      .default(sql`'{}'::json[]`),
+      .default([]),
     status: businessStatusEnum("status").notNull().default("setup-incomplete"),
     merchantCode: varchar("merchant_code", { length: 20 }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -151,13 +144,34 @@ export const businesses = createTable(
     nameIdx: index("business_name_idx").on(table.name),
     ownerIdx: index("business_owner_idx").on(table.ownerId),
     ratingIdx: index("business_rating_idx").on(table.rating, table.ratingCount),
+    slugIdx: uniqueIndex("business_slug_idx").on(table.slug),
   }),
 );
 
-export const favourite = createTable(
+export const views = pgTable(
+  "view",
+  {
+    id: varchar("id", { length: 36 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    businessId: varchar("business_id", { length: 36 })
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 36 }).references(() => users.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    businessIdx: index("view_business_idx").on(table.businessId),
+  }),
+);
+
+export const favourite = pgTable(
   "bookmark",
   {
-    userId: varchar("user_id", { length: 36 }).notNull(),
+    userId: varchar("user_id", { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
     businessId: varchar("business_id", { length: 36 })
       .notNull()
       .references(() => businesses.id, { onDelete: "cascade" }),
@@ -172,7 +186,7 @@ export const favourite = createTable(
   }),
 );
 
-export const vehicles = createTable(
+export const vehicles = pgTable(
   "vehicle",
   {
     id: varchar("id", { length: 36 })
@@ -188,37 +202,27 @@ export const vehicles = createTable(
     category: varchar("category", { length: 100 }).notNull(),
     images: json("images")
       .array()
-      .$type<
-        {
-          id: string;
-          url: string;
-          order: number;
-        }[]
-      >()
+      .$type<Array<{ id: string; url: string; order: number }>>()
       .notNull()
-      .default(sql`'{}'::json[]`),
+      .default([]),
     basePrice: integer("base_price").notNull(),
     inventory: integer("inventory").notNull().default(1),
     features: json("features")
       .array()
-      .$type<
-        {
-          key: string;
-          value: string;
-        }[]
-      >()
+      .$type<Array<{ key: string; value: string }>>()
       .notNull()
-      .default(sql`'{}'::json[]`),
+      .default([]),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => ({
     businessIdx: index("vehicle_business_idx").on(table.businessId),
     typeIdx: index("vehicle_type_idx").on(table.type),
+    slugIdx: uniqueIndex("vehicle_slug_idx").on(table.slug),
   }),
 );
 
-export const rentals = createTable(
+export const rentals = pgTable(
   "rental",
   {
     id: varchar("id", { length: 36 })
@@ -231,7 +235,7 @@ export const rentals = createTable(
     vehicleId: varchar("vehicle_id", { length: 36 })
       .notNull()
       .references(() => vehicles.id, { onDelete: "cascade" }),
-    businessId: varchar("business_id", { length: 36 }) // Add this field
+    businessId: varchar("business_id", { length: 36 })
       .notNull()
       .references(() => businesses.id, { onDelete: "cascade" }),
     rentalStart: timestamp("rental_start").notNull(),
@@ -243,8 +247,9 @@ export const rentals = createTable(
       .notNull()
       .default("pending"),
     paymentMethod: varchar("payment_method", {
+      length: 20,
       enum: ["online", "cash"],
-    }),
+    }).notNull(),
     totalPrice: integer("total_price").notNull(),
     num_of_days: integer("num_of_days").notNull().default(1),
     notes: text("notes"),
@@ -264,7 +269,7 @@ export const rentals = createTable(
   }),
 );
 
-export const reviews = createTable(
+export const reviews = pgTable(
   "review",
   {
     id: varchar("id", { length: 36 })
@@ -289,11 +294,51 @@ export const reviews = createTable(
     userIdx: index("review_user_idx").on(table.userId),
     businessIdx: index("review_business_idx").on(table.businessId),
     ratingIdx: index("review_rating_idx").on(table.rating),
-    rentalIdx: index("review_rental_idx").on(table.rentalId),
+    rentalIdx: uniqueIndex("review_rental_idx").on(table.rentalId),
   }),
 );
 
-export const accessoriesReviews = createTable(
+export const accessories = pgTable(
+  "accessories",
+  {
+    id: varchar("id", { length: 36 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    name: varchar("name", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 255 }).notNull(),
+    images: json("images")
+      .array()
+      .$type<Array<{ id: string; url: string; order: number }>>()
+      .notNull()
+      .default([]),
+    basePrice: integer("base_price").notNull(),
+    inventory: integer("inventory").notNull().default(1),
+    brand: varchar("brand", { length: 100 }),
+    businessId: varchar("business_id", { length: 36 })
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    rating: decimal("rating", { precision: 3, scale: 1 })
+      .$type<number>()
+      .notNull()
+      .default(0),
+    ratingCount: integer("rating_count").default(0),
+    category: varchar("category", { length: 100 }).notNull(),
+    description: text("description"),
+    sizes: varchar("sizes", { length: 100 }).array().notNull().default([]),
+    colors: varchar("colors", { length: 100 }).array().notNull().default([]),
+    discount: integer("discount"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    nameIdx: index("accessory_name_idx").on(table.name),
+    slugIdx: uniqueIndex("accessory_slug_idx").on(table.slug),
+    businessIdx: index("accessory_business_idx").on(table.businessId),
+  }),
+);
+
+export const accessoriesReviews = pgTable(
   "accessories_review",
   {
     id: varchar("id", { length: 36 })
@@ -312,74 +357,80 @@ export const accessoriesReviews = createTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => ({
-    userIdx: index("accesory_review_user_idx").on(table.userId),
-    accessoryIdx: index("accesory_review_accessory_idx").on(table.accessoryId),
-    ratingIdx: index("accesory_review_rating_idx").on(table.rating),
+    userIdx: index("accessory_review_user_idx").on(table.userId),
+    accessoryIdx: index("accessory_review_accessory_idx").on(table.accessoryId),
+    ratingIdx: index("accessory_review_rating_idx").on(table.rating),
   }),
 );
 
-export const payments = createTable(
+export const payments = pgTable(
   "payment",
   {
-    id: varchar("id", { length: 255 })
+    id: varchar("id", { length: 36 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    businessesId: varchar("businesses_id", { length: 255 })
+    rentalId: varchar("rental_id", { length: 36 })
       .notNull()
-      .references(() => businesses.id, { onDelete: "cascade" }),
-    userId: varchar("user_id", { length: 255 })
+      .references(() => rentals.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 36 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     amount: integer("amount").notNull(),
     status: paymentStatusEnum("status").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`),
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`)
-      .$onUpdate(() => new Date()),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => ({
-    rentalIdx: index("payment_businesses_idx").on(table.businessesId),
+    rentalIdx: index("payment_rental_idx").on(table.rentalId),
     userIdx: index("payment_user_idx").on(table.userId),
     statusIdx: index("payment_status_idx").on(table.status),
   }),
 );
 
-export const faq = createTable(
-  "faq",
+export const accessoriesOrder = pgTable(
+  "accessories_order",
   {
-    id: varchar("id", { length: 255 })
+    id: varchar("id", { length: 36 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    businessId: varchar("business_id", { length: 36 }) // Changed length to match businesses table
+    customerName: varchar("customer_name", { length: 255 }).notNull(),
+    accessoryId: varchar("accessory_id", { length: 36 })
+      .notNull()
+      .references(() => accessories.id, { onDelete: "cascade" }),
+    businessId: varchar("business_id", { length: 36 })
       .notNull()
       .references(() => businesses.id, { onDelete: "cascade" }),
-    question: text("question").notNull(),
-    answer: text("answer").notNull(),
-    order: integer("order").notNull().default(0),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`),
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .notNull()
-      .default(sql`CURRENT_TIMESTAMP`)
-      .$onUpdate(() => new Date()),
+    total: integer("total").notNull(),
+    quantity: integer("quantity").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => ({
-    businessIdx: index("faq_business_idx").on(table.businessId),
-    orderIdx: index("faq_order_idx").on(table.order),
+    businessIdIdx: index("accessory_order_business_idx").on(table.businessId),
+    accessoryIdIdx: index("accessory_order_accessory_idx").on(
+      table.accessoryId,
+    ),
   }),
 );
 
-// NextAuth tables
-export const accounts = createTable(
+export const verificationTokens = pgTable(
+  "verification_token",
+  {
+    identifier: varchar("identifier", { length: 255 }).notNull(),
+    token: varchar("token", { length: 255 }).notNull(),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
+  },
+  (vt) => ({
+    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
+  }),
+);
+
+export const accounts = pgTable(
   "account",
   {
-    userId: varchar("user_id", { length: 255 })
+    userId: varchar("user_id", { length: 36 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     type: varchar("type", { length: 255 })
@@ -405,110 +456,19 @@ export const accounts = createTable(
   }),
 );
 
-export const sessions = createTable(
+export const sessions = pgTable(
   "session",
   {
     sessionToken: varchar("session_token", { length: 255 })
       .notNull()
       .primaryKey(),
-    userId: varchar("user_id", { length: 255 })
+    userId: varchar("user_id", { length: 36 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    expires: timestamp("expires", {
-      mode: "date",
-      withTimezone: true,
-    }).notNull(),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
   },
   (session) => ({
     userIdIdx: index("session_user_id_idx").on(session.userId),
-  }),
-);
-
-export const accessories = createTable(
-  "accessories",
-  {
-    id: varchar("id", { length: 255 })
-      .notNull()
-      .primaryKey()
-      .$defaultFn(() => crypto.randomUUID()),
-    name: varchar("name", { length: 255 }).notNull(),
-    slug: varchar("slug", { length: 255 }).notNull(),
-    images: json("images")
-      .array()
-      .$type<
-        {
-          id: string;
-          url: string;
-          order: number;
-        }[]
-      >()
-      .notNull()
-      .default(sql`'{}'::json[]`),
-    basePrice: integer("base_price").notNull(),
-    inventory: integer("inventory").notNull().default(1),
-    brand: varchar("brand", { length: 100 }),
-    businessId: varchar("business_id", { length: 255 }).references(
-      () => businesses.id,
-      { onDelete: "cascade" },
-    ),
-    rating: decimal("rating", { precision: 3, scale: 1 })
-      .$type<number>()
-      .notNull()
-      .default(0.0),
-    ratingCount: integer("rating_count").default(0),
-    category: varchar("category", { length: 100 }).notNull(),
-    description: text("description"),
-    sizes: varchar("sizes").array().notNull(),
-    colors: varchar("colors").array().notNull(),
-    discount: integer("discount"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (table) => ({
-    nameIdx: index("gear_name_idx").on(table.name),
-  }),
-);
-
-// fOREIGN KEY ERRORS...
-export const accessoriesOrder = createTable(
-  "accessories_order",
-  {
-    id: varchar("id", { length: 255 })
-      .notNull()
-      .primaryKey()
-      .$defaultFn(() => crypto.randomUUID()),
-    customerName: varchar("customer_name", { length: 255 }).notNull(),
-    accessoryId: varchar("accessory_id", { length: 255 })
-      .notNull()
-      .references(() => accessories.id, { onDelete: "cascade" }),
-    businessId: varchar("business_id", { length: 255 })
-      .notNull()
-      .references(() => businesses.id, { onDelete: "cascade" }),
-    total: integer("total").notNull(),
-    quantity: integer("quantity").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (table) => ({
-    businessIdIdx: index("accessory_order_business_idx").on(table.businessId),
-    accessoryIdIdx: index("accessory_order_accessory_id_idx").on(
-      table.accessoryId,
-    ),
-  }),
-);
-
-export const verificationTokens = createTable(
-  "verification_token",
-  {
-    identifier: varchar("identifier", { length: 255 }).notNull(),
-    token: varchar("token", { length: 255 }).notNull(),
-    expires: timestamp("expires", {
-      mode: "date",
-      withTimezone: true,
-    }).notNull(),
-  },
-  (vt) => ({
-    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   }),
 );
 
@@ -524,75 +484,31 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   }),
   reviews: many(reviews),
   accessoriesReviews: many(accessoriesReviews),
-  orders: many(accessoriesOrder),
-}));
-
-export const favouriteRelations = relations(favourite, ({ one }) => ({
-  business: one(users, {
-    fields: [favourite.businessId],
-    references: [users.id],
-  }),
+  payments: many(payments),
+  views: many(views),
 }));
 
 export const businessesRelations = relations(businesses, ({ one, many }) => ({
   owner: one(users, { fields: [businesses.ownerId], references: [users.id] }),
-  faqs: many(faq),
   vehicles: many(vehicles),
   rentals: many(rentals),
-  accessories: many(accessories),
   reviews: many(reviews),
   favourites: many(favourite),
-  orders: many(accessoriesOrder),
+  accessories: many(accessories),
+  accessoriesOrders: many(accessoriesOrder),
+  views: many(views),
 }));
 
-export const accessoriesRelations = relations(accessories, ({ one, many }) => ({
+export const viewsRelations = relations(views, ({ one }) => ({
+  user: one(users, {
+    fields: [views.userId],
+    references: [users.id],
+  }),
   business: one(businesses, {
-    fields: [accessories.businessId],
+    fields: [views.businessId],
     references: [businesses.id],
   }),
-  accessoriesReviews: many(accessoriesReviews),
-  orders: many(accessoriesOrder),
 }));
-
-export const reviewsRelations = relations(reviews, ({ one }) => ({
-  business: one(businesses, {
-    fields: [reviews.businessId],
-    references: [businesses.id],
-  }),
-  user: one(users, { fields: [reviews.userId], references: [users.id] }),
-  rental: one(rentals, {
-    fields: [reviews.rentalId],
-    references: [rentals.id],
-  }),
-}));
-
-export const accessoryReviewsRelations = relations(
-  accessoriesReviews,
-  ({ one }) => ({
-    accessory: one(accessories, {
-      fields: [accessoriesReviews.accessoryId],
-      references: [accessories.id],
-    }),
-    user: one(users, {
-      fields: [accessoriesReviews.userId],
-      references: [users.id],
-    }),
-  }),
-);
-
-export const accessoriesOrderRelations = relations(
-  accessoriesOrder,
-  ({ one }) => ({
-    accessory: one(accessories, {
-      fields: [accessoriesOrder.accessoryId],
-      references: [accessories.id],
-    }),
-    business: one(businesses, {
-      fields: [accessoriesOrder.businessId],
-      references: [businesses.id],
-    }),
-  }),
-);
 
 export const vehiclesRelations = relations(vehicles, ({ one, many }) => ({
   business: one(businesses, {
@@ -613,22 +529,75 @@ export const rentalsRelations = relations(rentals, ({ one, many }) => ({
     references: [businesses.id],
   }),
   payments: many(payments),
-  reviews: many(reviews),
+  review: one(reviews, {
+    fields: [rentals.id],
+    references: [reviews.rentalId],
+  }),
+}));
+
+export const reviewsRelations = relations(reviews, ({ one }) => ({
+  business: one(businesses, {
+    fields: [reviews.businessId],
+    references: [businesses.id],
+  }),
+  user: one(users, { fields: [reviews.userId], references: [users.id] }),
+  rental: one(rentals, {
+    fields: [reviews.rentalId],
+    references: [rentals.id],
+  }),
+}));
+
+export const accessoriesRelations = relations(accessories, ({ one, many }) => ({
+  business: one(businesses, {
+    fields: [accessories.businessId],
+    references: [businesses.id],
+  }),
+  reviews: many(accessoriesReviews),
+  orders: many(accessoriesOrder),
+}));
+
+export const accessoriesReviewsRelations = relations(
+  accessoriesReviews,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [accessoriesReviews.userId],
+      references: [users.id],
+    }),
+    accessory: one(accessories, {
+      fields: [accessoriesReviews.accessoryId],
+      references: [accessories.id],
+    }),
+  }),
+);
+
+export const accessoriesOrderRelations = relations(
+  accessoriesOrder,
+  ({ one }) => ({
+    accessory: one(accessories, {
+      fields: [accessoriesOrder.accessoryId],
+      references: [accessories.id],
+    }),
+    business: one(businesses, {
+      fields: [accessoriesOrder.businessId],
+      references: [businesses.id],
+    }),
+  }),
+);
+
+export const favouriteRelations = relations(favourite, ({ one }) => ({
+  business: one(businesses, {
+    fields: [favourite.businessId],
+    references: [businesses.id],
+  }),
+  user: one(users, { fields: [favourite.userId], references: [users.id] }),
 }));
 
 export const paymentsRelations = relations(payments, ({ one }) => ({
   rental: one(rentals, {
-    fields: [payments.businessesId],
+    fields: [payments.rentalId],
     references: [rentals.id],
   }),
   user: one(users, { fields: [payments.userId], references: [users.id] }),
-}));
-
-export const faqRelations = relations(faq, ({ one }) => ({
-  business: one(businesses, {
-    fields: [faq.businessId],
-    references: [businesses.id],
-  }),
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -639,9 +608,30 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),
 }));
 
-// zod types:
-export type businessesType = InferInsertModel<typeof businesses>["faqs"];
-export type usersType = InferInsertModel<typeof users>;
-export type vehiclesType = InferInsertModel<typeof vehicles>;
-export type favouriteType = InferInsertModel<typeof favourite>;
-export type rentalsType = InferInsertModel<typeof rentals>;
+export type User = typeof users.$inferSelect;
+export type Business = typeof businesses.$inferSelect;
+export type Vehicle = typeof vehicles.$inferSelect;
+export type Rental = typeof rentals.$inferSelect;
+export type Review = typeof reviews.$inferSelect;
+export type Accessory = typeof accessories.$inferSelect;
+export type AccessoryReview = typeof accessoriesReviews.$inferSelect;
+export type AccessoryOrder = typeof accessoriesOrder.$inferSelect;
+export type Payment = typeof payments.$inferSelect;
+export type Account = typeof accounts.$inferSelect;
+export type Session = typeof sessions.$inferSelect;
+export type VerificationToken = typeof verificationTokens.$inferSelect;
+export type Favourite = typeof favourite.$inferSelect;
+
+export type NewUser = typeof users.$inferInsert;
+export type NewBusiness = typeof businesses.$inferInsert;
+export type NewVehicle = typeof vehicles.$inferInsert;
+export type NewRental = typeof rentals.$inferInsert;
+export type NewReview = typeof reviews.$inferInsert;
+export type NewAccessory = typeof accessories.$inferInsert;
+export type NewAccessoryReview = typeof accessoriesReviews.$inferInsert;
+export type NewAccessoryOrder = typeof accessoriesOrder.$inferInsert;
+export type NewPayment = typeof payments.$inferInsert;
+export type NewAccount = typeof accounts.$inferInsert;
+export type NewSession = typeof sessions.$inferInsert;
+export type NewVerificationToken = typeof verificationTokens.$inferInsert;
+export type NewFavourite = typeof favourite.$inferInsert;

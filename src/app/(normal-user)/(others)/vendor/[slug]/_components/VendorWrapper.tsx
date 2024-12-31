@@ -8,6 +8,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { UserBookingProcessing } from "~/app/_components/dialog-box/BookingProcessing";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/hooks/use-toast";
+import useViewTracker from "~/hooks/use-view-counter";
 import { type GetVendorType } from "~/server/api/routers/business";
 import { decodeEsewaSignature } from "~/server/utils/generate-payment-token";
 import { api } from "~/trpc/react";
@@ -47,12 +48,19 @@ type RentalBookingData = {
 const VendorWrapper = ({
   data,
   bookingProcessData,
+  slug,
 }: {
   data: GetVendorType;
+  slug: string;
   bookingProcessData: string | undefined;
 }) => {
   const [bookingsDetails] = api.business.getBookingsDetails.useSuspenseQuery({
     businessId: data!.id,
+  });
+
+  useViewTracker({
+    slug,
+    cooldownHours: 1,
   });
 
   const router = useRouter();

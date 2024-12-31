@@ -65,7 +65,7 @@ const VendorPage = async ({
   return (
     <>
       <HeaderHeight />
-      <VendorWrapper bookingProcessData={paramsData} data={data} />
+      <VendorWrapper bookingProcessData={paramsData} slug={slug} data={data} />
     </>
   );
 };

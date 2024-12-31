@@ -257,7 +257,7 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
                   onClick={() => onSubmit(form.getValues())}
                   variant={"primary"}
                 >
-                  {!loading ? (
+                  {loading ? (
                     <Loader className="mr-1 size-5 animate-spin" />
                   ) : null}
                   {loading ? "Saving Details..." : "Save Changes"}

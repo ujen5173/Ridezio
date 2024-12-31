@@ -53,14 +53,14 @@ const VehicleDetailView = ({
                   <CarouselItem key={index}>
                     <div className="w-full p-1">
                       <div className="relative mb-2 flex aspect-video items-center justify-center">
-                        <div className="aspect-video h-[80%] w-auto">
+                        <div className="aspect-video w-auto">
                           <Image
                             alt={`${vehicle.name}`}
                             width={1440}
                             height={1440}
                             layout="fixed"
                             priority
-                            className="m-auto h-full w-auto rounded-md object-cover mix-blend-multiply"
+                            className="m-auto h-full w-full rounded-md object-cover mix-blend-multiply"
                             src={_.url}
                           />
                         </div>

@@ -91,13 +91,13 @@ export const columns: ColumnDef<Vehicle>[] = [
       >("images");
 
       return (
-        <div className="px-4">
+        <div className="w-max rounded-sm px-4">
           <Image
             src={image[0]!.url}
             alt="Vehicle"
             width={640}
             height={390}
-            className="aspect-video max-w-28 rounded-sm object-contain mix-blend-multiply"
+            className="h-16 w-24 rounded-sm object-fill mix-blend-multiply"
           />
         </div>
       );
@@ -132,7 +132,7 @@ export const columns: ColumnDef<Vehicle>[] = [
         <div className="px-4">
           <div
             className={cn(
-              "flex w-fit items-center gap-1 rounded-sm border px-2 py-1 font-medium",
+              "flex w-fit items-center gap-1 text-nowrap rounded-sm border px-2 py-1 font-medium",
               `${type}-badge`,
             )}
           >

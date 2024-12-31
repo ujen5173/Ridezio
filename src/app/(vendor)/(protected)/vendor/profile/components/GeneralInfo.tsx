@@ -66,6 +66,7 @@ const GeneralInfo = () => {
                   {...field}
                   placeholder="ABC Rental Store"
                   autoComplete="off"
+                  autoFocus
                   value={field.value ?? ""}
                 />
               </FormControl>
