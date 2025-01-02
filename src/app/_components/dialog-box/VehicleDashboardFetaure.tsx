@@ -48,7 +48,7 @@ const VehicleDashboardFetaure = ({
                 <span className="h-full w-40 border-r border-border bg-slate-100 p-4 text-sm font-semibold">
                   {feature.key}
                 </span>
-                <span className="p-4 text-sm">{feature.value}</span>
+                <span className="flex-1 p-4 text-sm">{feature.value}</span>
               </div>
             );
           })}

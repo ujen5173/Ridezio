@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { type UseFormReturn } from "react-hook-form";
 import { type z } from "zod";
 import FileUploaderWrapper from "~/app/_components/_/FileUploaderWrapper";
@@ -19,27 +19,47 @@ const ShopImages = ({
   }[];
 }) => {
   const [files, setFiles] = useState<File[] | null>([]);
+  const [processingUpload, setProcessingUpload] = useState(false);
 
   const { uploadFiles, uploadedFile, isUploading } = useUploadFile(
     "imageUploader",
     {},
   );
 
-  useEffect(() => {
-    if (uploadedFile && uploadedFile.length > 0) {
+  const handleUploadComplete = useCallback(() => {
+    if (uploadedFile && uploadedFile.length > 0 && !processingUpload) {
+      setProcessingUpload(true);
+
       const existingImages = form.getValues("images") || [];
+      const lastOrder = existingImages.reduce(
+        (max, img) => Math.max(max, img.order),
+        0,
+      );
 
       const newImages = uploadedFile.map((file, index) => ({
         url: file.url,
-        order: existingImages.length + index + 1,
+        order: lastOrder + index + 1,
         id: file.key,
       }));
 
       form.setValue("images", [...existingImages, ...newImages], {
         shouldDirty: true,
       });
+
+      // Reset files and processing state
+      setFiles([]);
+      setProcessingUpload(false);
     }
-  }, [uploadedFile, form]);
+  }, [uploadedFile, form, processingUpload]);
+
+  useEffect(() => {
+    handleUploadComplete();
+  }, [handleUploadComplete]);
+
+  const handleFileUpload = async (files: File[]) => {
+    setFiles(files);
+    await uploadFiles(files);
+  };
 
   return (
     <div className="space-y-6">
@@ -54,7 +74,7 @@ const ShopImages = ({
         files={files}
         form={form}
         images={images}
-        onFileUpload={uploadFiles}
+        onFileUpload={handleFileUpload}
         setFiles={setFiles}
         uploadedFile={uploadedFile}
         isUploading={isUploading}

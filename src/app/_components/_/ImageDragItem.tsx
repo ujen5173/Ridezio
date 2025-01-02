@@ -54,7 +54,7 @@ const ImageDragItem = ({
           src={file}
           alt={`Image ${index + 1}`}
           fill
-          className="h-full w-full rounded-md object-cover"
+          className="h-full w-full rounded-md object-contain mix-blend-multiply"
         />
       </div>
     </div>

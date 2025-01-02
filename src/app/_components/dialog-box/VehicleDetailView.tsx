@@ -19,6 +19,7 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import { Label } from "~/components/ui/label";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import { cn } from "~/lib/utils";
 import { type GetBusinessVehiclesType } from "~/server/api/routers/vehicle";
 
@@ -38,78 +39,80 @@ const VehicleDetailView = ({
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[650px]">
-          <DialogHeader>
-            <DialogTitle>
-              {vehicle.name}
-              <span className="italix ml-2 text-sm text-slate-600">
-                ({vehicle.category})
-              </span>
-            </DialogTitle>
-          </DialogHeader>
-          <div>
-            <Carousel className="w-full">
-              <CarouselContent>
-                {vehicle.images.map((_, index) => (
-                  <CarouselItem key={index}>
-                    <div className="w-full p-1">
-                      <div className="relative mb-2 flex aspect-video items-center justify-center">
-                        <div className="aspect-video w-auto">
-                          <Image
-                            alt={`${vehicle.name}`}
-                            width={1440}
-                            height={1440}
-                            layout="fixed"
-                            priority
-                            className="m-auto h-full w-full rounded-md object-cover mix-blend-multiply"
-                            src={_.url}
-                          />
+          <ScrollArea className="max-h-[calc(100vh-200px)]">
+            <DialogHeader>
+              <DialogTitle>
+                {vehicle.name}
+                <span className="italix ml-2 text-sm text-slate-600">
+                  ({vehicle.category})
+                </span>
+              </DialogTitle>
+            </DialogHeader>
+            <div>
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {vehicle.images.map((_, index) => (
+                    <CarouselItem key={index}>
+                      <div className="w-full p-1">
+                        <div className="relative mb-2 flex aspect-video items-center justify-center">
+                          <div className="aspect-video w-auto">
+                            <Image
+                              alt={`${vehicle.name}`}
+                              width={1440}
+                              height={1440}
+                              layout="fixed"
+                              priority
+                              className="m-auto h-full w-full rounded-md object-cover mix-blend-multiply"
+                              src={_.url}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-0" />
-              <CarouselNext className="right-0" />
-            </Carousel>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-2" />
+                <CarouselNext className="right-2" />
+              </Carousel>
 
-            <div className="mt-4 flex flex-col gap-4">
-              <div>
-                <h3 className="mb-4 text-xl font-semibold">Features</h3>
-                <ul className="list-inside list-disc">
-                  {vehicle.features.length > 0 ? (
-                    vehicle.features.map(({ key, value }, index) => (
-                      <div key={value + key} className="grid grid-cols-2">
-                        <div
-                          className={cn("border border-border p-2 text-xl", {
-                            "bg-slate-100": index % 2 === 0,
-                          })}
-                        >
-                          <Label>{key}</Label>
+              <div className="my-4 flex flex-col gap-4">
+                <div>
+                  <h3 className="mb-4 text-xl font-semibold">Features</h3>
+                  <ul className="list-inside list-disc">
+                    {vehicle.features.length > 0 ? (
+                      vehicle.features.map(({ key, value }, index) => (
+                        <div key={value + key} className="grid grid-cols-2">
+                          <div
+                            className={cn("border border-border p-2 text-xl", {
+                              "bg-slate-100": index % 2 === 0,
+                            })}
+                          >
+                            <Label>{key}</Label>
+                          </div>
+                          <div
+                            className={cn("border border-border p-2 text-xl", {
+                              "bg-slate-100": index % 2 === 0,
+                            })}
+                          >
+                            <Label>{value}</Label>
+                          </div>
                         </div>
-                        <div
-                          className={cn("border border-border p-2 text-xl", {
-                            "bg-slate-100": index % 2 === 0,
-                          })}
-                        >
-                          <Label>{value}</Label>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-slate-600">No features available</p>
-                  )}
-                </ul>
+                      ))
+                    ) : (
+                      <p className="text-slate-600">No features available</p>
+                    )}
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
-          <DialogFooter>
-            <DialogClose>
-              <Button type="button" size="sm" variant={"outline"}>
-                Close
-              </Button>
-            </DialogClose>
-          </DialogFooter>
+            <DialogFooter>
+              <DialogClose>
+                <Button type="button" size="sm" variant={"outline"}>
+                  Close
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
       <Button asChild size="sm" className="flex-1" variant={"primary"}>

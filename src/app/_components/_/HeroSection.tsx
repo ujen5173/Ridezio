@@ -15,6 +15,7 @@ import {
   CommandItem,
   CommandList,
 } from "~/components/ui/command";
+import { Input } from "~/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -60,6 +61,7 @@ const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
+  const [searchFor, setSearchFor] = useState("");
   const [vehicleType, setVehicleType] = useState<string | null>(null);
 
   useEffect(() => {
@@ -126,7 +128,7 @@ const HeroSection = () => {
                 <button
                   aria-expanded={open}
                   className={cn(
-                    "sn:text-slate-100 flex h-12 w-full flex-1 items-center gap-2 bg-slate-200 text-slate-600 md:max-w-80 md:bg-slate-100/30",
+                    "flex h-12 w-full flex-1 items-center gap-2 bg-slate-200 text-slate-600 md:max-w-80 md:bg-slate-100/30 md:text-slate-100",
                     "rounded-lg bg-slate-200 px-4 py-3 text-base text-slate-600 outline-none placeholder:text-slate-100 md:max-w-80 md:bg-slate-100/30 md:text-slate-100",
                   )}
                 >
@@ -188,67 +190,6 @@ const HeroSection = () => {
               </PopoverContent>
             </Popover>
 
-            {/* <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  className={cn(
-                    "flex w-full flex-1 items-center gap-2 rounded-lg bg-slate-200 px-4 py-3 text-base text-slate-600 outline-none placeholder:text-slate-600 md:max-w-80 md:bg-slate-100/30 md:text-slate-100 placeholder:md:text-slate-100",
-                    `justify-between px-4 ${!date && "text-muted-foreground"}`,
-                  )}
-                >
-                  <div className="flex items-center gap-2 text-slate-600 md:text-slate-100">
-                    <CalendarDays
-                      size={18}
-                      className="text-slate-600 md:text-slate-100"
-                    />
-                    <span className="line-clamp-1 w-full text-left">
-                      {date?.from ? (
-                        date.to ? (
-                          <>
-                            {format(date.from, "LLL dd, y")} -{" "}
-                            {format(date.to, "LLL dd, y")}
-                          </>
-                        ) : (
-                          format(date.from, "LLL dd, y")
-                        )
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </span>
-                  </div>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  initialFocus
-                  mode="range"
-                  disabled={(date) => {
-                    const yesterday = new Date();
-                    yesterday.setDate(yesterday.getDate());
-                    yesterday.setHours(0, 0, 0, 0);
-                    return date < yesterday;
-                  }}
-                  defaultMonth={date?.from}
-                  selected={date}
-                  showOutsideDays={false}
-                  onSelect={(newDate) => {
-                    setDate(newDate);
-                  }}
-                  numberOfMonths={width < 640 ? 1 : 2}
-                  classNames={{
-                    cell: "relative w-9 p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
-                    head_cell: "font-normal text-sm w-9",
-                    day: cn(
-                      "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-                      "hover:bg-accent hover:text-accent-foreground",
-                      "focus:bg-accent focus:text-accent-foreground focus:rounded-sm",
-                      "disabled:opacity-50 disabled:hover:bg-transparent disabled:cursor-not-allowed",
-                    ),
-                  }}
-                />
-              </PopoverContent>
-            </Popover> */}
-
             <Select onValueChange={(value) => setVehicleType(value)}>
               <SelectTrigger
                 className={cn(
@@ -295,14 +236,26 @@ const HeroSection = () => {
               </SelectContent>
             </Select>
 
+            <div className="w-full max-w-80">
+              <Input
+                id="search_for"
+                onChange={(e) => setSearchFor(e.target.value)}
+                className={cn(
+                  "flex-1 rounded-lg bg-slate-200 px-4 py-3 text-lg text-slate-600 outline-none placeholder:text-slate-100 md:bg-slate-100/30 md:text-slate-100",
+                  "h-12 border-none focus:ring-0 focus-visible:ring-0",
+                  "py-2 text-slate-600 placeholder:text-slate-600 md:text-slate-100 md:placeholder:text-slate-100",
+                )}
+                placeholder="(eg: Velocit Rentals)"
+              />
+            </div>
+
             <Button asChild className="h-12 uppercase">
               <Link
                 href={{
                   pathname: "/search",
                   query: {
                     location: selectedLocation,
-                    // from: date?.from?.toLocaleDateString(),
-                    // to: date?.to?.toLocaleDateString(),
+                    query: searchFor,
                     vehicleType,
                   },
                 }}

@@ -170,7 +170,7 @@ const HeaderSearch = () => {
           ref={inputRef}
           defaultValue={q}
           className={cn(
-            "h-8 w-28 flex-1 rounded-lg border-none py-2 text-center text-xs font-semibold text-slate-800 outline-none placeholder:text-slate-600",
+            "h-8 w-28 flex-1 rounded-lg border-none px-2 py-2 text-center text-xs font-semibold text-slate-800 outline-none placeholder:text-slate-600",
           )}
         />
 

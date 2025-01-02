@@ -46,18 +46,28 @@ const VendorDetails = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  function parseTime(timeStr: string): [number, number, string] {
+    const [time, period] = timeStr.split(" ");
+    const [hours, minutes] = time!.split(":").map(Number);
+    return [hours!, minutes!, period!];
+  }
+
   function checkBusinessHours(
     businessHours: Record<string, { open: string; close: string } | null>,
-  ) {
+  ): "open" | "closed" {
     const now = new Date();
     const day = now.toLocaleDateString("en-US", { weekday: "long" });
+    const hours = businessHours[day];
 
-    if (businessHours[day]) {
-      const { open, close } = businessHours[day];
+    if (!hours) {
+      return "closed";
+    }
+
+    try {
+      const { open, close } = hours;
       const [openHour, openMinute, openPeriod] = parseTime(open);
       const [closeHour, closeMinute, closePeriod] = parseTime(close);
 
-      // Normalize the times to 24-hour format
       const openDate = new Date(
         now.getFullYear(),
         now.getMonth(),
@@ -65,6 +75,7 @@ const VendorDetails = () => {
         (openHour % 12) + (openPeriod === "PM" ? 12 : 0),
         openMinute,
       );
+
       const closeDate = new Date(
         now.getFullYear(),
         now.getMonth(),
@@ -73,31 +84,19 @@ const VendorDetails = () => {
         closeMinute,
       );
 
-      // Handle close time past midnight
-      if (
-        closeHour < openHour ||
-        (closeHour === openHour && closeMinute < openMinute)
-      ) {
+      if (closeDate <= openDate) {
         closeDate.setDate(closeDate.getDate() + 1);
       }
 
-      if (now < openDate || now > closeDate) {
-        return "closed";
-      }
-    } else {
+      return now >= openDate && now <= closeDate ? "open" : "closed";
+    } catch (error) {
       return "closed";
     }
-
-    return "open";
-  }
-
-  function parseTime(time: string): [number, number, "AM" | "PM"] {
-    const [hourMinute, period] = time.split(" ");
-    const [hour, minute] = hourMinute!.split(":").map(Number);
-    return [hour!, minute!, period === "AM" ? "AM" : "PM"];
   }
 
   if (!vendor) return null;
+
+  console.log({ busines: vendor.businessHours });
 
   return (
     <section className="px-4">
@@ -307,10 +306,7 @@ const VendorDetails = () => {
                 </Button>
               </div>
               <div className="flex items-center gap-2">
-                <FavroiteButton
-                  role={vendor.owner.role ?? "USER"}
-                  id={vendor.id}
-                />
+                <FavroiteButton id={vendor.id} />
                 <Link
                   href={extractDirectionsFromIframe(vendor.location.map!)}
                   target="_blank"

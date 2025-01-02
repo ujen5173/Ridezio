@@ -109,6 +109,7 @@ export const businesses = pgTable(
     sellGears: boolean("sell_gears").notNull().default(false),
     businessHours: json("business_hours")
       .$type<Record<string, { open: string; close: string } | null>>()
+      .notNull()
       .default(sql`'{}'::json`),
     vehiclesCount: integer("vehicles_count").default(0),
     rating: decimal("rating", { precision: 3, scale: 1 })
@@ -136,7 +137,7 @@ export const businesses = pgTable(
       .notNull()
       .default([]),
     status: businessStatusEnum("status").notNull().default("setup-incomplete"),
-    merchantCode: varchar("merchant_code", { length: 20 }),
+    merchantCode: varchar("merchant_code", { length: 100 }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },

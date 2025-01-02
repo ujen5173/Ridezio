@@ -206,43 +206,6 @@ const Wrapper = ({
               <FormLabel className="text-slate-600">
                 Media (Upload vehicle images)
               </FormLabel>
-              {/* 
-              {type === "edit" && (
-                <div className="mb-4 mt-1 flex items-center gap-2">
-                  {pastImages.map(
-                    (
-                      image: {
-                        id: string;
-                        order: number;
-                        url: string;
-                      },
-                      i,
-                    ) => (
-                      <div key={i} className="relative flex items-center gap-2">
-                        <div
-                          style={{
-                            backgroundImage: `url(${image.url})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center center",
-                          }}
-                          className="size-28 rounded-md border border-slate-200 bg-slate-100"
-                        ></div>
-                        <span className="sr-only">remove item {i}</span>
-                        <div
-                          onClick={() => {
-                            const updatedImages = [...pastImages];
-                            updatedImages.splice(i, 1);
-                            setPastImages(updatedImages);
-                          }}
-                          className="absolute right-2 top-2 z-10 flex size-5 items-center justify-center rounded-sm border border-border bg-white shadow-sm"
-                        >
-                          <X className="size-3 stroke-destructive duration-200 ease-in-out" />
-                        </div>
-                      </div>
-                    ),
-                  )}
-                </div>
-              )} */}
 
               <div className="mb-4">
                 <FileUploaderWrapper
@@ -253,6 +216,7 @@ const Wrapper = ({
                   isUploading={isUploading}
                   images={images}
                   form={imageForm}
+                  recommendedSize="800 x 522"
                 />
               </div>
             </div>

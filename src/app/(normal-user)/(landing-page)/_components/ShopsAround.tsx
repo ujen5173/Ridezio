@@ -3,7 +3,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import VendorCard from "~/app/_components/_/VendorCard";
 import { Button } from "~/components/ui/button";
 import {
   Carousel,
@@ -14,6 +13,7 @@ import {
 import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
 import { api as trpc } from "~/trpc/react";
+import VendorCardWithPrefetch from "./VendorCardWithPrefetch";
 
 const ShopsAround = () => {
   const { data: shopsAroundData, isLoading } =
@@ -95,7 +95,7 @@ const ShopsAround = () => {
                       key={index}
                       className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
                     >
-                      <VendorCard shop={shop} />
+                      <VendorCardWithPrefetch shop={shop} />
                     </CarouselItem>
                   ))}
             </CarouselContent>

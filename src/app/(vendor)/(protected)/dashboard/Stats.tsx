@@ -154,7 +154,7 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
           <div className="relative rounded-xl border border-slate-200 p-4 hover:shadow-md">
             <div>
               <p className="mb-2 text-base font-medium text-slate-500">
-                Orders Today
+                Rentals Today
               </p>
               <h1
                 className={cn(
@@ -235,7 +235,7 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
           </div>
           <div className="chart-wrapper relative rounded-xl border border-slate-200 p-4 hover:shadow-md">
             <p className="mb-2 text-base font-medium text-slate-500">
-              Total Orders
+              Total Rentals
             </p>
             <h1
               className={cn(

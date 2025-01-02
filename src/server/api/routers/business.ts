@@ -533,7 +533,7 @@ export const businessRouter = createTRPCRouter({
 
   getVendorAroundLocation: publicProcedure.query(async ({ ctx }) => {
     try {
-      let IP = "124.41.204.21";
+      let IP = "27.34.20.194";
 
       if (env.NODE_ENV === "production") {
         IP = ctx.headers.get("x-forwarded-for") ?? IP;

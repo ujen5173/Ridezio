@@ -1,5 +1,5 @@
 import { type Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { cache } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
@@ -53,14 +53,6 @@ const VendorPage = async ({
   if (!slug) redirect("/");
 
   const data = await getVendorDetails(slug);
-
-  if (data) {
-    await api.business.getBookingsDetails.prefetch({
-      businessId: data.id,
-    });
-  } else {
-    notFound();
-  }
 
   return (
     <>

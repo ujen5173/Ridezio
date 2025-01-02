@@ -25,11 +25,7 @@ export interface MapBounds {
 
 const SearchParamsSchema = z.object({
   q: z.string().optional().nullable().default(""),
-  vehicleType: z
-    .enum(vehicleTypeEnum.enumValues)
-    .optional()
-    .nullable()
-    .default("bicycle"),
+  vehicleType: z.enum(vehicleTypeEnum.enumValues).optional().nullable(),
 });
 
 const Search = () => {
@@ -41,7 +37,7 @@ const Search = () => {
   // Get validVehicleType from parsed result
   const validVehicleType = safeParams.success
     ? safeParams.data.vehicleType
-    : vehicleTypeEnum.enumValues[0];
+    : undefined;
 
   const query = safeParams.success ? safeParams.data.q : undefined;
 

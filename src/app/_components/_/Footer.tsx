@@ -50,8 +50,7 @@ const Footer = () => {
           <div className="flex flex-wrap justify-between gap-20">
             <div className="w-full space-y-10 md:w-auto">
               <p className="text-slate-200">
-                Supporting vehicle rental service <br /> around the globe since
-                2024
+                Supporting vehicle rental service <br /> around the globe
               </p>
               <div>
                 <h6 className="mb-2 text-base text-slate-200">Follow us!</h6>

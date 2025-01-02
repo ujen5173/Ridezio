@@ -32,11 +32,6 @@ import SignOut from "./signout";
 const Header = ({ pth = "/" }: { pth?: string }) => {
   const { data } = useSession();
 
-  const theme =
-    pth === "/"
-      ? "text-slate-700 hover:text-slate-600 sm:text-slate-100 sm:hover:text-slate-200"
-      : "text-slate-800 hover:text-slate-700";
-
   return (
     <header
       className={cn(

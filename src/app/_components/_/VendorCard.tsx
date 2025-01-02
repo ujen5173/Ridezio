@@ -45,7 +45,7 @@ const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
                       height={450}
                       layout="fixed"
                       priority
-                      className="m-auto h-full w-full rounded-md object-fill mix-blend-multiply"
+                      className="m-auto h-48 w-full rounded-md object-fill"
                       key={index}
                       src={image.url}
                     />

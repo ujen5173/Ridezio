@@ -109,9 +109,11 @@ const GeneralInfo = () => {
         <input
           accept={"image/png, image/jpeg, image/jpg, image/webp"}
           type="file"
-          hidden
           id="logo"
+          hidden
+          value={form.getValues("logo") === null ? undefined : ""}
           onChange={(e) => {
+            console.log({ e });
             const files = e.target.files;
             if (files) void logoUploadFiles(Array.from(files));
           }}
