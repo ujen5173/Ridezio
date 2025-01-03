@@ -241,7 +241,7 @@ const HeroSection = () => {
                 id="search_for"
                 onChange={(e) => setSearchFor(e.target.value)}
                 className={cn(
-                  "flex-1 rounded-lg bg-slate-200 px-4 py-3 text-lg text-slate-600 outline-none placeholder:text-slate-100 md:bg-slate-100/30 md:text-slate-100",
+                  "flex-1 rounded-lg bg-slate-200 px-4 py-3 text-base text-slate-600 outline-none placeholder:text-slate-100 md:bg-slate-100/30 md:text-base md:text-slate-100",
                   "h-12 border-none focus:ring-0 focus-visible:ring-0",
                   "py-2 text-slate-600 placeholder:text-slate-600 md:text-slate-100 md:placeholder:text-slate-100",
                 )}

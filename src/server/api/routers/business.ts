@@ -543,6 +543,8 @@ export const businessRouter = createTRPCRouter({
         `https://ipinfo.io/${IP}/json?token=${env.IPINFO_API_KEY}`,
       );
 
+      console.log({ userLocation });
+
       const [lat, lng] = userLocation.loc.split(",").map(Number);
 
       // Validate location for search
@@ -591,12 +593,13 @@ export const businessRouter = createTRPCRouter({
         total: vendorsQuery.length,
       };
     } catch (err) {
+      console.log({ getVendorAroundLocationError: err });
       if (err instanceof TRPCError) {
         throw err;
       }
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to search vendors",
+        message: "Failed to search vendors. ",
       });
     }
   }),
@@ -620,15 +623,17 @@ export const businessRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const { northEast, southWest } = input.bounds;
+      try {
+        const whereConditions: SQL<unknown>[] = [
+          eq(businesses.status, "active"),
+        ];
 
-      const whereConditions: SQL<unknown>[] = [eq(businesses.status, "active")];
-
-      if (input.query) {
-        const sqlQuery = or(
-          ilike(businesses.name, `%${input.query}%`),
-          ilike(businesses.slug, `%${input.query}%`),
-          ilike(businesses.instagramHandle, `%${input.query}%`),
-          sql`EXISTS (
+        if (input.query) {
+          const sqlQuery = or(
+            ilike(businesses.name, `%${input.query}%`),
+            ilike(businesses.slug, `%${input.query}%`),
+            ilike(businesses.instagramHandle, `%${input.query}%`),
+            sql`EXISTS (
               SELECT 1 FROM ${vehicles}
               WHERE ${vehicles.businessId} = ${businesses.id}
               AND (
@@ -637,39 +642,50 @@ export const businessRouter = createTRPCRouter({
                 ${ilike(vehicles.category, `%${input.query}%`)}
               )
             )`,
-        )!;
-        whereConditions.push(sqlQuery);
-      }
+          )!;
+          whereConditions.push(sqlQuery);
+        }
 
-      if (input.vehicleType) {
+        if (input.vehicleType) {
+          whereConditions.push(
+            sql`${input.vehicleType} = ANY(${businesses.availableVehicleTypes})`,
+          );
+        }
+
         whereConditions.push(
-          sql`${input.vehicleType} = ANY(${businesses.availableVehicleTypes})`,
+          sql`(${businesses.location}->>'lat')::numeric BETWEEN ${southWest.lat} AND ${northEast.lat}`,
+          sql`(${businesses.location}->>'lng')::numeric BETWEEN ${southWest.lng} AND ${northEast.lng}`,
         );
+
+        const shops = await ctx.db
+          .select({
+            id: businesses.id,
+            name: businesses.name,
+            slug: businesses.slug,
+            logo: businesses.logo,
+            rating: businesses.rating,
+            location: businesses.location,
+            availableVehiclesTypes: businesses.availableVehicleTypes,
+            satisfiedCustomers: businesses.satisfiedCustomers,
+            images: businesses.images,
+          })
+          .from(businesses)
+          .where(and(...whereConditions))
+          .limit(5)
+          .orderBy(desc(businesses.rating));
+
+        return shops;
+      } catch (err) {
+        console.log({ searchError: err });
+        if (err instanceof TRPCError) {
+          throw err;
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to search vendors. ",
+        });
       }
-
-      whereConditions.push(
-        sql`(${businesses.location}->>'lat')::numeric BETWEEN ${southWest.lat} AND ${northEast.lat}`,
-        sql`(${businesses.location}->>'lng')::numeric BETWEEN ${southWest.lng} AND ${northEast.lng}`,
-      );
-
-      const shops = await ctx.db
-        .select({
-          id: businesses.id,
-          name: businesses.name,
-          slug: businesses.slug,
-          logo: businesses.logo,
-          rating: businesses.rating,
-          location: businesses.location,
-          availableVehiclesTypes: businesses.availableVehicleTypes,
-          satisfiedCustomers: businesses.satisfiedCustomers,
-          images: businesses.images,
-        })
-        .from(businesses)
-        .where(and(...whereConditions))
-        .limit(5)
-        .orderBy(desc(businesses.rating));
-
-      return shops;
     }),
 
   getMultiple: publicProcedure
