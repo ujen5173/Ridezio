@@ -1,4 +1,7 @@
-import TailwindCSSAnimate from "tailwindcss-animate";
+import {
+  default as tailwindAnimate,
+  default as TailwindCSSAnimate,
+} from "tailwindcss-animate";
 import { fontFamily } from "tailwindcss/defaultTheme";
 import { withUt } from "uploadthing/tw";
 
@@ -82,6 +85,13 @@ export default withUt({
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        chart: {
+          "1": "hsl(var(--chart-1))",
+          "2": "hsl(var(--chart-2))",
+          "3": "hsl(var(--chart-3))",
+          "4": "hsl(var(--chart-4))",
+          "5": "hsl(var(--chart-5))",
+        },
       },
       keyframes: {
         "accordion-down": {
@@ -107,5 +117,5 @@ export default withUt({
       },
     },
   },
-  plugins: [TailwindCSSAnimate],
+  plugins: [TailwindCSSAnimate, tailwindAnimate],
 });

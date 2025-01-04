@@ -1,23 +1,19 @@
 import { format } from "date-fns";
 import { env } from "~/env";
 import {
-    type BookingDetails,
-    type BookingUpdateDetails,
+  type BookingDetails,
+  type BookingUpdateDetails,
 } from "~/server/api/routers/email";
 
 // Utility function for creating a consistent email layout
-const createEmailLayout = (
-    content: string, 
-    gradientColors: [string, string], 
-    title: string
-) => `
+const createEmailLayout = (content: string, title: string) => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
             line-height: 1.6; 
@@ -73,6 +69,9 @@ const createEmailLayout = (
             color: #2d3748;
             font-weight: 600;
         }
+        a:visited {
+            color: inherit;
+        }
         .cta-button {
             display: block;
             min-width: 200px;
@@ -109,6 +108,21 @@ const createEmailLayout = (
             object-fit: cover;
             mix-blend-mode: multiply;
         }
+        .buttons-wrapper {
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 600px) {
+            .buttons-wrapper {
+                flex-direction: column;
+            }
+            .cta-button {
+                margin-top: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -123,18 +137,18 @@ const createEmailLayout = (
 `;
 
 export const bookingEmailToVendor = (bookingDetails: BookingDetails) => {
-    const content = `
+  const content = `
     <div class="email-content">
         <h2 style="text-align: center; color: #2d3748; margin-bottom: 20px;">
             New Booking Alert! 🚗✨
         </h2>
         <div class="details-box">
             <div class="detail-row">
-                <span>Booking ID</span>
-                <strong>${bookingDetails.id}</strong>
+                <span>Booking ID: </span>
+                <strong>${bookingDetails.id.split("-")[-1]}</strong>
             </div>
             <div class="detail-row">
-                <span>Vehicle</span>
+                <span>Vehicle: </span>
                 <strong>${bookingDetails.vehicleName}</strong>
             </div>
             <div class="detail-row">
@@ -147,32 +161,32 @@ export const bookingEmailToVendor = (bookingDetails: BookingDetails) => {
                 >
             </div>
             <div class="detail-row">
-                <span>Rental Period</span>
+                <span>Rental Period: </span>
                 <strong>${format(new Date(bookingDetails.rentalStart), "dd MMM yyyy")} - ${format(new Date(bookingDetails.rentalEnd), "dd MMM yyyy")}</strong>
             </div>
             <div class="detail-row">
-                <span>Renter Name</span>
+                <span>Renter Name: </span>
                 <strong>${bookingDetails.userName!}</strong>
             </div>
             <div class="detail-row">
-                <span>Contact Number</span>
-                <strong>${bookingDetails.userPhoneNumber!}</strong>
+                <span>Contact Number: </span>
+                <strong>${bookingDetails.userPhoneNumber ?? "N/A"}</strong>
             </div>
             <div class="detail-row">
-                <span>Quantity</span>
+                <span>Quantity: </span>
                 <strong>${bookingDetails.quantity}</strong>
             </div>
             <div class="detail-row">
-                <span>Payment Method</span>
+                <span>Payment Method: </span>
                 <strong>${bookingDetails.paymentMethod}</strong>
             </div>
             <div class="detail-row">
-                <span>Total Amount</span>
+                <span>Total Amount: </span>
                 <strong>रु. ${bookingDetails.totalPrice}</strong>
             </div>
             <div class="detail-row" style="border-bottom: none;">
-                <span>Special Notes</span>
-                <strong>${bookingDetails.notes ?? 'No additional notes'}</strong>
+                <span>Special Notes: </span>
+                <strong>${bookingDetails.notes ?? "No additional notes"}</strong>
             </div>
         </div>
         <p style="text-align: center; color: #718096; margin-top: 20px;">
@@ -183,77 +197,76 @@ export const bookingEmailToVendor = (bookingDetails: BookingDetails) => {
         </a>
     </div>`;
 
-    return createEmailLayout(content, ['#e11d48', '#f43f5e'], 'New Vehicle Booking');
+  return createEmailLayout(content, "New Vehicle Booking");
 };
 
 export const bookingEmailToUser = (bookingDetails: BookingDetails) => {
-    const content = `
+  const content = `
     <div class="email-content">
-        <h2 style="text-align: center; color: #2d3748; margin-bottom: 10px;">
-            Your Rental Request has been placed! 🚙🌟
-        </h2>
         <p style="text-align: center; color: #718096; margin-bottom: 20px;">
             You will receive a confirmation email once the booking is accepted.
         </p>
         <div class="details-box">
             <div class="detail-row">
-                <span>Vehicle</span>
+                <span>Vehicle: </span>
                 <strong>${bookingDetails.vehicleName}</strong>
             </div>
             <div class="detail-row">
-                <span>Vendor</span>
+                <span>Vendor: </span>
                 <strong>${bookingDetails.businessName!}</strong>
             </div>
             <div class="detail-row">
-                <span>Rental Dates</span>
+                <span>Rental Dates: </span>
                 <strong>${format(new Date(bookingDetails.rentalStart), "dd MMM yyyy")} - ${format(new Date(bookingDetails.rentalEnd), "dd MMM yyyy")}</strong>
             </div>
             <div class="detail-row">
-                <span>Quantity</span>
+                <span>Quantity: </span>
                 <strong>${bookingDetails.quantity}</strong>
             </div>
             <div class="detail-row">
-                <span>Payment Method</span>
+                <span>Payment Method: </span>
                 <strong>${bookingDetails.paymentMethod}</strong>
             </div>
             <div class="detail-row" style="border-bottom: none;">
-                <span>Total Amount</span>
+                <span>Total Amount: </span>
                 <strong>रु. ${bookingDetails.totalPrice}</strong>
             </div>
         </div>
         <p style="text-align: center; color: #718096; margin-top: 20px; ">
             Your ride is booked and ready! Check your booking details and get ready for an amazing journey.
         </p>
-        <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: flex-end;">
+        <div style="buttons-wrapper">
             <a href="${env.NEXT_PUBLIC_APP_URL}/orders" class="cta-button-outline">
-            Get Direction to Store
+                Get Direction to Store
             </a>
             <a href="${env.NEXT_PUBLIC_APP_URL}/orders" class="cta-button">
-            View My Booking
+                View My Booking
             </a>
         </div>
     </div>`;
 
-    return createEmailLayout(content, ['#e11d48', '#f43f5e'], 'Booking Confirmed');
+  return createEmailLayout(content, "Booking Sent to Vendor");
 };
 
-export const bookingRejectionEmailToUser = (bookingDetails: BookingUpdateDetails) => {
-    const content = `
+export const bookingRejectionEmailToUser = (
+  bookingDetails: BookingUpdateDetails,
+) => {
+  const content = `
     <div class="email-content">
         <h2 style="text-align: center; color: #2d3748; margin-bottom: 20px;">
             Booking Update 📋
         </h2>
         <div class="details-box">
             <div class="detail-row">
-                <span>Vehicle</span>
+                <span>Vehicle: </span>
                 <strong>${bookingDetails.vehicleName}</strong>
             </div>
             <div class="detail-row">
-                <span>Requested Dates</span>
+                <span>Requested Dates: </span>
                 <strong>${format(new Date(bookingDetails.rentalStart), "dd MMM yyyy")} - ${format(new Date(bookingDetails.rentalEnd), "dd MMM yyyy")}</strong>
             </div>
             <div class="detail-row" style="border-bottom: none;">
-                <span>Total Refund</span>
+                <span>Total Refund: </span>
                 <strong>रु. ${bookingDetails.totalPrice}</strong>
             </div>
         </div>
@@ -265,38 +278,37 @@ export const bookingRejectionEmailToUser = (bookingDetails: BookingUpdateDetails
         </a>
     </div>`;
 
-    return createEmailLayout(content, ['#d63031', '#ff7675'], 'Booking Update');
+  return createEmailLayout(content, "Booking Update");
 };
 
-export const bookingConfirmationEmailToUser = (bookingDetails: BookingUpdateDetails) => {
-    const content = `
-    <div class="email-content">
-        <h2 style="text-align: center; color: #2d3748; margin-bottom: 20px;">
-            Booking Confirmed! 🎉
-        </h2>
+export const bookingConfirmationEmailToUser = (
+  bookingDetails: BookingUpdateDetails,
+) => {
+  const content = `
+    <div class="email-content"> 
         <div class="details-box">
             <div class="detail-row">
-                <span>Booking ID</span>
+                <span>Booking ID: </span>
                 <strong>${bookingDetails.id}</strong>
             </div>
             <div class="detail-row">
-                <span>Vehicle</span>
+                <span>Vehicle: </span>
                 <strong>${bookingDetails.vehicleName}</strong>
             </div>
             <div class="detail-row">
-                <span>Vendor</span>
+                <span>Vendor: </span>
                 <strong>${bookingDetails.businessName!}</strong>
             </div>
             <div class="detail-row">
-                <span>Rental Dates</span>
+                <span>Rental Dates: </span>
                 <strong>${format(new Date(bookingDetails.rentalStart), "dd MMM yyyy")} - ${format(new Date(bookingDetails.rentalEnd), "dd MMM yyyy")}</strong>
             </div>
             <div class="detail-row">
-                <span>Quantity</span>
+                <span>Quantity: </span>
                 <strong>${bookingDetails.quantity}</strong>
             </div>
             <div class="detail-row" style="border-bottom: none;">
-                <span>Total Amount</span>
+                <span>Total Amount: </span>
                 <strong>रु. ${bookingDetails.totalPrice}</strong>
             </div>
         </div>
@@ -308,5 +320,5 @@ export const bookingConfirmationEmailToUser = (bookingDetails: BookingUpdateDeta
         </a>
     </div>`;
 
-    return createEmailLayout(content, ['#e11d48', '#f43f5e'], 'New Vehicle Booking');
+  return createEmailLayout(content, "Booking Confirmed  🎉");
 };

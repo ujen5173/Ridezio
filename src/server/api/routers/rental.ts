@@ -270,6 +270,7 @@ export const rentalRouter = createTRPCRouter({
       const rental = await ctx.db
         .select({
           id: rentals.id,
+          userId: rentals.userId,
           status: rentals.status,
         })
         .from(rentals)
@@ -306,7 +307,6 @@ export const rentalRouter = createTRPCRouter({
         // Send email to user after change of status
         await sendBookingUpdateEmail({
           bookingId: rental.id,
-          session: ctx.session,
           status: input.status,
         });
       }

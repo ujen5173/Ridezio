@@ -37,10 +37,10 @@ const AccessoryReviews = ({
               chakra_petch.className,
             )}
           >
-            Reviews from customers
+            What People Say?
           </h1>
           <p className="lg:7/12 w-full text-lg text-slate-600 md:w-9/12">
-            Get to know what our customers have to say about our services.
+            Hear from our users and discover what they think of us!
           </p>
         </div>
         <div className="mb-10 flex items-center text-xl font-medium text-slate-800">

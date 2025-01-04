@@ -64,7 +64,7 @@ const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
               <div className="flex items-center gap-1">
                 <Star size={18} className="fill-yellow-500 stroke-yellow-500" />
                 <span className="text-sm">
-                  {+shop.rating <= 0 ? "N/A" : +shop.rating}
+                  {+shop.rating <= 0 ? "N/A" : (+shop.rating).toFixed(1)}
                 </span>
               </div>
               <Dot size={18} />

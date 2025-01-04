@@ -1,4 +1,5 @@
 "use client";
+
 import { Instagram, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 import "react-datepicker/dist/react-datepicker.css";
@@ -65,7 +66,7 @@ const Locations = () => {
                 <div>
                   <p className="text-base text-foreground">Instagram</p>
                   <p className="text-base font-medium text-slate-600">
-                    {vendor?.instagramHandle}
+                    @{vendor?.instagramHandle}
                   </p>
                 </div>
               </div>

@@ -149,11 +149,9 @@ export const sendBookingDetailsEmail = async ({
 
 export const sendBookingUpdateEmail = async ({
   bookingId,
-  session,
   status,
 }: {
   bookingId: string;
-  session: Session;
   status: (typeof rentalStatusEnum.enumValues)[number];
 }) => {
   try {
@@ -168,6 +166,11 @@ export const sendBookingUpdateEmail = async ({
           quantity: true,
         },
         with: {
+          user: {
+            columns: {
+              email: true,
+            },
+          },
           vehicle: {
             columns: {
               name: true,
@@ -200,7 +203,7 @@ export const sendBookingUpdateEmail = async ({
     //? Email to USER
     await transporter.sendMail({
       from: "Velocit Team",
-      to: session.user.email,
+      to: bookingDetails.user.email,
       subject: `Vehicle ${bookingDetails.vehicleName} for ${format(new Date(bookingDetails.rentalStart), "dd MMM - yyyy")} - ${format(new Date(bookingDetails.rentalEnd), "dd MMM - yyyy")} Update Email`,
       html:
         status === "approved"

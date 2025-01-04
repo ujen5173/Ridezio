@@ -3,7 +3,7 @@
 import axios from "axios";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "~/hooks/use-toast";
 import { type GetSearchedShops } from "~/server/api/routers/business";
 import { type MapBounds } from "../page";
@@ -18,7 +18,8 @@ interface GeocodeResponse {
 }
 
 interface IpInfoResponse {
-  loc: string;
+  lat: number;
+  lng: number;
 }
 
 const MapArea = ({
@@ -39,7 +40,7 @@ const MapArea = ({
     13.7563, 100.5018,
   ]);
 
-  useMemo(() => {
+  useEffect(() => {
     const fetchLocation = async () => {
       try {
         if (locationName) {
@@ -83,9 +84,7 @@ const MapArea = ({
                     const ipResponse =
                       await axios.get<IpInfoResponse>("/api/ip");
 
-                    const [lat, lng] = ipResponse.data.loc
-                      .split(",")
-                      .map(parseFloat) as [number, number];
+                    const { lat, lng } = ipResponse.data;
 
                     const newPosition: [number, number] = [lat, lng];
 
@@ -112,10 +111,7 @@ const MapArea = ({
           );
         } else {
           const ipResponse = await axios.get<IpInfoResponse>("/api/ip");
-          const [lat, lng] = ipResponse.data.loc.split(",").map(parseFloat) as [
-            number,
-            number,
-          ];
+          const { lat, lng } = ipResponse.data;
           const newPosition: [number, number] = [lat, lng];
           setPosition(newPosition);
           setBounds({
@@ -124,6 +120,7 @@ const MapArea = ({
           });
         }
       } catch (error) {
+        console.log({ error });
         toast({
           title: "Location Error",
           description: "Could not determine your location",

@@ -5,7 +5,7 @@ export const formatDate = (inputDate: Date) => {
 
   // If the date is today
   if (isToday(inputDate)) {
-    return formatDistance(inputDate, now, { addSuffix: true });
+    return formatDistance(inputDate, now, { addSuffix: false }) + " ago";
   }
 
   // If the date is yesterday

@@ -245,7 +245,7 @@ const HeroSection = () => {
                   "h-12 border-none focus:ring-0 focus-visible:ring-0",
                   "py-2 text-slate-600 placeholder:text-slate-600 md:text-slate-100 md:placeholder:text-slate-100",
                 )}
-                placeholder="(eg: Velocit Rentals)"
+                placeholder="Keywords..."
               />
             </div>
 

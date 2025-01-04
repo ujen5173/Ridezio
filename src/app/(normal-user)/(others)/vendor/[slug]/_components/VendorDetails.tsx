@@ -180,7 +180,10 @@ const VendorDetails = () => {
 
           <div className="flex flex-1 flex-col justify-between">
             <div className="mb-4 flex items-center gap-1">
-              <div className="flex items-center gap-1">
+              <Link
+                href="#reviews"
+                className="flex items-center gap-1 hover:text-secondary hover:underline"
+              >
                 <Star size={16} className="fill-yellow-500 stroke-yellow-500" />
                 <span className="text-sm">
                   {vendor.rating !== 0
@@ -188,7 +191,7 @@ const VendorDetails = () => {
                     : "N/A"}{" "}
                   ({vendor.ratingCount})
                 </span>
-              </div>
+              </Link>
               <Dot size={16} />
               <div
                 className="flex cursor-pointer items-center gap-1 text-sm transition hover:text-secondary hover:underline"

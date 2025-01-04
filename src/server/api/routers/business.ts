@@ -60,7 +60,7 @@ type ChartDataPoint = {
   value: number;
 };
 
-type IpInfoResponse = {
+export type IpInfoResponse = {
   ip: string;
   city: string;
   region: string;
@@ -542,8 +542,6 @@ export const businessRouter = createTRPCRouter({
       const { data: userLocation } = await axios.get<IpInfoResponse>(
         `https://ipinfo.io/${IP}/json?token=${env.IPINFO_API_KEY}`,
       );
-
-      console.log({ userLocation });
 
       const [lat, lng] = userLocation.loc.split(",").map(Number);
 
