@@ -34,21 +34,16 @@ const Favourite = () => {
             </h1>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {isLoading ? (
-              <>
-                <VendorCardLoading />
-                <VendorCardLoading />
-                <VendorCardLoading />
-                <VendorCardLoading />
-              </>
-            ) : (
-              data?.map((shop) => (
-                <div key={shop.id}>
-                  <VendorCard shop={shop} />
-                </div>
-              ))
-            )}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {isLoading
+              ? Array.from({ length: 5 }).map((_, index) => (
+                  <VendorCardLoading key={index} />
+                ))
+              : data?.map((shop) => (
+                  <div key={shop.id}>
+                    <VendorCard shop={shop} />
+                  </div>
+                ))}
           </div>
           {!isLoading && (data ?? []).length === 0 && (
             <div className="flex h-96 flex-col items-center justify-center gap-4 py-6">

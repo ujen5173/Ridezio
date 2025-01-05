@@ -245,7 +245,7 @@ const Bookings: React.FC<BookingsProps> = ({
       <DialogContent
         className={cn(
           inter.className,
-          "flex h-[90vh] max-h-[800px] w-[90vw] max-w-screen-2xl flex-col gap-4 px-2 py-4 sm:max-w-4xl sm:px-4 md:w-full md:max-w-3xl",
+          "flex h-[90vh] max-h-[800px] w-full max-w-screen-2xl flex-col gap-4 px-4 sm:w-[90vw] sm:max-w-4xl sm:py-4 md:w-full md:max-w-3xl",
         )}
       >
         {!showBookingSummary ? (

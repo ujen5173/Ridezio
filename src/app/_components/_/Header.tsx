@@ -4,7 +4,6 @@ import { ArrowRight, Menu } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Button, buttonVariants } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -183,21 +182,14 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                       </div>
                       <DropdownMenuTrigger className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         {data.user.image && (
-                          <Avatar className="h-9 w-9">
-                            <Image
-                              src={data.user.image}
-                              alt={`${data.user.name}'s avatar`}
-                              width={36}
-                              height={36}
-                              priority
-                            />
-                            <AvatarFallback className="border border-border text-xs font-semibold">
-                              {data.user.name
-                                ?.split(" ")
-                                .map((e) => e[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
+                          <Image
+                            src={data.user.image}
+                            alt={`${data.user.name}'s avatar`}
+                            className="size-10 rounded-full object-cover"
+                            width={200}
+                            height={200}
+                            priority
+                          />
                         )}
                       </DropdownMenuTrigger>
                     </div>

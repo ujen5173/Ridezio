@@ -96,8 +96,6 @@ const VendorDetails = () => {
 
   if (!vendor) return null;
 
-  console.log({ busines: vendor.businessHours });
-
   return (
     <section className="px-4">
       <div className="mx-auto flex max-w-[1240px] flex-col gap-5 py-6 md:flex-row md:py-10 lg:gap-10">

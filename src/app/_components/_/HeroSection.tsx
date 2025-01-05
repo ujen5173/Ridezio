@@ -236,7 +236,7 @@ const HeroSection = () => {
               </SelectContent>
             </Select>
 
-            <div className="w-full max-w-80">
+            <div className="w-full md:max-w-80">
               <Input
                 id="search_for"
                 onChange={(e) => setSearchFor(e.target.value)}

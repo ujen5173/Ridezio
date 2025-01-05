@@ -1,14 +1,27 @@
 "use client";
 
-import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
+import {
+  Facebook,
+  Instagram,
+  Lightbulb,
+  Linkedin,
+  Twitter,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Balancer from "react-wrap-balancer";
 import { chakra_petch } from "~/app/utils/font";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
 import Logo from "~/svg/logo";
+import FeedbackDialog from "./Feedback";
 
 const Footer = () => {
   const { data: user } = useSession();
@@ -50,48 +63,85 @@ const Footer = () => {
           <div className="flex flex-wrap justify-between gap-20">
             <div className="w-full space-y-10 md:w-auto">
               <p className="text-slate-200">
-                Supporting vehicle rental service <br /> around the globe
+                Supporting vehicle rental service <br /> around{" "}
+                <span className="underline">Nepal!</span>
               </p>
               <div>
                 <h6 className="mb-2 text-base text-slate-200">Follow us!</h6>
                 <div className="flex items-center gap-2">
-                  <Link
-                    href="/"
-                    title="Facebook"
-                    className="flex size-10 items-center justify-center rounded-sm bg-pink-600/20 transition hover:bg-pink-600/30"
-                  >
-                    <Facebook size={24} className="text-slate-50" />
-                  </Link>
-                  <Link
-                    href="/"
-                    title="Twitter"
-                    className="flex size-10 items-center justify-center rounded-sm bg-pink-600/20 transition hover:bg-pink-600/30"
-                  >
-                    <Twitter size={24} className="text-slate-50" />
-                  </Link>
-                  <Link
-                    href="/"
-                    title="Youtube"
-                    className="flex size-10 items-center justify-center rounded-sm bg-pink-600/20 transition hover:bg-pink-600/30"
-                  >
-                    <Youtube size={24} className="text-slate-50" />
-                  </Link>
-                  <Link
-                    href="/"
-                    title="Instagram"
-                    className="flex size-10 items-center justify-center rounded-sm bg-pink-600/20 transition hover:bg-pink-600/30"
-                  >
-                    <Instagram size={24} className="text-slate-50" />
-                  </Link>
-                  <Link
-                    href="/"
-                    title="Linkedin"
-                    className="flex size-10 items-center justify-center rounded-sm bg-pink-600/20 transition hover:bg-pink-600/30"
-                  >
-                    <Linkedin size={24} className="text-slate-50" />
-                  </Link>
+                  <TooltipProvider>
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <Link
+                          href="/"
+                          title="Facebook"
+                          className="flex size-10 items-center justify-center rounded-sm bg-pink-600/20 transition hover:bg-pink-600/30"
+                        >
+                          <Facebook size={24} className="text-slate-50" />
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Follow us on Facebook</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <Link
+                          href="/"
+                          title="Twitter"
+                          className="flex size-10 items-center justify-center rounded-sm bg-pink-600/20 transition hover:bg-pink-600/30"
+                        >
+                          <Twitter size={24} className="text-slate-50" />
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Follow us on Twitter(X)</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <Link
+                          href="/"
+                          title="Instagram"
+                          className="flex size-10 items-center justify-center rounded-sm bg-pink-600/20 transition hover:bg-pink-600/30"
+                        >
+                          <Instagram size={24} className="text-slate-50" />
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Follow us on Instagram</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <Link
+                          href="/"
+                          title="Linkedin"
+                          className="flex size-10 items-center justify-center rounded-sm bg-pink-600/20 transition hover:bg-pink-600/30"
+                        >
+                          <Linkedin size={24} className="text-slate-50" />
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Follow us on Linkedin</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
+
+              <FeedbackDialog>
+                <Button variant={"destructive"} className="mb-5 gap-2">
+                  <Lightbulb className="text-danger" size={18} />
+                  <span className="text-sm">Any feedback for us?</span>
+                </Button>
+              </FeedbackDialog>
             </div>
             <div className="flex w-full flex-col gap-16 sm:flex-row md:w-auto">
               <div>
