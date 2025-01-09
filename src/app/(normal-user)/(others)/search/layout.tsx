@@ -1,13 +1,18 @@
 import { type Metadata } from "next";
 import { type ReactNode } from "react";
 import { constructMetadata } from "~/app/utils/site";
-import { env } from "~/env";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Record<string, string | undefined>;
+}): Promise<Metadata> {
+  const location = searchParams.location ?? "Nepal";
+  const vehicleType = searchParams.vehicleType ?? "vehicles";
+
   return constructMetadata({
-    title: `Search | Velocit: Rent Bicycles, Scooters, and More`,
-    description: `Get Velocit for every kind of rentals → any type of vehicle rentals. Get the best prices, instant booking, and flexible rental options. Find your perfect ride on Velocit.`,
-    url: `${env.NEXT_PUBLIC_APP_URL}/search`,
+    title: `Rent ${vehicleType} in ${location} | Velocit Vehicle Rentals`,
+    description: `Find and rent ${vehicleType} in ${location}. Best prices, instant booking, and flexible rental options. Local vehicle rentals near you.`,
   });
 }
 

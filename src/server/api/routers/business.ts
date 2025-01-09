@@ -404,30 +404,40 @@ export const businessRouter = createTRPCRouter({
   views: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ ctx, input }) => {
-      const business = await ctx.db.query.businesses.findFirst({
-        where: eq(businesses.slug, input.slug),
-      });
+      try {
+        console.log("VIEW COUNT CALLED...");
 
-      if (!business) {
+        const business = await ctx.db.query.businesses.findFirst({
+          where: eq(businesses.slug, input.slug),
+        });
+
+        if (!business) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Vendor not found",
+          });
+        }
+
+        await ctx.db
+          .update(businesses)
+          .set({
+            totalViewCount: sql`${businesses.totalViewCount} + 1`,
+          })
+          .where(eq(businesses.slug, input.slug));
+
+        await ctx.db.insert(views).values({
+          businessId: business.id,
+          userId: ctx.session?.user.id,
+        });
+
+        return true;
+      } catch (err) {
+        console.log({ err });
         throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Vendor not found",
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to increment view count",
         });
       }
-
-      await ctx.db
-        .update(businesses)
-        .set({
-          totalViewCount: sql`${businesses.totalViewCount} + 1`,
-        })
-        .where(eq(businesses.slug, input.slug));
-
-      await ctx.db.insert(views).values({
-        businessId: business.id,
-        userId: ctx.session?.user.id,
-      });
-
-      return true;
     }),
 
   getOrders: protectedProcedure.query(async ({ ctx }) => {
@@ -582,7 +592,7 @@ export const businessRouter = createTRPCRouter({
             sql`${distanceCalculation} <= ${radius}`,
           ),
         )
-        .orderBy(distanceCalculation)
+        .orderBy(desc(businesses.totalViewCount), desc(businesses.rating))
         .limit(5);
 
       return {

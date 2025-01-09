@@ -137,8 +137,8 @@ const Footer = () => {
               </div>
 
               <FeedbackDialog>
-                <Button variant={"destructive"} className="mb-5 gap-2">
-                  <Lightbulb className="text-danger" size={18} />
+                <Button variant={"outline"} className="mb-5 gap-2">
+                  <Lightbulb className="text-slate-700" size={18} />
                   <span className="text-sm">Any feedback for us?</span>
                 </Button>
               </FeedbackDialog>

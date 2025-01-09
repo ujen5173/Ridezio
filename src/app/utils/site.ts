@@ -44,6 +44,22 @@ export const siteConfig = {
     "Electric scooter rentals",
     "Motorbike rentals online",
   ],
+  structuredData: {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Velocit",
+    url: getBaseUrl(),
+    logo: `${getBaseUrl()}/logo.png`,
+    sameAs: [
+      links.facebook,
+      links.twitter,
+      links.instagram,
+    ],
+    areaServed: {
+      "@type": "Country",
+      name: "Nepal",
+    },
+  },
   localBusiness: {
     "@type": "VehicleRental",
     name: "Velocit",
@@ -53,6 +69,15 @@ export const siteConfig = {
       name: "Nepal",
     },
     priceRange: "₨₨-₨₨₨₨",
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: "Nepal",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: "27.7172",
+      longitude: "85.324"
+    }
   },
 };
 

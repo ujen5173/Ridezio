@@ -118,17 +118,17 @@ const VendorDetails = () => {
                     className="relative basis-auto px-1 pt-2"
                   >
                     <button className="rounded-sm hover:ring-2 hover:ring-secondary hover:ring-offset-2">
-                      <Image
+                      <div
+                        style={{
+                          backgroundImage: `url(${image.url})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          backgroundRepeat: "no-repeat",
+                        }}
                         onClick={() => {
                           api?.scrollTo(index);
                         }}
-                        alt={`${vendor.name!}'s Images`}
-                        width={450}
-                        height={450}
-                        layout="fixed"
-                        className="size-16 cursor-pointer rounded-sm object-cover md:aspect-square"
-                        key={index}
-                        src={image.url}
+                        className="size-16 rounded-sm md:aspect-square"
                       />
                     </button>
                   </CarouselItem>
