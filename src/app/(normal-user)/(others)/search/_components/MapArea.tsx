@@ -35,7 +35,8 @@ const MapArea = ({
   setBounds: React.Dispatch<React.SetStateAction<MapBounds | null>>;
   isDataFetching: boolean;
 }) => {
-  const locationName = useSearchParams().get("location");
+  const locationName = useSearchParams().get("location") ?? "";
+
   const [position, setPosition] = useState<[number, number] | null>([
     13.7563, 100.5018,
   ]);

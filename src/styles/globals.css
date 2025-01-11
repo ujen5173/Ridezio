@@ -163,11 +163,15 @@ a {
 .overlay {
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(0deg, rgba(0, 0, 0, 0.4) 19%, rgba(0, 0, 0, 0) 45.98%),
+  background-image: linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.4) 19%,
+      rgba(0, 0, 0, 0) 45.98%
+    ),
     linear-gradient(rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 16.41%),
     linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%),
-    /* url("/main-bg-1.webp"); */ url("/main-bg-2.jpg");
+    url("/main-bg-1.webp");
+  /* url("/main-bg-2.jpg"); */
   /* url("/main-bg.png"); */
   background-size: cover;
   background-position: center center;

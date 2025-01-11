@@ -1,5 +1,4 @@
 import { type inferRouterOutputs, TRPCError } from "@trpc/server";
-import axios from "axios";
 import {
   and,
   desc,
@@ -13,7 +12,6 @@ import {
 } from "drizzle-orm";
 import slugify from "slugify";
 import { z, ZodError } from "zod";
-import { env } from "~/env";
 import { slugifyDefault } from "~/lib/helpers";
 import {
   createTRPCRouter,
@@ -541,30 +539,40 @@ export const businessRouter = createTRPCRouter({
     return business?.vehicleTypes;
   }),
 
-  getVendorAroundLocation: publicProcedure.query(async ({ ctx }) => {
-    try {
-      let IP = "27.34.20.194";
+  getVendorAroundLocation: publicProcedure
+    .input(
+      z.object({
+        geo: z.object({
+          lat: z.number(),
+          lng: z.number(),
+        }),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        // let IP = "27.34.20.194";
 
-      if (env.NODE_ENV === "production") {
-        IP = ctx.headers.get("x-forwarded-for") ?? IP;
-      }
+        // if (env.NODE_ENV === "production") {
+        //   IP = ctx.headers.get("x-forwarded-for") ?? IP;
+        // }
 
-      const { data: userLocation } = await axios.get<IpInfoResponse>(
-        `https://ipinfo.io/${IP}/json?token=${env.IPINFO_API_KEY}`,
-      );
+        // const { data: userLocation } = await axios.get<IpInfoResponse>(
+        //   `https://ipinfo.io/${IP}/json?token=${env.IPINFO_API_KEY}`,
+        // );
 
-      const [lat, lng] = userLocation.loc.split(",").map(Number);
+        // const [lat, lng] = userLocation.loc.split(",").map(Number);
+        const { lat, lng } = input.geo;
 
-      // Validate location for search
-      if (!lat || !lng) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Location coordinates are required",
-        });
-      }
+        // Validate location for search
+        if (!lat || !lng) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Location coordinates are required",
+          });
+        }
 
-      const radius = 10; // kilometers
-      const distanceCalculation = sql<number>`6371 * 2 * ASIN(
+        const radius = 10; // kilometers
+        const distanceCalculation = sql<number>`6371 * 2 * ASIN(
         SQRT(
           POWER(SIN((${lat} - (business.location->>'lat')::numeric) * PI()/180 / 2), 2) +
           COS(${lat} * PI()/180) * COS((business.location->>'lat')::numeric * PI()/180) *
@@ -572,45 +580,44 @@ export const businessRouter = createTRPCRouter({
         )
       )`;
 
-      // Main query with distance filtering
-      const vendorsQuery = await ctx.db
-        .select({
-          id: businesses.id,
-          name: businesses.name,
-          slug: businesses.slug,
-          rating: businesses.rating,
-          distance: distanceCalculation,
-          location: businesses.location,
-          availableVehiclesTypes: businesses.availableVehicleTypes,
-          satisfiedCustomers: businesses.satisfiedCustomers,
-          images: businesses.images,
-        })
-        .from(businesses)
-        .where(
-          and(
-            eq(businesses.status, "active"),
-            sql`${distanceCalculation} <= ${radius}`,
-          ),
-        )
-        .orderBy(desc(businesses.totalViewCount), desc(businesses.rating))
-        .limit(5);
+        // Main query with distance filtering
+        const vendorsQuery = await ctx.db
+          .select({
+            id: businesses.id,
+            name: businesses.name,
+            slug: businesses.slug,
+            rating: businesses.rating,
+            distance: distanceCalculation,
+            location: businesses.location,
+            availableVehiclesTypes: businesses.availableVehicleTypes,
+            satisfiedCustomers: businesses.satisfiedCustomers,
+            images: businesses.images,
+          })
+          .from(businesses)
+          .where(
+            and(
+              eq(businesses.status, "active"),
+              sql`${distanceCalculation} <= ${radius}`,
+            ),
+          )
+          .orderBy(desc(businesses.totalViewCount), desc(businesses.rating))
+          .limit(5);
 
-      return {
-        vendors: vendorsQuery,
-        location: userLocation.city,
-        total: vendorsQuery.length,
-      };
-    } catch (err) {
-      console.log({ getVendorAroundLocationError: err });
-      if (err instanceof TRPCError) {
-        throw err;
+        return {
+          vendors: vendorsQuery,
+          total: vendorsQuery.length,
+        };
+      } catch (err) {
+        console.log({ getVendorAroundLocationError: err });
+        if (err instanceof TRPCError) {
+          throw err;
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to search vendors. ",
+        });
       }
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to search vendors. ",
-      });
-    }
-  }),
+    }),
 
   search: publicProcedure
     .input(

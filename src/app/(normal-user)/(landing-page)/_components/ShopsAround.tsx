@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRootContext } from "~/app/_components/contexts/root";
 import { Button } from "~/components/ui/button";
 import {
   Carousel,
@@ -16,10 +17,16 @@ import { api as trpc } from "~/trpc/react";
 import VendorCardWithPrefetch from "./VendorCardWithPrefetch";
 
 const ShopsAround = () => {
+  const { city, geo } = useRootContext();
   const { data: shopsAroundData, isLoading } =
-    trpc.business.getVendorAroundLocation.useQuery(undefined, {
-      refetchOnWindowFocus: false,
-    });
+    trpc.business.getVendorAroundLocation.useQuery(
+      {
+        geo,
+      },
+      {
+        refetchOnWindowFocus: false,
+      },
+    );
 
   const [api, setApi] = useState<CarouselApi | undefined>();
   const [current, setCurrent] = useState(0);
@@ -42,13 +49,9 @@ const ShopsAround = () => {
             )}
           >
             <span>Rentals Around</span>
-            {isLoading ? (
-              <Skeleton className="h-10 w-28 rounded-sm" />
-            ) : (
-              <span className="font-black capitalize text-secondary underline underline-offset-2">
-                {shopsAroundData?.location}
-              </span>
-            )}
+            <span className="font-black capitalize text-secondary underline underline-offset-2">
+              {city}
+            </span>
           </h2>
           <div className="flex gap-2">
             <Button
@@ -108,13 +111,9 @@ const ShopsAround = () => {
               </p>
             </div>
           ) : (
-            shopsAroundData?.location && (
-              <Button variant={"outline"} asChild>
-                <Link href={`/search?location=${shopsAroundData?.location}`}>
-                  Explore on Maps
-                </Link>
-              </Button>
-            )
+            <Button variant={"outline"} asChild>
+              <Link href={`/search?location=${city}`}>Explore on Maps</Link>
+            </Button>
           )}
         </div>
       </div>

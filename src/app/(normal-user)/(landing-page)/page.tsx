@@ -5,6 +5,7 @@ import HeroSection from "~/app/_components/_/HeroSection";
 import ShopsAroundWrapper from "~/app/_components/_/ShopsAroundWrapper";
 import { Button } from "~/components/ui/button";
 import BecomePartner from "./_components/BecomePartner";
+import ExplorePopularPlaces from "./_components/ExplorePopularPlaces";
 import Faqs from "./_components/Faqs";
 import ShopsAroundLoading from "./_components/ShopsAroundLoading";
 
@@ -22,6 +23,7 @@ const Home = async () => {
       </Suspense>
       {/* <PopularShops popularShopsData={popularShops} /> */}
       {/* <UpcomingEvent events={events} /> */}
+      <ExplorePopularPlaces />
       <BecomePartner />
       <Faqs />
       <Button

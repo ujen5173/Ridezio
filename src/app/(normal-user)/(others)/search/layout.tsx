@@ -1,14 +1,15 @@
 import { type Metadata } from "next";
+import { headers } from "next/headers";
 import { type ReactNode } from "react";
 import { constructMetadata } from "~/app/utils/site";
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Record<string, string | undefined>;
-}): Promise<Metadata> {
-  const location = searchParams.location ?? "Nepal";
-  const vehicleType = searchParams.vehicleType ?? "vehicles";
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = headers();
+  const pathname = headersList.get("x-url");
+  const location =
+    new URL(pathname ?? "").searchParams.get("location") ?? "from anywhere";
+  const vehicleType =
+    new URL(pathname ?? "").searchParams.get("vehicleType") ?? "vehicles";
 
   return constructMetadata({
     title: `Rent ${vehicleType} in ${location} | Velocit Vehicle Rentals`,

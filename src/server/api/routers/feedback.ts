@@ -4,6 +4,48 @@ import transporter from "~/lib/nodemailer";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
 const feedbackRouter = createTRPCRouter({
+  requestForOtherCountries: publicProcedure
+    .input(
+      z.object({
+        country: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      await transporter.sendMail({
+        from: "Velocit Team",
+        to: "velocit.company@gmail.com",
+        subject: "New Feedback Received - Velocit",
+        html: `  
+        <body style="margin: 0; padding: 0; background-color: #f9fafb; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <!-- Header -->
+                <div style="background: linear-gradient(135deg, #e11d48 0%, #fb7185 100%); padding: 40px 20px; border-radius: 16px; margin-bottom: 24px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">New Market Request 🌎</h1>
+                </div>
+
+                <!-- Content -->
+                <div style="background-color: #ffffff; padding: 32px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                    <h2 style="color: #1f2937; margin: 0 0 24px 0; font-size: 24px; font-weight: 600;">Expansion Opportunity Alert</h2>
+                    
+                    <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+                        We've received a new request to bring Velocit to <strong style="color: ##fb7185;">${input.country}</strong>! Our platform's global appeal continues to grow.
+                    </p>
+                </div>
+
+                <!-- Footer -->
+                <div style="text-align: center; padding-top: 24px;">
+                    <p style="color: #6b7280; font-size: 14px;">
+                        © 2025 Velocit. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        </body>
+          `,
+      });
+      return {
+        success: true,
+      };
+    }),
   send: publicProcedure
     .input(
       z.object({
@@ -19,36 +61,52 @@ const feedbackRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       try {
         await transporter.sendMail({
-          from: "ReadWonders Team",
+          from: "Velocit Team",
           to: "velocit.company@gmail.com",
-          subject: "New Feedback Received - ReadWonders",
+          subject: "New Feedback Received - Velocit",
           html: `  
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-              <div style="text-align: center;">
-                <img src="https://readwonders.vercel.app/apple-touch-icon.png" style="width: 50px; height: 50px;" alt="ReadWonders Logo"/>
-                <h1 style="margin: 0; color: #333;">ReadWonders</h1>
-              </div>
-              <div style="margin-top: 20px; padding: 10px; border-top: 1px solid #eee;">
-                <h2 style="font-size: 1.5rem; color: #333;">New Feedback Received</h2>
-                <p style="font-size: 1rem; color: #555;">Rating: <strong style="color: #007BFF;">${input.rating.charAt(0).toUpperCase() + input.rating.slice(1)}</strong></p>
-                <p style="font-size: 1rem; color: #555;">Heard from: <strong style="color: #007BFF;">${input.from.charAt(0).toUpperCase() + input.from.slice(1)}</strong></p>
-                ${
-                  input.feedback
-                    ? `
-                      <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
-                        <h3 style="font-size: 1.25rem; color: #333; margin-bottom: 10px;">Response:</h3>
-                        <p style="font-size: 1rem; color: #555;">${input.feedback}</p>
+            <body style="margin: 0; padding: 0; background-color: #f9fafb; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+              <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                  <!-- Header -->
+                  <div style="background: linear-gradient(135deg, #e11d48 0%, #fb7185 100%); padding: 40px 20px; border-radius: 16px; margin-bottom: 24px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">New User Feedback 📝</h1>
+                  </div>
+
+                  <!-- Content -->
+                  <div style="background-color: #ffffff; padding: 32px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                    <!-- Rating Section -->
+                    <div style="margin-bottom: 24px;">
+                        <h2 style="color: #1f2937; margin: 0 0 16px 0; font-size: 20px; font-weight: 600;">Rating</h2>
+                        <div style="display: inline-block; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 16px; {{RATING_STYLE}}">
+                            ${input.rating}
+                        </div>
+                    </div>
+
+                    <!-- Source Section -->
+                    <div style="margin-bottom: 24px;">
+                        <h2 style="color: #1f2937; margin: 0 0 16px 0; font-size: 20px; font-weight: 600;">Found Us Through</h2>
+                        <div style="display: inline-block; padding: 8px 16px; background-color: #f3f4f6; border-radius: 8px; color: #4b5563; font-size: 16px;">
+                            ${input.from}
+                        </div>
+                    </div>
+
+                    <!-- Feedback Section -->
+                    <div style="margin-bottom: 32px;">
+                      <h2 style="color: #1f2937; margin: 0 0 16px 0; font-size: 20px; font-weight: 600;">User's Message</h2>
+                      <div style="background-color: #f3f4f6; padding: 20px; border-radius: 12px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                          ${input.feedback}
                       </div>
-                    `
-                    : ""
-                }
+                    </div>
+                  </div>
+
+                  <!-- Footer -->
+                  <div style="text-align: center; padding-top: 24px;">
+                    <p style="color: #6b7280; font-size: 14px;">
+                      © 2025 Velocit. All rights reserved.
+                    </p>
+                  </div>
               </div>
-              <div style="margin-top: 20px; text-align: center;">
-                <p style="font-size: 0.875rem; color: #777;">
-                  @${new Date().getFullYear()} ReadWonders. All rights reserved.
-                </p>
-              </div>
-            </div>
+          </body>
           `,
         });
 

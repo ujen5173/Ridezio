@@ -138,7 +138,7 @@ export function constructMetadata({
     icons,
     metadataBase: new URL(getBaseUrl()),
     verification: {
-      google: "73j5rUHvDmusjX0zQ5nDZI5JuVsW2aC7Njmwi4-t2rE",
+      google: "ZXUhxd8j6vspU4L4i5Xk0crzK1dLrwwIYch8mOKVAc0",
     },
     robots: {
       index: true,
