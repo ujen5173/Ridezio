@@ -17,7 +17,6 @@ import RootContext from "./_components/contexts/root";
 import { CSPostHogProvider } from "./providers";
 import { bricolage } from "./utils/font";
 import { constructMetadata, getBaseUrl } from "./utils/site";
-
 export const metadata: Metadata = constructMetadata();
 
 export default async function RootLayout({
@@ -30,30 +29,31 @@ export default async function RootLayout({
   const pathname = headersList.get("x-pathname") ?? "/";
   const canonicalUrl = `${getBaseUrl()}${pathname}`;
 
-  const { data: res } = await axios.get<{ lat: number; lng: number }>(
-    env.NEXT_PUBLIC_APP_URL + "/api/ip",
-  );
+  // Get client IP from request headers
+  const forwarded = headersList.get("x-forwarded-for");
+  let ip = forwarded ? forwarded.split(",")[0] : headersList.get("x-real-ip");
 
-  const getCountry = async () => {
-    const { lat, lng } = res;
-    const { data } = await axios.get<{
-      address: { city: string; country: string; country_code: string };
-    }>(
-      `https://us1.locationiq.com/v1/reverse.php?key=${env.NEXT_PUBLIC_LOCATIONIQ_API_KEY}&lat=${lat}&lon=${lng}&format=json`,
-    );
+  if (ip === "::1") {
+    ip = "27.34.20.194"; // Default IP for localhost to Kathmandu, Nepal
+  }
 
-    return {
-      country: data.address.country,
-      city: data.address.city,
-      geo: {
-        lat,
-        lng,
-      },
-      country_code: data.address.country_code,
-    };
+  // Use a geolocation service that accepts IP address
+  const { data: location } = await axios.get<{
+    country_name: string;
+    city: string;
+    latitude: number;
+    longitude: number;
+    country_code: string;
+  }>(`https://api.ipapi.com/api/${ip}?access_key=${env.NEXT_PUBLIC_IPAPI_KEY}`);
+
+  const country = location.country_name;
+  const city = location.city;
+  const geo = {
+    lat: location.latitude,
+    lng: location.longitude,
   };
 
-  const { country, city, geo, country_code } = await getCountry();
+  const country_code = location.country_code.toLowerCase();
 
   return (
     <html lang="en">

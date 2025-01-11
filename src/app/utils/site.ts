@@ -50,11 +50,7 @@ export const siteConfig = {
     name: "Velocit",
     url: getBaseUrl(),
     logo: `${getBaseUrl()}/logo.png`,
-    sameAs: [
-      links.facebook,
-      links.twitter,
-      links.instagram,
-    ],
+    sameAs: [links.facebook, links.twitter, links.instagram],
     areaServed: {
       "@type": "Country",
       name: "Nepal",
@@ -76,8 +72,8 @@ export const siteConfig = {
     geo: {
       "@type": "GeoCoordinates",
       latitude: "27.7172",
-      longitude: "85.324"
-    }
+      longitude: "85.324",
+    },
   },
 };
 
