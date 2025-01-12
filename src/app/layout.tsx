@@ -8,6 +8,7 @@ import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "~/app/api/uploadthing/core";
 import { Toaster } from "~/components/ui/toaster";
 import { env } from "~/env";
+import { type IpInfoResponse } from "~/server/api/routers/business";
 import { getServerAuthSession } from "~/server/auth";
 import { TRPCReactProvider } from "~/trpc/react";
 import { HydrateClient } from "~/trpc/server";
@@ -38,22 +39,18 @@ export default async function RootLayout({
   }
 
   // Use a geolocation service that accepts IP address
-  const { data: location } = await axios.get<{
-    country_name: string;
-    city: string;
-    latitude: number;
-    longitude: number;
-    country_code: string;
-  }>(`https://api.ipapi.com/api/${ip}?access_key=${env.NEXT_PUBLIC_IPAPI_KEY}`);
+  const { data: location } = await axios.get<IpInfoResponse>(
+    `https://ipinfo.io/${ip}/json?token=${env.IPINFO_API_KEY}`,
+  );
 
-  const country = location.country_name;
+  const country = `${location.timezone} - ${location.city} - ${location.country}`;
   const city = location.city;
   const geo = {
-    lat: location.latitude,
-    lng: location.longitude,
+    lat: +(location.loc.split(",")[0] ?? 0),
+    lng: +(location.loc.split(",")[1] ?? 0),
   };
 
-  const country_code = location.country_code.toLowerCase();
+  const country_code = location.country;
 
   return (
     <html lang="en">
@@ -65,7 +62,7 @@ export default async function RootLayout({
         <TRPCReactProvider>
           <HydrateClient>
             <CSPostHogProvider>
-              {country !== "Nepal" && (
+              {country_code !== "NP" && (
                 <AvailablyOnlyForNepal country={country} />
               )}
               <RootContext

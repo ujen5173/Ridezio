@@ -1,9 +1,10 @@
 "use client";
 
 import axios from "axios";
+import { Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { toast } from "~/hooks/use-toast";
 import { type GetSearchedShops } from "~/server/api/routers/business";
 import { type MapBounds } from "../page";
@@ -28,20 +29,23 @@ const MapArea = ({
   setIsLoading,
   setBounds,
   isDataFetching,
+  position,
+  setPosition,
 }: {
   places: GetSearchedShops;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setBounds: React.Dispatch<React.SetStateAction<MapBounds | null>>;
   isDataFetching: boolean;
+  position: [number, number] | null;
+  setPosition: React.Dispatch<React.SetStateAction<[number, number] | null>>;
 }) => {
   const locationName = useSearchParams().get("location") ?? "";
-
-  const [position, setPosition] = useState<[number, number] | null>([
-    13.7563, 100.5018,
-  ]);
+  const hasSetInitialPosition = useRef(false);
 
   useEffect(() => {
+    if (hasSetInitialPosition.current) return;
+
     const fetchLocation = async () => {
       try {
         if (locationName) {
@@ -49,19 +53,12 @@ const MapArea = ({
             `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}`,
           );
 
-          if (response.data && response.data.length > 0) {
-            const { lat, lon } = response.data[0] as {
-              lat: string;
-              lon: string;
-            };
+          if (response.data?.[0]) {
+            const { lat, lon } = response.data[0];
             const latNum = parseFloat(lat);
             const lngNum = parseFloat(lon);
-            const newPosition: [number, number] = [latNum, lngNum];
-            setPosition(newPosition);
-            setBounds({
-              northEast: { lat: latNum + 0.1, lng: lngNum + 0.1 },
-              southWest: { lat: latNum - 0.1, lng: lngNum - 0.1 },
-            });
+            setPosition([latNum, lngNum]);
+            hasSetInitialPosition.current = true;
             return;
           }
         }
@@ -71,63 +68,37 @@ const MapArea = ({
             (position) => {
               const latNum = position.coords.latitude;
               const lngNum = position.coords.longitude;
-              const newPosition: [number, number] = [latNum, lngNum];
-              setPosition(newPosition);
-              setBounds({
-                northEast: { lat: latNum + 0.1, lng: lngNum + 0.1 },
-                southWest: { lat: latNum - 0.1, lng: lngNum - 0.1 },
-              });
+              setPosition([latNum, lngNum]);
+              hasSetInitialPosition.current = true;
             },
-            (error) => {
-              void (async () => {
-                if (error.code === error.PERMISSION_DENIED) {
-                  try {
-                    const ipResponse =
-                      await axios.get<IpInfoResponse>("/api/ip");
-
-                    const { lat, lng } = ipResponse.data;
-
-                    const newPosition: [number, number] = [lat, lng];
-
-                    setPosition(newPosition);
-
-                    setBounds({
-                      northEast: { lat: lat + 0.1, lng: lng + 0.1 },
-                      southWest: { lat: lat - 0.1, lng: lng - 0.1 },
-                    });
-                  } catch (err) {
-                    console.log({ err });
-
-                    toast({
-                      title: "Location Error",
-                      description: "Could not determine your location",
-                      variant: "destructive",
-                    });
-
-                    setIsLoading(false);
-                  }
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            async (error) => {
+              if (error.code === error.PERMISSION_DENIED) {
+                try {
+                  const ipResponse = await axios.get<IpInfoResponse>("/api/ip");
+                  const { lat, lng } = ipResponse.data;
+                  setPosition([lat, lng]);
+                  hasSetInitialPosition.current = true;
+                } catch (err) {
+                  console.error(err);
+                  toast({
+                    title: "Location Error",
+                    description: "Could not determine your location",
+                    variant: "destructive",
+                  });
+                  setIsLoading(false);
                 }
-              })();
+              }
             },
           );
-        } else {
-          const ipResponse = await axios.get<IpInfoResponse>("/api/ip");
-          const { lat, lng } = ipResponse.data;
-          const newPosition: [number, number] = [lat, lng];
-          setPosition(newPosition);
-          setBounds({
-            northEast: { lat: lat + 0.1, lng: lng + 0.1 },
-            southWest: { lat: lat - 0.1, lng: lng - 0.1 },
-          });
         }
       } catch (error) {
-        console.log({ error });
+        console.error(error);
         toast({
           title: "Location Error",
           description: "Could not determine your location",
           variant: "destructive",
         });
-
         setIsLoading(false);
       }
     };
@@ -135,11 +106,19 @@ const MapArea = ({
     void fetchLocation();
   }, [locationName]);
 
-  const handleBoundsChange = useCallback((newBounds: MapBounds) => {
-    setBounds(newBounds);
-  }, []);
+  const handleBoundsChange = useCallback(
+    (newBounds: MapBounds) => {
+      setBounds(newBounds);
+    },
+    [setBounds],
+  );
 
-  if (!position) return null;
+  if (!position)
+    return (
+      <div className="absolute inset-0 z-[999] flex h-full w-full items-center justify-center bg-white">
+        <Loader2 className="size-6 animate-spin text-secondary" />
+      </div>
+    );
 
   return (
     <Map

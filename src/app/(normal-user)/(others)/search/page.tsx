@@ -49,6 +49,7 @@ const Search = () => {
   const [showingArea, setShowingArea] = useState<"places" | "map" | "both">(
     "both",
   );
+  const [position, setPosition] = useState<[number, number] | null>(null);
 
   const {
     data: searchBusinesses,
@@ -174,9 +175,11 @@ const Search = () => {
             </div>
             <ScrollArea className="pb-16">
               {!isDataFetching && places.length === 0 && (
-                <div className="flex h-[80vh] items-center justify-center sm:h-auto">
+                <div className="flex min-h-[80vh] items-center justify-center">
                   <span className="text-center text-lg font-medium text-foreground">
-                    Try Searching in a different area
+                    {!position
+                      ? "Hang tight, We are loading Map for you!"
+                      : "Try Searching in a different area"}
                   </span>
                 </div>
               )}
@@ -221,6 +224,8 @@ const Search = () => {
                 places={places}
                 isLoading={isLoading}
                 setBounds={setBounds}
+                position={position}
+                setPosition={setPosition}
                 isDataFetching={isDataFetching}
                 setIsLoading={setIsLoading}
               />

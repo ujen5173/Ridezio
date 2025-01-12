@@ -403,8 +403,6 @@ export const businessRouter = createTRPCRouter({
     .input(z.object({ slug: z.string() }))
     .query(async ({ ctx, input }) => {
       try {
-        console.log("VIEW COUNT CALLED...");
-
         const business = await ctx.db.query.businesses.findFirst({
           where: eq(businesses.slug, input.slug),
         });
@@ -608,7 +606,6 @@ export const businessRouter = createTRPCRouter({
           total: vendorsQuery.length,
         };
       } catch (err) {
-        console.log({ getVendorAroundLocationError: err });
         if (err instanceof TRPCError) {
           throw err;
         }
@@ -691,7 +688,6 @@ export const businessRouter = createTRPCRouter({
 
         return shops;
       } catch (err) {
-        console.log({ searchError: err });
         if (err instanceof TRPCError) {
           throw err;
         }

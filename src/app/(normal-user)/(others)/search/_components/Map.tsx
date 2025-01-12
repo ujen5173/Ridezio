@@ -25,7 +25,7 @@ import { type GetSearchedShops } from "~/server/api/routers/business";
 interface MapProps {
   mapLoading: boolean;
   setData: (bounds: MapBounds) => void;
-  location?: [number, number];
+  location: [number, number];
   places: GetSearchedShops;
   isLoading: boolean;
 }
@@ -41,9 +41,32 @@ const BoundsHandler: React.FC<{
 }> = ({ setData, initialBounds }) => {
   const map = useMap();
   const [lastBounds, setLastBounds] = useState(initialBounds);
+  const boundsUpdateTimeout = useRef<NodeJS.Timeout>();
   const isInitialLoadRef = useRef(true);
+  const isUserInteractionRef = useRef(false);
+
+  useEffect(() => {
+    if (isInitialLoadRef.current) {
+      const bounds = map.getBounds();
+      const newBounds = {
+        northEast: {
+          lat: bounds.getNorthEast().lat,
+          lng: bounds.getNorthEast().lng,
+        },
+        southWest: {
+          lat: bounds.getSouthWest().lat,
+          lng: bounds.getSouthWest().lng,
+        },
+      };
+      setData(newBounds);
+      setLastBounds(newBounds);
+      isInitialLoadRef.current = false;
+    }
+  }, [map, setData]);
 
   const updateBounds = useCallback(() => {
+    if (!isUserInteractionRef.current) return;
+
     const bounds = map.getBounds();
     const newBounds = {
       northEast: {
@@ -56,39 +79,46 @@ const BoundsHandler: React.FC<{
       },
     };
 
-    // Only fetch data if bounds have significantly changed
     const boundsChanged =
       Math.abs(newBounds.northEast.lat - lastBounds.northEast.lat) > 0.01 ||
       Math.abs(newBounds.northEast.lng - lastBounds.northEast.lng) > 0.01 ||
       Math.abs(newBounds.southWest.lat - lastBounds.southWest.lat) > 0.01 ||
       Math.abs(newBounds.southWest.lng - lastBounds.southWest.lng) > 0.01;
 
-    if (boundsChanged || isInitialLoadRef.current) {
-      setData(newBounds);
-      setLastBounds(newBounds);
-      isInitialLoadRef.current = false;
+    if (boundsChanged) {
+      if (boundsUpdateTimeout.current) {
+        clearTimeout(boundsUpdateTimeout.current);
+      }
+
+      boundsUpdateTimeout.current = setTimeout(() => {
+        setData(newBounds);
+        setLastBounds(newBounds);
+        isUserInteractionRef.current = false;
+      }, 500);
     }
-  }, [map, setData, lastBounds]);
+  }, [map, lastBounds, setData]);
 
   useEffect(() => {
-    // Ensure map is fully loaded before setting initial bounds
-    if (map) {
-      // Use setTimeout to ensure DOM is ready and map is fully initialized
-      const timerId = setTimeout(() => {
-        updateBounds();
-      }, 0);
+    if (!map) return;
 
-      const handleMoveEnd = () => {
-        updateBounds();
-      };
+    const handleMoveStart = () => {
+      isUserInteractionRef.current = true;
+    };
 
-      map.on("moveend", handleMoveEnd);
+    const handleMoveEnd = () => {
+      updateBounds();
+    };
 
-      return () => {
-        clearTimeout(timerId);
-        map.off("moveend", handleMoveEnd);
-      };
-    }
+    map.on("movestart", handleMoveStart);
+    map.on("moveend", handleMoveEnd);
+
+    return () => {
+      map.off("movestart", handleMoveStart);
+      map.off("moveend", handleMoveEnd);
+      if (boundsUpdateTimeout.current) {
+        clearTimeout(boundsUpdateTimeout.current);
+      }
+    };
   }, [map, updateBounds]);
 
   return null;
@@ -133,7 +163,7 @@ const ComponentResize = () => {
 const Map: React.FC<MapProps> = ({
   mapLoading,
   setData,
-  location = [27.7172, 85.324],
+  location,
   places,
   isLoading,
 }) => {
@@ -172,42 +202,47 @@ const Map: React.FC<MapProps> = ({
     [location],
   );
 
-  if (mapLoading) {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-secondary" />
-      </div>
-    );
-  }
+  const [loading, setLoading] = useState(true);
 
   return (
-    <MapContainer
-      key={JSON.stringify(location)}
-      style={{ width: "100%", height: "100%" }}
-      center={location}
-      zoom={15}
-      zoomAnimation={true}
-      zoomControl={false}
-      zoomSnap={0.5}
-      zoomDelta={0.5}
-      wheelPxPerZoomLevel={100}
-      scrollWheelZoom={true}
-    >
-      <ComponentResize />
-      {isLoading && (
-        <div className="absolute left-1/2 top-20 z-[999] flex h-12 w-32 -translate-x-1/2 items-center justify-center gap-1 rounded-sm bg-white text-sm font-medium text-slate-700 shadow-lg">
-          <Loader2 className="size-5 animate-spin text-secondary" />
-          Searching...
+    <>
+      <div className="h-16"></div>
+      {loading && (
+        <div className="absolute inset-0 z-[999] flex h-full w-full items-center justify-center bg-white">
+          <Loader2 className="size-6 animate-spin text-secondary" />
         </div>
       )}
-      <BoundsHandler setData={setData} initialBounds={initialBounds} />
-      <ZoomControl position="bottomright" />
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-      />
-      {memoizedMarkers}
-    </MapContainer>
+      <MapContainer
+        key={JSON.stringify(location)}
+        style={{ width: "100%", height: "calc(100vh - 4rem)" }}
+        center={location}
+        zoom={15}
+        zoomAnimation={true}
+        zoomControl={false}
+        whenReady={() => {
+          setLoading(false);
+        }}
+        zoomSnap={0.5}
+        zoomDelta={0.5}
+        wheelPxPerZoomLevel={100}
+        scrollWheelZoom={true}
+      >
+        <ComponentResize />
+        {isLoading && (
+          <div className="absolute left-1/2 top-20 z-[999] flex h-12 w-32 -translate-x-1/2 items-center justify-center gap-1 rounded-sm bg-white text-sm font-medium text-slate-700 shadow-lg">
+            <Loader2 className="size-5 animate-spin text-secondary" />
+            Searching...
+          </div>
+        )}
+        <BoundsHandler setData={setData} initialBounds={initialBounds} />
+        <ZoomControl position="bottomright" />
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        />
+        {memoizedMarkers}
+      </MapContainer>
+    </>
   );
 };
 

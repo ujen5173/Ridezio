@@ -145,8 +145,6 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
 
   const images = imageForm.watch("images") || [];
 
-  console.log({ images });
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const isValid = await form.trigger();
 

@@ -84,7 +84,6 @@ const PurchaseAccessory: React.FC<BookingsProps> = ({
       setOpen(false);
       toast({ title: "Order placed successfully" });
     } catch (error) {
-      console.log({ error });
       toast({ title: "Failed to place order" });
     }
   };

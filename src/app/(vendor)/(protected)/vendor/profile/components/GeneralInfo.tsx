@@ -113,7 +113,6 @@ const GeneralInfo = () => {
           hidden
           value={form.getValues("logo") === null ? undefined : ""}
           onChange={(e) => {
-            console.log({ e });
             const files = e.target.files;
             if (files) void logoUploadFiles(Array.from(files));
           }}
