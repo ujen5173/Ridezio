@@ -26,7 +26,9 @@ import {
   FileUploader,
   FileUploaderContent,
 } from "~/components/ui/file-uploader";
+import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import { type UploadedFileType } from "~/hooks/useUploadthing";
+import { convertMultipleToWebP, webpBase64ArrayToFiles } from "~/lib/image";
 import ImageDragItem from "./ImageDragItem";
 
 export const imageSchema = z.object({
@@ -41,7 +43,18 @@ export const imageSchema = z.object({
 
 export const defaultDropzone = {
   accept: {
-    "image/*": [".jpg", ".jpeg", ".png", ".webp"],
+    "image/*": [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".webp",
+      ".bmp",
+      ".tiff",
+      ".tif",
+      ".avif",
+      ".heic",
+      ".heif",
+    ],
   },
   multiple: true,
   maxFiles: 5,
@@ -179,16 +192,23 @@ const FileUploaderWrapper = ({
     <FileUploader
       value={files}
       dropzoneOptions={dropzone}
-      onValueChange={(newFiles) => {
+      onValueChange={async (newFiles) => {
         // Only pass truly new files that haven't been uploaded yet
         const actualNewFiles = newFiles?.filter(
           (newFile) =>
             !files?.some((existingFile) => existingFile.name === newFile.name),
         );
 
-        if (actualNewFiles?.length) {
-          setFiles(actualNewFiles);
-          onFileUpload(actualNewFiles);
+        if (!actualNewFiles) return;
+
+        const convertedToWebp = await convertMultipleToWebP(actualNewFiles);
+        const webpToFile = webpBase64ArrayToFiles(
+          convertedToWebp.map((e) => e.base64),
+        );
+
+        if (webpToFile?.length) {
+          setFiles(webpToFile);
+          onFileUpload(webpToFile);
         }
       }}
     >
@@ -253,18 +273,22 @@ const FileUploaderWrapper = ({
               items={imageIds}
               strategy={horizontalListSortingStrategy}
             >
-              <div className="flex items-center gap-2">
-                {localImages.map((image, index) => (
-                  <div key={image.id} className="relative h-24 w-32">
-                    <ImageDragItem
-                      id={image.id}
-                      file={image.url}
-                      index={index}
-                      handleRemoveFile={handleRemoveFile}
-                    />
-                  </div>
-                ))}
-              </div>
+              <ScrollArea className="w-full">
+                <div className="flex flex-wrap items-center gap-2">
+                  <ScrollBar orientation="horizontal" />
+
+                  {localImages.map((image, index) => (
+                    <div key={image.id} className="relative h-24 w-32">
+                      <ImageDragItem
+                        id={image.id}
+                        file={image.url}
+                        index={index}
+                        handleRemoveFile={handleRemoveFile}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
             </SortableContext>
           </DndContext>
         </FileUploaderContent>

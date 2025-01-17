@@ -38,7 +38,7 @@ const PickupVehicle = ({
 
   return (
     <div className="space-y-2 px-1">
-      <Label>Pick up Date</Label>
+      <Label>Rental Dates</Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -48,17 +48,13 @@ const PickupVehicle = ({
           >
             <div className="flex items-center gap-2">
               <CalendarDays size={18} className="text-slate-700" />
-              {date?.from ? (
-                date.to ? (
-                  <>
-                    {format(date.from, "LLL dd, y")} -{" "}
-                    {format(date.to, "LLL dd, y")}
-                  </>
-                ) : (
-                  format(date.from, "LLL dd, y")
-                )
+              {date ? (
+                <>
+                  {date.from && format(date.from, "LLL dd, y")} -{" "}
+                  {date.to && format(date.to, "LLL dd, y")}
+                </>
               ) : (
-                <span>Pick a date</span>
+                <span>Start and End date</span>
               )}
             </div>
             {date && (

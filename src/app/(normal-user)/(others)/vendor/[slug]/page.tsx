@@ -4,7 +4,6 @@ import { cache } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import { constructMetadata } from "~/app/utils/site";
-import { env } from "~/env";
 import { api } from "~/trpc/server";
 import VendorWrapper from "./_components/VendorWrapper";
 
@@ -23,15 +22,9 @@ export async function generateMetadata({
 
   if (!vendor) return constructMetadata();
 
-  const locationName =
-    vendor?.location?.address && vendor?.location?.city
-      ? `${vendor.location.address}, ${vendor.location.city}`
-      : "";
-
   return constructMetadata({
     title: `${vendor.name} - Velocit`,
-    description: `Rent ${vendor.availableVehicleTypes.join(", ")} in ${locationName} from ${vendor.name}. Best prices, instant booking, and flexible rental options. Find your perfect ride on Velocit.`,
-    url: `${env.NEXT_PUBLIC_APP_URL}/vendor/${vendor.slug}`,
+    description: vendor.name + " - " + vendor.location.address,
     image: vendor.images?.[0]?.url,
   });
 }
@@ -45,10 +38,11 @@ const VendorPage = async ({
   }>;
   searchParams: Promise<{
     data?: string;
+    paymentMethod?: string;
   }>;
 }) => {
   const { slug } = await params;
-  const { data: paramsData } = await searchParams;
+  const { data: paramsData, paymentMethod } = await searchParams;
 
   if (!slug) redirect("/");
 
@@ -57,7 +51,12 @@ const VendorPage = async ({
   return (
     <>
       <HeaderHeight />
-      <VendorWrapper bookingProcessData={paramsData} slug={slug} data={data} />
+      <VendorWrapper
+        bookingProcessData={paramsData}
+        paymentMethod={paymentMethod === "online" ? "online" : "cash"}
+        slug={slug}
+        data={data}
+      />
     </>
   );
 };

@@ -1,7 +1,6 @@
 "use client";
 
 import { Dot, Instagram, MapPin, Phone, Star, Store } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useContext, useLayoutEffect, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
@@ -16,6 +15,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "~/components/ui/carousel";
+import { OptimizedImage } from "~/components/ui/optimized-image";
 import { Separator } from "~/components/ui/separator";
 import { toast } from "~/hooks/use-toast";
 import { extractDirectionsFromIframe } from "~/lib/helpers";
@@ -118,17 +118,15 @@ const VendorDetails = () => {
                     className="relative basis-auto px-1 pt-2"
                   >
                     <button className="rounded-sm hover:ring-2 hover:ring-secondary hover:ring-offset-2">
-                      <div
-                        style={{
-                          backgroundImage: `url(${image.url})`,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                          backgroundRepeat: "no-repeat",
-                        }}
-                        onClick={() => {
-                          api?.scrollTo(index);
-                        }}
-                        className="size-16 rounded-sm md:aspect-square"
+                      <OptimizedImage
+                        alt={`${vendor.name!}'s Images`}
+                        width={160}
+                        height={160}
+                        priority={index === 0}
+                        quality={60}
+                        onClick={() => api?.scrollTo(index)}
+                        className="aspect-square size-16 rounded-md object-cover hover:ring-2 hover:ring-secondary hover:ring-offset-2"
+                        src={image.url}
                       />
                     </button>
                   </CarouselItem>
@@ -145,15 +143,17 @@ const VendorDetails = () => {
                 {vendor.images.map((_, index) => (
                   <CarouselItem key={index} className="relative">
                     <div className="absolute inset-0 z-0 ml-4 animate-pulse rounded-md bg-slate-100"></div>
-                    <Image
+                    <OptimizedImage
                       alt={`${vendor.name!}'s Images`}
                       width={1360}
                       height={765}
-                      priority
-                      layout="cover"
-                      className="relative z-10 aspect-[16/12] rounded-md bg-transparent object-cover"
-                      key={index}
+                      priority={index === 0}
+                      quality={85}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw"
+                      className="relative z-10 aspect-[16/12] rounded-md object-cover"
                       src={_.url}
+                      placeholder="blur"
+                      blurDataURL={`data:image/svg+xml;base64,...`}
                     />
                   </CarouselItem>
                 ))}

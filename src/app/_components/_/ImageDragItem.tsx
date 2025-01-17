@@ -3,7 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Trash2 } from "lucide-react";
-import Image from "next/image";
+import { OptimizedImage } from "~/components/ui/optimized-image";
 import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
 
@@ -50,11 +50,13 @@ const ImageDragItem = ({
         {...listeners}
       >
         <Skeleton className="absolute inset-0" />
-        <Image
+        <OptimizedImage
           src={file}
           alt={`Image ${index + 1}`}
           fill
-          className="h-full w-full rounded-md object-contain mix-blend-multiply"
+          sizes="(max-width: 768px) 33vw, 25vw"
+          quality={80}
+          className="h-full w-full rounded-md object-cover"
         />
       </div>
     </div>

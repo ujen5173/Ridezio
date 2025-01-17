@@ -1,12 +1,13 @@
 "use client";
 
 import { differenceInDays } from "date-fns";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, TriangleAlert } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useMemo, useState } from "react";
 import { type DateRange } from "react-day-picker";
 import { inter } from "~/app/utils/font";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -27,11 +28,18 @@ import SigninAlert from "./bookings-components/SigninAlert";
 import Summary from "./bookings-components/Summary";
 import WhichVehicle from "./bookings-components/WhichVehicle";
 
+enum PaymentMethod {
+  Cash = "cash",
+  Khalti = "khalti",
+  Esewa = "esewa",
+}
+
 interface BookingsProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   bookingsDetails: GetBookingsType;
   vendorId: string;
+  vendorUserId: string;
   fromVendor: boolean;
   paymentDetails: {
     merchantCode: string | null;
@@ -42,6 +50,7 @@ const Bookings: React.FC<BookingsProps> = ({
   bookingsDetails,
   open,
   setOpen,
+  vendorUserId,
   vendorId,
   paymentDetails,
   fromVendor = false,
@@ -256,6 +265,22 @@ const Bookings: React.FC<BookingsProps> = ({
               </DialogTitle>
             </DialogHeader>
 
+            {user?.user.role === "VENDOR" && user?.user.id !== vendorUserId && (
+              <Alert variant="default" className="border-red-300 bg-red-100">
+                <div className="flex flex-1 items-center gap-4">
+                  <TriangleAlert className="h-6 w-6 text-red-600" />
+                  <div className="flex-1">
+                    <AlertTitle className="text-lg font-medium text-red-600">
+                      Vendor cannot book
+                    </AlertTitle>
+                    <AlertDescription className="text-red-600">
+                      Please register as a user to continue booking a vehicle.
+                    </AlertDescription>
+                  </div>
+                </div>
+              </Alert>
+            )}
+
             <ScrollArea className="flex-1 pr-2">
               <div className="space-y-4 py-2">
                 {!user && <SigninAlert />}
@@ -367,7 +392,7 @@ const Bookings: React.FC<BookingsProps> = ({
             <div className="flex w-full flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
               <div className="flex flex-wrap gap-1 text-lg font-semibold">
                 <span className="text-nowrap">
-                  Total: रु.{getSelectedVehiclePrice()}/-
+                  Total: NPR.{getSelectedVehiclePrice()}/-
                 </span>
 
                 {date?.from && date?.to && (
@@ -382,8 +407,22 @@ const Bookings: React.FC<BookingsProps> = ({
                 </Button>
                 <Button
                   variant="primary"
-                  onClick={handleCheckout}
-                  disabled={isCheckoutDisabled || !user}
+                  onClick={() => {
+                    if (
+                      user?.user.role === "VENDOR" &&
+                      user?.user.id !== vendorUserId
+                    ) {
+                      return;
+                    } else {
+                      handleCheckout();
+                    }
+                  }}
+                  disabled={
+                    isCheckoutDisabled ||
+                    !user ||
+                    (user?.user.role === "VENDOR" &&
+                      user?.user.id !== vendorUserId)
+                  }
                 >
                   {isCheckoutDisabled && getMaxAllowedQuantity() === 0
                     ? "No Availability"
@@ -415,6 +454,14 @@ const Bookings: React.FC<BookingsProps> = ({
               date={date}
               quantity={quantity}
               fromVendor={fromVendor}
+              acceptedPaymentMethods={(() => {
+                const method = [
+                  PaymentMethod.Cash,
+                  ...(paymentDetails.merchantCode ? [PaymentMethod.Esewa] : []),
+                ];
+
+                return method;
+              })()}
               vendorId={vendorId}
               setOpen={setOpen}
             />

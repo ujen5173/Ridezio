@@ -56,7 +56,7 @@ const OrderCard = ({
         </div>
         <Dot size={20} className="text-foreground" />
         <div className="flex items-center gap-1 font-medium text-slate-600">
-          <span className="">रु. {orderDetails.totalPrice}/-</span>
+          <span className="">NPR. {orderDetails.totalPrice}/-</span>
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import { type inferRouterOutputs } from "@trpc/server";
+import { TRPCError, type inferRouterOutputs } from "@trpc/server";
 import { desc, eq, sql } from "drizzle-orm";
 import slugify from "slugify";
 import { z } from "zod";
@@ -72,7 +72,10 @@ export const vehicleRouter = createTRPCRouter({
           return vehicle;
         }
       } catch (error) {
-        console.log({ error });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong, please try again",
+        });
       }
     }),
 
@@ -90,7 +93,10 @@ export const vehicleRouter = createTRPCRouter({
 
         return vehicle;
       } catch (error) {
-        console.log({ error });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong, please try again",
+        });
       }
     }),
 
@@ -129,7 +135,10 @@ export const vehicleRouter = createTRPCRouter({
 
       return res;
     } catch (error) {
-      console.log({ error });
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Something went wrong, please try again",
+      });
     }
   }),
 
@@ -165,7 +174,10 @@ export const vehicleRouter = createTRPCRouter({
         }
         return vehicles.vehicles;
       } catch (error) {
-        console.log({ error });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong, please try again",
+        });
       }
     }),
 });

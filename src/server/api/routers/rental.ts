@@ -191,8 +191,7 @@ export const rentalRouter = createTRPCRouter({
         }
 
         return rental;
-      } catch (err) {
-        console.log({ err });
+      } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Something went wrong",

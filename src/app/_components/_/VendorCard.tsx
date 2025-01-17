@@ -1,5 +1,4 @@
 import { Dot, MapPin, Star } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { bricolage } from "~/app/utils/font";
 import {
@@ -9,6 +8,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "~/components/ui/carousel";
+import { OptimizedImage } from "~/components/ui/optimized-image";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import { type GetPopularShops } from "~/server/api/routers/business";
@@ -39,12 +39,12 @@ const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
               .map((image, index) => (
                 <CarouselItem key={index} className="relative">
                   <Link href={`/vendor/${shop.slug}`}>
-                    <Image
+                    <OptimizedImage
                       alt={`${shop.name}'s Images`}
                       width={450}
                       height={450}
-                      layout="fixed"
                       priority
+                      quality={100}
                       className="m-auto aspect-[11/7] w-full rounded-md object-fill"
                       key={index}
                       src={image.url}

@@ -83,7 +83,18 @@ export const FileUploader = forwardRef<
     const [activeIndex, setActiveIndex] = useState(-1);
     const {
       accept = {
-        "image/*": [".jpg", ".jpeg", ".png", ".gif"],
+        "image/*": [
+          ".jpg",
+          ".jpeg",
+          ".png",
+          ".webp",
+          ".bmp",
+          ".tiff",
+          ".tif",
+          ".avif",
+          ".heic",
+          ".heif",
+        ],
       },
       maxFiles = 5,
       maxSize = 5 * 1024 * 1024,

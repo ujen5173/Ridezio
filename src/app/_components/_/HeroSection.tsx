@@ -128,7 +128,7 @@ const HeroSection = () => {
                 <button
                   aria-expanded={open}
                   className={cn(
-                    "flex h-12 w-full flex-1 items-center gap-2 bg-slate-200 text-slate-600 md:max-w-80 md:bg-slate-100/30 md:text-slate-100",
+                    "flex h-12 flex-1 items-center gap-2 bg-slate-200 text-slate-600 md:max-w-80 md:bg-slate-100/30 md:text-slate-100",
                     "rounded-lg bg-slate-200 px-4 py-3 text-base text-slate-600 outline-none placeholder:text-slate-100 md:max-w-80 md:bg-slate-100/30 md:text-slate-100",
                   )}
                 >
@@ -193,7 +193,7 @@ const HeroSection = () => {
             <Select onValueChange={(value) => setVehicleType(value)}>
               <SelectTrigger
                 className={cn(
-                  "w-full flex-1 border-none bg-slate-200 text-base text-slate-600 md:max-w-80 md:bg-slate-100/30 md:text-slate-100",
+                  "flex-1 border-none bg-slate-200 text-base text-slate-600 md:max-w-80 md:bg-slate-100/30 md:text-slate-100",
                   "h-12 focus:ring-0 focus-visible:ring-0",
                 )}
               >
@@ -236,7 +236,7 @@ const HeroSection = () => {
               </SelectContent>
             </Select>
 
-            <div className="w-full md:max-w-80">
+            <div className="flex-1 md:max-w-80">
               <Input
                 id="search_for"
                 onChange={(e) => setSearchFor(e.target.value)}

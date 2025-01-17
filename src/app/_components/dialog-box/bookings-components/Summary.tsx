@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { CalendarClock, Loader } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { type DateRange } from "react-day-picker";
 import { v4 as uuidv4 } from "uuid";
@@ -16,7 +17,12 @@ import { Separator } from "~/components/ui/separator";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
-import VendorSummary from "./Vendor-Summary";
+
+enum PaymentMethod {
+  Cash = "cash",
+  Khalti = "khalti",
+  Esewa = "esewa",
+}
 
 const Summary = ({
   getMaxAllowedQuantity,
@@ -28,6 +34,7 @@ const Summary = ({
   fromVendor,
   message,
   vendorId,
+  acceptedPaymentMethods,
   handleCheckout,
   setOpen,
 }: {
@@ -44,28 +51,33 @@ const Summary = ({
   fromVendor: boolean;
   message: string;
   vendorId: string;
+  acceptedPaymentMethods: PaymentMethod[];
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const acceptOnline =
+    acceptedPaymentMethods.includes(PaymentMethod.Esewa) ||
+    acceptedPaymentMethods.includes(PaymentMethod.Khalti);
+
   const [acceptTerms, setAcceptTerms] = useState<CheckedState>(true);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     "online" | "cash"
-  >("online");
+  >(acceptOnline ? "online" : "cash");
   const [selectedWallet, setSelectedWallet] = useState<
     "esewa" | "khalti" | null
   >(null);
 
   const { mutateAsync: paymentMutation } = api.payment.create.useMutation();
 
+  const pathname = usePathname();
+  const router = useRouter();
+
   const { mutateAsync: rentMutation } = api.rental.rent.useMutation();
   const [loading, setLoading] = useState(false);
 
   const reserveBooking = async (method: "cash" | "online-payment" = "cash") => {
     try {
-      if (method === "cash") {
-        setLoading(true);
-      } else {
-        setLoading(true);
-      }
+      setLoading(true);
+
       toast({
         title: "Initiating Booking",
         description: "Please wait while we confirm your booking",
@@ -90,10 +102,17 @@ const Summary = ({
     } finally {
       setLoading(false);
       setLoading(false);
-      toast({
-        title: "Wait for Confirmation from Vendor",
-        description: "Your booking request has been sent to the vendor",
-      });
+      if (fromVendor) {
+        toast({
+          title: "Booking Confirmed",
+          description: "The booking has been confirmed",
+        });
+      } else {
+        toast({
+          title: "Wait for Confirmation from Vendor",
+          description: "Your booking request has been sent to the vendor",
+        });
+      }
       setTimeout(() => {
         setOpen(false);
       }, 600);
@@ -192,7 +211,7 @@ const Summary = ({
     }
   };
 
-  const checkOut = () => {
+  const checkOut = async () => {
     if (selectedPaymentMethod === "online") {
       if (selectedWallet === "esewa") {
         void handlePayment();
@@ -208,7 +227,10 @@ const Summary = ({
         });
       }
     } else {
-      void reserveBooking("cash");
+      await reserveBooking("cash");
+      router.push(pathname + `?data=success&paymentMethod=cash`, {
+        scroll: false,
+      });
     }
   };
 
@@ -243,7 +265,7 @@ const Summary = ({
           <div className="flex justify-between">
             <span>Total Amount:</span>
             <span className="font-semibold">
-              रु.{getSelectedVehiclePrice()} /-
+              NPR.{getSelectedVehiclePrice()} /-
             </span>
           </div>
         </div>
@@ -252,9 +274,7 @@ const Summary = ({
       <Separator className="" />
 
       <div className="w-full space-y-6">
-        {fromVendor ? (
-          <VendorSummary />
-        ) : (
+        {!fromVendor && (
           <>
             <div className="">
               <h1 className="mb-4 text-lg font-bold text-slate-800">
@@ -269,6 +289,7 @@ const Summary = ({
                 the booking.
               </p>
             </div>
+
             <Separator />
 
             <div className="flex items-center gap-4">
@@ -278,170 +299,197 @@ const Summary = ({
                 your request. You will receive a email on update from vendor.
               </p>
             </div>
+
             <Separator />
+
             <div className="">
               <h1 className="mb-4 text-lg font-bold text-slate-800">
-                Documents Required on Pickup
+                Required Documents on Pickup
               </h1>
               <ul className="list-disc pl-6 text-sm text-slate-600">
                 <li>ID card (Citizenship card or Passport)</li>
                 <li>Driving License if it is bike or car</li>
               </ul>
             </div>
-            <Separator />
-
-            <div className="">
-              <h1 className="mb-4 text-lg font-bold text-slate-800">
-                Choose how to pay
-              </h1>
-              <div className="rounded-lg border border-border">
-                <RadioGroup
-                  onValueChange={(e: "online" | "cash") => {
-                    setSelectedPaymentMethod(e);
-                  }}
-                  className="gap-0"
-                  defaultValue="online"
-                >
-                  <Label
-                    htmlFor="online"
-                    role="button"
-                    className="flex items-center justify-between px-4 py-4"
-                  >
-                    <p className="flex-1">
-                      Pay NPR. {getSelectedVehiclePrice()} /- now
-                    </p>
-                    <RadioGroupItem value="online" id="online" />
-                  </Label>
-                  <Separator />
-                  <Label
-                    htmlFor="cash"
-                    role="button"
-                    className="flex items-center justify-between px-4 py-4"
-                  >
-                    <p className="flex-1">Pay on Pickup</p>
-                    <RadioGroupItem value="cash" id="cash" />
-                  </Label>
-                </RadioGroup>
-              </div>
-            </div>
-            <Separator />
-            <div className="">
-              <div className="flex items-center justify-between">
-                <h1 className="mb-4 text-lg font-bold text-slate-800">
-                  Pay with
-                </h1>
-              </div>
-
-              <RadioGroup
-                onValueChange={(e: "esewa" | "khalti") => {
-                  setSelectedWallet(e);
-                }}
-                className="flex gap-2"
-              >
-                <Label
-                  htmlFor="esewa"
-                  role="button"
-                  className={cn(
-                    "flex size-28 items-center justify-center rounded-md border border-border px-4 py-6 transition",
-                    selectedPaymentMethod === "online"
-                      ? cn(
-                          selectedWallet === "esewa"
-                            ? "border-secondary/30 bg-secondary/30"
-                            : "hover:bg-slate-100",
-                        )
-                      : "pointer-events-none cursor-not-allowed opacity-50",
-                  )}
-                >
-                  <div className="flex flex-col items-center justify-center">
-                    <Image
-                      src={"/esewa.svg"}
-                      width={100}
-                      height={100}
-                      alt="Pay with esewa"
-                      className="mb-3 aspect-square size-7 object-contain"
-                    />
-                    <span className="text-center text-base text-slate-700">
-                      eSewa
-                    </span>
-                  </div>
-                  <RadioGroupItem value="esewa" id="esewa" hidden />
-                </Label>
-                <Label
-                  htmlFor="khalti"
-                  role="button"
-                  className={cn(
-                    "flex size-28 items-center justify-center rounded-md border border-border px-4 py-6 transition",
-                    selectedPaymentMethod === "online"
-                      ? cn(
-                          selectedWallet === "khalti"
-                            ? "border-secondary/30 bg-secondary/30"
-                            : "hover:bg-slate-100",
-                        )
-                      : "pointer-events-none cursor-not-allowed opacity-50",
-                  )}
-                >
-                  <div className="flex flex-col items-center justify-center">
-                    <Image
-                      src={"/khalti.png"}
-                      width={100}
-                      height={100}
-                      alt="Pay with khalti"
-                      className="mb-3 aspect-square size-7 object-contain"
-                    />
-                    <span className="text-center text-base text-slate-700">
-                      Khalti
-                    </span>
-                  </div>
-                  <RadioGroupItem value="khalti" id="khalti" hidden />
-                </Label>
-              </RadioGroup>
-            </div>
 
             <Separator />
-
-            <div className="flex items-center space-x-2 px-1">
-              <Checkbox
-                defaultChecked={acceptTerms}
-                onCheckedChange={(e) => setAcceptTerms(e)}
-                id="terms"
-              />
-              <Label
-                htmlFor="terms"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                I agree to the{" "}
-                <Link
-                  className="text-secondary underline"
-                  href="/terms-of-service"
-                >
-                  Terms of Service
-                </Link>
-                , and I acknowledge the{" "}
-                <Link
-                  className="text-secondary underline"
-                  href="/privacy-policy"
-                >
-                  Privacy Policy
-                </Link>
-                .
-              </Label>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                className="gap-2"
-                onClick={checkOut}
-                variant={"secondary"}
-              >
-                {loading && <Loader className="size-4 animate-spin" />}
-                {loading ? "Processing..." : "Request to book"}
-              </Button>
-              <Button onClick={handleCheckout} variant={"outline"}>
-                Back
-              </Button>
-            </div>
           </>
         )}
+        <div className="">
+          <h1 className="mb-4 text-lg font-bold text-slate-800">
+            Choose how to pay
+          </h1>
+          <div className="rounded-lg border border-border">
+            <RadioGroup
+              onValueChange={(e: "online" | "cash") => {
+                setSelectedPaymentMethod(e);
+              }}
+              className="gap-0"
+              defaultValue={acceptOnline ? "online" : "cash"}
+            >
+              <Label
+                htmlFor="online"
+                role="button"
+                className={cn(
+                  "flex items-center justify-between px-4 py-4",
+                  acceptOnline
+                    ? "cursor-pointer"
+                    : "cursor-not-allowed opacity-55",
+                )}
+              >
+                <p className="flex-1">
+                  Pay NPR. {getSelectedVehiclePrice()} /- now
+                </p>
+                <div className="flex items-center gap-2">
+                  {!acceptOnline ? (
+                    <span className="text-xs text-destructive">
+                      (Online Not Available)
+                    </span>
+                  ) : null}
+                  <RadioGroupItem
+                    disabled={!acceptOnline}
+                    value="online"
+                    id="online"
+                  />
+                </div>
+              </Label>
+              <Separator />
+              <Label
+                htmlFor="cash"
+                role="button"
+                className="flex items-center justify-between px-4 py-4"
+              >
+                <p className="flex-1">Cash on Pickup</p>
+                <RadioGroupItem value="cash" id="cash" />
+              </Label>
+            </RadioGroup>
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="">
+          <div className="flex items-center justify-between">
+            <h1 className="mb-4 text-lg font-bold text-slate-800">Pay with</h1>
+          </div>
+
+          <RadioGroup
+            onValueChange={(e: "esewa" | "khalti") => {
+              setSelectedWallet(e);
+            }}
+            disabled={selectedPaymentMethod === "cash"}
+            className="flex gap-2"
+          >
+            <Label
+              htmlFor="esewa"
+              role="button"
+              className={cn(
+                "flex size-28 items-center justify-center rounded-md border border-border px-4 py-6 transition",
+                selectedPaymentMethod === "online"
+                  ? cn(
+                      selectedWallet === "esewa"
+                        ? "border-secondary/30 bg-secondary/30"
+                        : "hover:bg-slate-100",
+                    )
+                  : "pointer-events-none cursor-not-allowed opacity-50",
+              )}
+            >
+              <div className="flex flex-col items-center justify-center">
+                <Image
+                  src={"/esewa.svg"}
+                  width={100}
+                  height={100}
+                  alt="Pay with esewa"
+                  className="mb-3 aspect-square size-7 object-contain"
+                />
+                <span className="text-center text-base text-slate-700">
+                  eSewa
+                </span>
+              </div>
+              <RadioGroupItem value="esewa" id="esewa" hidden />
+            </Label>
+            <Label
+              htmlFor="khalti"
+              role="button"
+              className={cn(
+                "flex size-28 items-center justify-center rounded-md border border-border px-4 py-6 transition",
+                selectedPaymentMethod === "online"
+                  ? cn(
+                      selectedWallet === "khalti"
+                        ? "border-secondary/30 bg-secondary/30"
+                        : "hover:bg-slate-100",
+                    )
+                  : "pointer-events-none cursor-not-allowed opacity-50",
+              )}
+            >
+              <div className="flex flex-col items-center justify-center">
+                <Image
+                  src={"/khalti.png"}
+                  width={100}
+                  height={100}
+                  alt="Pay with khalti"
+                  className="mb-3 aspect-square size-7 object-contain"
+                />
+                <span className="text-center text-base text-slate-700">
+                  Khalti
+                </span>
+              </div>
+              <RadioGroupItem value="khalti" id="khalti" hidden />
+            </Label>
+          </RadioGroup>
+        </div>
+
+        <Separator />
+        {!fromVendor && (
+          <div className="flex items-center space-x-2 px-1">
+            <Checkbox
+              defaultChecked={acceptTerms}
+              onCheckedChange={(e) => setAcceptTerms(e)}
+              id="terms"
+            />
+            <Label
+              htmlFor="terms"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              I agree to the{" "}
+              <Link
+                className="text-secondary underline"
+                href="/terms-of-service"
+              >
+                Terms of Service
+              </Link>
+              , and I acknowledge the{" "}
+              <Link className="text-secondary underline" href="/privacy-policy">
+                Privacy Policy
+              </Link>
+              .
+            </Label>
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          <Button
+            className="gap-2"
+            disabled={loading}
+            onClick={checkOut}
+            variant={"secondary"}
+          >
+            {loading && <Loader className="size-4 animate-spin" />}
+            {loading
+              ? "Processing..."
+              : !fromVendor
+                ? "Request to book"
+                : "Book Now"}
+          </Button>
+          <Button
+            disabled={loading}
+            onClick={() => {
+              setOpen(false);
+            }}
+            variant={"outline"}
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
     </div>
   );

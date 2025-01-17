@@ -182,7 +182,7 @@ export const bookingEmailToVendor = (bookingDetails: BookingDetails) => {
             </div>
             <div class="detail-row">
                 <span>Total Amount: </span>
-                <strong>रु. ${bookingDetails.totalPrice}</strong>
+                <strong>NPR. ${bookingDetails.totalPrice}</strong>
             </div>
             <div class="detail-row" style="border-bottom: none;">
                 <span>Special Notes: </span>
@@ -229,7 +229,7 @@ export const bookingEmailToUser = (bookingDetails: BookingDetails) => {
             </div>
             <div class="detail-row" style="border-bottom: none;">
                 <span>Total Amount: </span>
-                <strong>रु. ${bookingDetails.totalPrice}</strong>
+                <strong>NPR. ${bookingDetails.totalPrice}</strong>
             </div>
         </div>
         <p style="text-align: center; color: #718096; margin-top: 20px; ">
@@ -267,7 +267,7 @@ export const bookingRejectionEmailToUser = (
             </div>
             <div class="detail-row" style="border-bottom: none;">
                 <span>Total Refund: </span>
-                <strong>रु. ${bookingDetails.totalPrice}</strong>
+                <strong>NPR. ${bookingDetails.totalPrice}</strong>
             </div>
         </div>
         <p style="text-align: center; color: #718096; margin-top: 20px;">
@@ -309,7 +309,7 @@ export const bookingConfirmationEmailToUser = (
             </div>
             <div class="detail-row" style="border-bottom: none;">
                 <span>Total Amount: </span>
-                <strong>रु. ${bookingDetails.totalPrice}</strong>
+                <strong>NPR. ${bookingDetails.totalPrice}</strong>
             </div>
         </div>
         <p style="text-align: center; color: #718096; margin-top: 20px;">

@@ -142,13 +142,13 @@ const VehicleBookingsTable = () => {
           }>("vehicle");
           return (
             <div className="flex items-center gap-2 px-4">
-              <span className="whitespace-nowrap text-sm capitalize">
+              <span className="max-w-60 truncate whitespace-nowrap text-sm capitalize">
                 {value.vehicle}
               </span>
 
               <div
                 className={cn(
-                  "flex w-fit items-center gap-1 rounded-sm border px-2 py-1 font-medium",
+                  "flex w-fit items-center gap-1 whitespace-nowrap rounded-sm border px-2 py-1 font-medium",
                   `${value.vehicle_type}-badge`,
                 )}
               >
@@ -409,13 +409,14 @@ const VehicleBookingsTable = () => {
 
   return (
     <div className="w-full">
-      {!bookingsDetailsLoading && bookingsDetails !== undefined && (
+      {!bookingsDetailsLoading && bookingsDetails !== undefined && !!vendor && (
         <Bookings
           open={open}
           setOpen={setOpen}
           paymentDetails={{
             merchantCode: vendor?.merchantCode ?? null,
           }}
+          vendorUserId={vendor?.ownerId}
           bookingsDetails={bookingsDetails}
           fromVendor={true}
           vendorId={vendor?.id ?? ""}

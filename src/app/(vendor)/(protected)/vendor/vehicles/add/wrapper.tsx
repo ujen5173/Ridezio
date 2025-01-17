@@ -132,6 +132,8 @@ const Wrapper = ({
 
   const images = imageForm.watch("images") || [];
 
+  console.log({ images });
+
   useEffect(() => {
     if (uploadedFile && uploadedFile.length > 0) {
       imageForm.setValue(

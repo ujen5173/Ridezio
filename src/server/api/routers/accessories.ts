@@ -27,7 +27,10 @@ export const accessoriesRouter = createTRPCRouter({
 
         return accessoriesData;
       } catch (error) {
-        console.log({ error });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong, please try again",
+        });
       }
     }),
 
@@ -131,7 +134,10 @@ export const accessoriesRouter = createTRPCRouter({
 
       return res;
     } catch (error) {
-      console.log({ error });
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Something went wrong, please try again",
+      });
     }
   }),
 
@@ -319,7 +325,6 @@ export const accessoriesRouter = createTRPCRouter({
 
         return true;
       } catch (error) {
-        console.log({ error });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Something went wrong, please try again",

@@ -76,7 +76,7 @@ const Accessories = () => {
                     </h4>
                     <div className="flex items-end gap-2">
                       <span className={cn("text-xl font-semibold")}>
-                        रु {(vehicle.price_per_hour ?? 1) * 65}{" "}
+                        NPR {(vehicle.price_per_hour ?? 1) * 65}{" "}
                       </span>
                     </div>
                   </div>

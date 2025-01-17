@@ -220,7 +220,7 @@ const PurchaseAccessory: React.FC<BookingsProps> = ({
 
         <div className="flex w-full flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
           <div className="flex flex-wrap gap-1 text-lg font-semibold">
-            <span className="text-nowrap">Total: रु.{getPrice()}/-</span>
+            <span className="text-nowrap">Total: NPR.{getPrice()}/-</span>
           </div>
           <div className="flex items-center gap-4">
             <Button onClick={() => setOpen(false)} variant="outline">

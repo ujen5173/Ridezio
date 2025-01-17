@@ -119,7 +119,7 @@ const ExplorePopularPlaces = () => {
               ].map((shop) => (
                 <CarouselItem
                   key={shop.id}
-                  className="basis-full select-none shadow-sm xs:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6"
+                  className="basis-full select-none shadow-sm xs:basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6"
                 >
                   <Link href={`/search?location=${shop.label}`}>
                     <div className="flex flex-col items-center space-y-4 rounded-md border border-slate-200 bg-slate-100 p-4">
@@ -128,7 +128,7 @@ const ExplorePopularPlaces = () => {
                         alt=""
                         width={500}
                         height={500}
-                        className="aspect-square rounded-full object-cover"
+                        className="aspect-square w-full max-w-60 rounded-full object-cover sm:max-w-max"
                       />
                       <p className="whitespace-nowrap break-keep text-center text-lg font-medium text-slate-700">
                         {shop.label}

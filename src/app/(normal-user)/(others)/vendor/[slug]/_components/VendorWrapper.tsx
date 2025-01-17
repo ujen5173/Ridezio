@@ -2,8 +2,9 @@
 
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { notFound, usePathname, useRouter } from "next/navigation";
-import { createContext, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useEffect, useRef, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { UserBookingProcessing } from "~/app/_components/dialog-box/BookingProcessing";
 import { Button } from "~/components/ui/button";
@@ -48,15 +49,22 @@ type RentalBookingData = {
 const VendorWrapper = ({
   data,
   bookingProcessData,
+  paymentMethod = "cash",
   slug,
 }: {
   data: GetVendorType;
   slug: string;
+  paymentMethod: "cash" | "online";
   bookingProcessData: string | undefined;
 }) => {
-  const [bookingsDetails] = api.business.getBookingsDetails.useSuspenseQuery({
-    businessId: data!.id,
-  });
+  const { data: bookingsDetails } = api.business.getBookingsDetails.useQuery(
+    {
+      businessId: data!.id,
+    },
+    {
+      enabled: !!data,
+    },
+  );
 
   useViewTracker({
     slug,
@@ -72,7 +80,9 @@ const VendorWrapper = ({
   const [bookingModelOpen, setBookingModelOpen] =
     useState<boolean>(!!bookingProcessData);
 
-  const processPayment = async () => {
+  const { data: user } = useSession();
+
+  const processPayment = useCallback(async () => {
     setLoading(true);
 
     if (!bookingProcessData) {
@@ -147,18 +157,24 @@ const VendorWrapper = ({
       localStorage.removeItem("rental");
       router.push(pathname, { scroll: false });
     }
-  };
+  }, []);
 
   useEffect(() => {
-    if (bookingProcessData && !hasProcessedPayment.current) {
-      const handlePayment = async () => {
-        hasProcessedPayment.current = true;
-        await processPayment();
-      };
+    if (paymentMethod === "online") {
+      if (bookingProcessData && !hasProcessedPayment.current) {
+        const handlePayment = async () => {
+          hasProcessedPayment.current = true;
+          await processPayment();
+        };
 
-      void handlePayment();
+        void handlePayment();
+      }
+    } else {
+      if (bookingProcessData) {
+        setBookingModelOpen(true);
+      }
     }
-  }, [bookingProcessData, router, pathname]);
+  }, [bookingProcessData, router, pathname, processPayment]);
 
   const [isVisible, setIsVisible] = useState(false);
   const [open, setOpen] = useState(false);
@@ -202,7 +218,13 @@ const VendorWrapper = ({
         {bookingModelOpen && (
           // Booking Model
           <UserBookingProcessing
-            {...{ bookingModelOpen, setBookingModelOpen, loading, isError }}
+            {...{
+              bookingModelOpen,
+              setBookingModelOpen,
+              loading,
+              isError,
+              paymentMethod,
+            }}
           />
         )}
         {bookingsDetails !== null &&
@@ -210,8 +232,9 @@ const VendorWrapper = ({
           !!data && (
             <Bookings
               vendorId={data?.id}
+              vendorUserId={data?.ownerId}
               open={open}
-              fromVendor={false}
+              fromVendor={data.ownerId === user?.user.id ?? false}
               setOpen={setOpen}
               paymentDetails={{
                 merchantCode: data?.merchantCode ?? null,

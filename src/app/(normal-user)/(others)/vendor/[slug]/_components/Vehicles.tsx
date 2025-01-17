@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
@@ -8,6 +7,7 @@ import "react-datepicker/dist/react-datepicker.css";
 
 import VehicleDetailView from "~/app/_components/dialog-box/VehicleDetailView";
 import { chakra_petch } from "~/app/utils/font";
+import { OptimizedImage } from "~/components/ui/optimized-image";
 import {
   Select,
   SelectContent,
@@ -104,7 +104,7 @@ const Vehicles = () => {
               <Skeleton className="h-48" />
             </>
           ) : (
-            (filteredVehicles ?? [])?.map((vehicle) => (
+            (filteredVehicles ?? [])?.map((vehicle, index) => (
               <div key={vehicle.id}>
                 <Link
                   href={{
@@ -122,13 +122,15 @@ const Vehicles = () => {
                 >
                   <div className="relative mb-2 flex aspect-video items-center justify-center">
                     <div className="aspect-[16/10] w-auto">
-                      <Image
-                        alt={`${vehicle.name}`}
+                      <OptimizedImage
+                        alt={vehicle.name}
                         width={850}
-                        height={850}
-                        priority
-                        layout="fixed"
-                        className="m-auto h-full w-full rounded-md object-cover mix-blend-multiply"
+                        height={570}
+                        priority={index === 0}
+                        quality={75}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        className="aspect-video w-full rounded-md object-cover mix-blend-multiply"
+                        loading={index === 0 ? "eager" : "lazy"}
                         src={
                           (vehicle.images ?? []).sort(
                             (a, b) => a.order - b.order,
@@ -147,7 +149,7 @@ const Vehicles = () => {
                       </p>
 
                       <h2 className="mb-4 text-2xl font-bold text-secondary">
-                        रु{" "}
+                        NPR{" "}
                         {Intl.NumberFormat("en-IN").format(
                           vehicle.basePrice ?? 0,
                         )}{" "}

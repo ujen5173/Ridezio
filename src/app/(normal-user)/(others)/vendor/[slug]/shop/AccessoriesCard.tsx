@@ -51,7 +51,7 @@ const AccessoriesCard = ({
           </div>
           <p className="text-base font-medium uppercase">Starting at</p>
           <h2 className="mb-4 text-2xl font-bold text-secondary">
-            रु {accessory.basePrice}
+            NPR {accessory.basePrice}
           </h2>
         </div>
       </div>

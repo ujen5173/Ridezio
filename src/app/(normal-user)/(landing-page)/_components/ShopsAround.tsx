@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import VendorCard from "~/app/_components/_/VendorCard";
 import { useRootContext } from "~/app/_components/contexts/root";
 import { Button } from "~/components/ui/button";
 import {
@@ -11,22 +12,15 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "~/components/ui/carousel";
-import { Skeleton } from "~/components/ui/skeleton";
 import { cn } from "~/lib/utils";
-import { api as trpc } from "~/trpc/react";
-import VendorCardWithPrefetch from "./VendorCardWithPrefetch";
+import { type GetVendorAroundLocation } from "~/server/api/routers/business";
 
-const ShopsAround = () => {
-  const { city, geo } = useRootContext();
-  const { data: shopsAroundData, isLoading } =
-    trpc.business.getVendorAroundLocation.useQuery(
-      {
-        geo,
-      },
-      {
-        refetchOnWindowFocus: false,
-      },
-    );
+const ShopsAround = ({
+  shopsAroundData,
+}: {
+  shopsAroundData: GetVendorAroundLocation;
+}) => {
+  const { city } = useRootContext();
 
   const [api, setApi] = useState<CarouselApi | undefined>();
   const [current, setCurrent] = useState(0);
@@ -82,25 +76,14 @@ const ShopsAround = () => {
             opts={{ align: "start" }}
           >
             <CarouselContent>
-              {isLoading
-                ? Array.from({ length: 5 }).map((_, index) => (
-                    <CarouselItem
-                      key={index}
-                      className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
-                    >
-                      <Skeleton className="h-48 w-full rounded-md" />
-                      <Skeleton className="h-6 w-3/4 rounded-sm" />
-                      <Skeleton className="h-6 w-1/2 rounded-sm" />
-                    </CarouselItem>
-                  ))
-                : shopsAroundData?.vendors.map((shop, index) => (
-                    <CarouselItem
-                      key={index}
-                      className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
-                    >
-                      <VendorCardWithPrefetch shop={shop} />
-                    </CarouselItem>
-                  ))}
+              {shopsAroundData?.vendors.map((shop, index) => (
+                <CarouselItem
+                  key={index}
+                  className="basis-full space-y-4 xs:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+                >
+                  <VendorCard shop={shop} />
+                </CarouselItem>
+              ))}
             </CarouselContent>
           </Carousel>
 

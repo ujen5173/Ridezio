@@ -208,22 +208,6 @@ const Footer = () => {
                       Privacy Policy
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      className="hover:text-slate-200 hover:underline"
-                      href="/cookie-policy"
-                    >
-                      Cookie Policy
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="hover:text-slate-200 hover:underline"
-                      href="/disclaimer"
-                    >
-                      Disclaimer
-                    </Link>
-                  </li>
                 </ul>
               </div>
             </div>

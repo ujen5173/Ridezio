@@ -170,10 +170,17 @@ const SignInPage = () => {
               <div className="mt-8 text-center text-sm text-slate-500">
                 By continuing, you agree to our{" "}
                 <a
-                  href="/terms"
+                  href="/terms-of-service"
                   className="text-purple-600 underline hover:text-purple-500"
                 >
                   Terms of Service
+                </a>{" "}
+                and{" "}
+                <a
+                  href="/vendor-aggrement"
+                  className="text-purple-600 underline hover:text-purple-500"
+                >
+                  Vendor Aggrement
                 </a>
               </div>
             </div>

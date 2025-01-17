@@ -195,7 +195,6 @@ export const convertToWebP = (
         // Enable image smoothing for better quality
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
-
         // Draw image with new dimensions
         ctx.drawImage(img, 0, 0, width, height);
 
@@ -312,9 +311,49 @@ async function urlToFile(
   return new File([blob], fileName, { type: mimeType });
 }
 
+const generateBlurDataUrl = async (file: File): Promise<string> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d")!;
+
+        // Set small dimensions for blur
+        canvas.width = 30;
+        canvas.height = 30;
+
+        ctx.drawImage(img, 0, 0, 30, 30);
+        resolve(canvas.toDataURL("image/jpeg", 0.3));
+      };
+      img.src = e.target?.result as string;
+    };
+
+    reader.readAsDataURL(file);
+  });
+};
+
+const processImageWithBlur = async (
+  file: File,
+): Promise<{
+  originalFile: File;
+  blurFile: File;
+}> => {
+  const blurDataUrl = await generateBlurDataUrl(file);
+  const blurFile = await fetch(blurDataUrl)
+    .then((r) => r.blob())
+    .then(
+      (blob) => new File([blob], `blur_${file.name}`, { type: "image/jpeg" }),
+    );
+
+  return { originalFile: file, blurFile };
+};
+
 export {
   getBase64,
   getBase64Array,
+  processImageWithBlur,
   readFileAsBase64,
   urlToFile,
   webpBase64ArrayToFiles,

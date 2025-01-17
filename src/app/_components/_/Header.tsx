@@ -2,6 +2,7 @@
 
 import { ArrowRight, Menu } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button, buttonVariants } from "~/components/ui/button";
 import {
@@ -181,15 +182,23 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                       </div>
                       <DropdownMenuTrigger className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         {data.user.image && (
-                          <div
-                            style={{
-                              backgroundImage: `url(${data.user.image})`,
-                              backgroundSize: "cover",
-                              backgroundPosition: "center",
-                              backgroundRepeat: "no-repeat",
-                            }}
-                            className="size-10 rounded-full object-cover object-center"
+                          <Image
+                            src={data.user.image}
+                            width={30}
+                            height={30}
+                            className="aspect-square rounded-full object-cover"
+                            alt={`Profile image of ${data.user.name}`}
                           />
+
+                          // <div
+                          //   style={{
+                          //     backgroundImage: `url(${data.user.image})`,
+                          //     backgroundSize: "cover",
+                          //     backgroundPosition: "center",
+                          //     backgroundRepeat: "no-repeat",
+                          //   }}
+                          //   className="relative size-10 rounded-full object-cover object-center"
+                          // />
                         )}
                       </DropdownMenuTrigger>
                     </div>

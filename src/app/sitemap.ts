@@ -17,17 +17,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${env.NEXT_PUBLIC_APP_URL}/terms-of-service`,
     },
-    {
-      url: `${env.NEXT_PUBLIC_APP_URL}/cookie-policy`,
-    },
+
     {
       url: `${env.NEXT_PUBLIC_APP_URL}/vendor-aggreement`,
     },
     {
       url: `${env.NEXT_PUBLIC_APP_URL}/privacy-policy`,
-    },
-    {
-      url: `${env.NEXT_PUBLIC_APP_URL}/disclaimer`,
     },
   ];
 }
