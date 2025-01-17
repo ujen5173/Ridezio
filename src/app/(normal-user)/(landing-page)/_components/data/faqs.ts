@@ -1,27 +1,52 @@
 export const faqs = [
   {
-    question: "How do I rent a vehicle through Velocit?",
+    question: "What do I need to book a vehicle on Velocit?",
     answer:
-      "Simply search for vehicles in your desired location, choose the type and duration of the rental, and make a reservation directly through the platform.",
+      "To book a vehicle on Velocit, you must be at least 18 years old if you're renting a bike, scooter, or car. After requesting to book a vehicle, the vendor will review and approve your booking. Once approved, you can pick up the vehicle at the agreed location.",
   },
   {
-    question: "What documents are required to rent a vehicle?",
+    question: "What payment methods does Velocit accept?",
     answer:
-      "Depending on the vehicle type, you must bring a valid government-issued ID, driver's license, or other documents during the booking process.",
+      "Currently, Velocit accepts payments via eSewa and cash on arrival. Additional payment methods may be added in the future.",
   },
   {
-    question: "How can I list my rental shop on Velocit?",
+    question: "What is the cancellation policy for guests on Velocit?",
     answer:
-      "You can create an account as a vendor, provide your shop details, and start adding vehicles for rent through the platform.",
+      "Currently, vehicle cancellation is not available directly on the platform. If you want to cancel a booking, please contact the vendor directly for cancellation and refund arrangements.",
   },
   {
-    question: "Is there a fee to use the platform as a vendor?",
+    question: "Can I get the vehicle delivered to me?",
     answer:
-      "Currently, Velocit does not charge any fees. However, a small commission on bookings may be introduced in the future.",
+      "Delivery options are determined by the vendor. Some vendors may offer delivery services to your preferred location for an additional fee. Check the vehicle listing for delivery availability.",
   },
   {
-    question: "What payment methods are accepted on Velocit?",
+    question: "Are vehicles available near me?",
     answer:
-      "Currently, Velocit accepts payments via eSewa or cash upon vehicle pickup.",
+      "Yes, Velocit connects you with rental shops near your location. Use the location filters on the platform to find vehicles close to you.",
+  },
+  {
+    question: "What types of vehicles are available on Velocit?",
+    answer:
+      "Velocit offers a wide range of vehicles, including bikes, scooters, cars, e-bikes, and more. Use the filters to find the type of vehicle that suits your needs.",
+  },
+  {
+    question: "How long can I rent a vehicle for?",
+    answer:
+      "Velocit allows rentals for durations ranging from a few hours to several days, depending on the vendor and vehicle availability.",
+  },
+  {
+    question: "Does Velocit offer discounts?",
+    answer:
+      "Yes, Velocit offers discounts to users who participate in the referral program. Invite friends to join the platform and enjoy special rewards for your referrals.",
+  },
+  {
+    question: "Does Velocit charge booking fees?",
+    answer:
+      "No, Velocit does not charge additional booking fees or commissions currently. You only pay the rental cost set by the vendor.",
+  },
+  {
+    question: "Is Velocit a rental car company?",
+    answer:
+      "No, Velocit is a peer-to-peer vehicle rental platform that connects users with local rental shops. The platform allows you to browse and book vehicles, such as bikes, scooters, and cars, from multiple vendors in one place.",
   },
 ];

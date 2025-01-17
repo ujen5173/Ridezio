@@ -26,7 +26,10 @@ const Faqs = () => {
         </div>
 
         <div>
-          <Accordion type="multiple">
+          <Accordion
+            type="multiple"
+            className="grid grid-cols-1 gap-4 md:grid-cols-2"
+          >
             {faqs.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
                 <AccordionTrigger className="text-left">

@@ -1,12 +1,12 @@
 "use client";
 import { Dot, Edit, Star, Trash } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import { Button } from "~/components/ui/button";
+import { OptimizedImage } from "~/components/ui/optimized-image";
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import { formatDate } from "~/lib/date";
 import { cn } from "~/lib/utils";
@@ -110,7 +110,7 @@ const Reviews = () => {
                         <p className="mb-2 text-base uppercase text-slate-500">
                           Vehicle Rented:
                         </p>
-                        <Image
+                        <OptimizedImage
                           src={review.rental.vehicle.images[0]!.url}
                           alt={review.rental.vehicle.name}
                           width={100}
