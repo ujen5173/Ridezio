@@ -7,7 +7,7 @@ import {
   bookingEmailToUser,
   bookingEmailToVendor,
   bookingRejectionEmailToUser,
-} from "~/lib/email-templates";
+} from "~/lib/email-template";
 import transporter from "~/lib/nodemailer";
 import { db } from "~/server/db";
 import { rentals } from "~/server/db/schema";
@@ -32,7 +32,13 @@ export type BookingDetails = {
   num_of_days: number;
   paymentMethod: "online" | "cash" | null;
   notes: string | null;
+  businessImages: {
+    url: string;
+    id: string;
+    order: number;
+  }[];
   businessOwnerEmail: string | null;
+  businessPhone: string[];
 };
 
 export type BookingUpdateDetails = {
@@ -41,6 +47,7 @@ export type BookingUpdateDetails = {
   rentalStart: Date;
   rentalEnd: Date;
   businessName: string | null;
+  businessPhone: string[];
   quantity: number;
   totalPrice: number;
 };
@@ -83,6 +90,8 @@ export const sendBookingDetailsEmail = async ({
           business: {
             columns: {
               name: true,
+              images: true,
+              phoneNumbers: true,
             },
             with: {
               owner: {
@@ -107,6 +116,8 @@ export const sendBookingDetailsEmail = async ({
           vehicleImages: vehicle.images,
           businessName: business.name,
           businessOwnerEmail: business.owner.email,
+          businessImages: business.images,
+          businessPhone: business.phoneNumbers,
         };
       });
 
@@ -179,6 +190,8 @@ export const sendBookingUpdateEmail = async ({
           business: {
             columns: {
               name: true,
+              images: true,
+              phoneNumbers: true,
             },
           },
         },
@@ -191,6 +204,8 @@ export const sendBookingUpdateEmail = async ({
           ...rest,
           vehicleName: vehicle.name,
           businessName: business.name,
+          businessImages: business.images,
+          businessPhone: business.phoneNumbers,
         };
       });
 

@@ -234,7 +234,7 @@ const VendorWrapper = ({
               vendorId={data?.id}
               vendorUserId={data?.ownerId}
               open={open}
-              fromVendor={data.ownerId === user?.user.id ?? false}
+              fromVendor={data.ownerId === user?.user.id}
               setOpen={setOpen}
               paymentDetails={{
                 merchantCode: data?.merchantCode ?? null,

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { type Dispatch, type SetStateAction } from "react";
 import { Button } from "~/components/ui/button";
@@ -19,6 +18,7 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import { Label } from "~/components/ui/label";
+import { OptimizedImage } from "~/components/ui/optimized-image";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { cn } from "~/lib/utils";
 import { type GetBusinessVehiclesType } from "~/server/api/routers/vehicle";
@@ -56,11 +56,10 @@ const VehicleDetailView = ({
                       <div className="w-full p-1">
                         <div className="relative mb-2 flex aspect-video items-center justify-center">
                           <div className="aspect-video w-auto">
-                            <Image
+                            <OptimizedImage
                               alt={`${vehicle.name}`}
                               width={1440}
                               height={1440}
-                              layout="fixed"
                               priority
                               className="m-auto h-full w-full rounded-md object-cover mix-blend-multiply"
                               src={_.url}
