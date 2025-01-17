@@ -7,13 +7,18 @@ import { type IpInfoResponse } from "~/server/api/routers/business";
 export const getUserGeoFromIP = cache(async () => {
   const headersList = headers();
 
-  // Get client IP from request headers
-  const forwarded = headersList.get("x-forwarded-for");
-  let ip = forwarded ? forwarded.split(",")[0] : headersList.get("x-real-ip");
+  let ip: string | undefined | null;
+
+  if (env.NODE_ENV === "production") {
+    // Get client IP from request headers
+    const forwarded = headersList.get("x-forwarded-for");
+    ip = forwarded ? forwarded.split(",")[0] : headersList.get("x-real-ip");
+  }
 
   if (ip === "::1" || !ip) {
     ip = "27.34.20.194"; // Default IP for localhost to Kathmandu, Nepal
   }
+
   // ip = "27.34.20.194"; // Default IP for localhost to Kathmandu, Nepal
 
   // Use a geolocation service that accepts IP address

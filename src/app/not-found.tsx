@@ -1,9 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import Logo from "~/svg/logo";
 
 const NotFound = () => {
+  const router = useRouter();
+
   return (
     <div className="flex h-screen flex-col items-center justify-center">
       <Logo tw="h-10 fill-secondary mb-10" />
@@ -18,7 +21,7 @@ const NotFound = () => {
       <div className="flex gap-2">
         <Button
           onClick={() => {
-            window.location.reload();
+            router.refresh();
           }}
           variant={"outline"}
         >
@@ -27,7 +30,7 @@ const NotFound = () => {
         <Button
           variant={"primary"}
           onClick={() => {
-            window.location.href = "/";
+            router.push("/");
           }}
         >
           Back to Homepage

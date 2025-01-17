@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 import { useLayoutEffect, useState } from "react";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -60,8 +61,47 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const productStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: data!.name,
+    description: data!.description,
+    image: data!.images?.[0]?.url,
+    brand: {
+      "@type": "Brand",
+      name: data!.business?.name,
+    },
+    offers: {
+      "@type": "Offer",
+      price: data!.basePrice,
+      priceCurrency: "NPR",
+      availability:
+        data!.inventory > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      seller: {
+        "@type": "Organization",
+        name: data!.business?.name,
+      },
+    },
+    aggregateRating: data!.rating
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: data!.rating,
+          reviewCount: data!.ratingCount,
+        }
+      : undefined,
+  };
+
   return (
     <>
+      <Script
+        id="product-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(productStructuredData),
+        }}
+      />
       <HeaderHeight />
 
       <section className="px-4">

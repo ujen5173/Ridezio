@@ -6,8 +6,9 @@ import { useSession } from "next-auth/react";
 import { notFound, usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useEffect, useRef, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
-import { UserBookingProcessing } from "~/app/_components/dialog-box/BookingProcessing";
+import BookingProcessing from "~/app/_components/dialog-box/BookingProcessing";
 import { Button } from "~/components/ui/button";
+import { env } from "~/env";
 import { toast } from "~/hooks/use-toast";
 import useViewTracker from "~/hooks/use-view-counter";
 import { type GetVendorType } from "~/server/api/routers/business";
@@ -196,6 +197,29 @@ const VendorWrapper = ({
     };
   }, []);
 
+  // Add JSON-LD structured data
+  const vendorStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": `${env.NEXT_PUBLIC_APP_URL}/vendor/${data!.slug}`,
+    name: data!.name,
+    image: data!.images?.[0]?.url,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: data!.location.address,
+      addressLocality: data!.location.city,
+      addressCountry: "NP",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: data!.location.lat,
+      longitude: data!.location.lng,
+    },
+    url: `${env.NEXT_PUBLIC_APP_URL}/vendor/${data!.slug}`,
+    telephone: data!.phoneNumbers[0],
+    priceRange: "₨₨-₨₨₨₨",
+  };
+
   if (bookingsDetails === null) {
     toast({
       title: "Vendor Not Found",
@@ -217,13 +241,14 @@ const VendorWrapper = ({
       <main className="relative w-full">
         {bookingModelOpen && (
           // Booking Model
-          <UserBookingProcessing
+          <BookingProcessing
             {...{
               bookingModelOpen,
               setBookingModelOpen,
               loading,
               isError,
               paymentMethod,
+              user: user?.user.role ?? "USER",
             }}
           />
         )}
@@ -272,6 +297,12 @@ const VendorWrapper = ({
           <Locations />
         </div>
       </main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(vendorStructuredData),
+        }}
+      />
     </VendorContext.Provider>
   );
 };

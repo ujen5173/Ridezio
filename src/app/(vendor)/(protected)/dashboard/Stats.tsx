@@ -1,6 +1,7 @@
 "use client";
 
 import { TrendingDown, TrendingUp } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
@@ -32,6 +33,7 @@ type RentalBookingData = {
 const Stats = ({ data }: { data: GetDashboardInfo }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const { data: user } = useSession();
   const paymentHash = useSearchParams().get("data");
   const [loading, setLoading] = useState(false);
   const { mutateAsync: rentUpdateStatusMutation, isError } =
@@ -134,7 +136,14 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
       {bookingModelOpen && (
         // Booking Model
         <BookingProcessing
-          {...{ bookingModelOpen, setBookingModelOpen, loading, isError }}
+          {...{
+            bookingModelOpen,
+            setBookingModelOpen,
+            loading,
+            isError,
+            user: user?.user.role ?? "USER",
+            paymentMethod: "online",
+          }}
         />
       )}
       <div className="mb-8">

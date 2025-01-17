@@ -1,5 +1,6 @@
 import { type Metadata } from "next";
 import { env } from "~/env";
+import { type GetVendorType } from "~/server/api/routers/business";
 
 const links = {
   github: "https://github.com/ujen5173/velocit",
@@ -46,36 +47,56 @@ export const siteConfig = {
   ],
   structuredData: {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": "WebApplication",
     name: "Velocit",
     url: getBaseUrl(),
-    logo: `${getBaseUrl()}/logo.png`,
+    logo: {
+      "@type": "ImageObject",
+      url: `${getBaseUrl()}/logo.png`,
+      width: "180",
+      height: "60",
+    },
     sameAs: [links.facebook, links.twitter, links.instagram],
-    areaServed: {
-      "@type": "Country",
-      name: "Nepal",
-    },
-  },
-  localBusiness: {
-    "@type": "VehicleRental",
-    name: "Velocit",
-    description: "Nepal's premier vehicle rental marketplace",
-    areaServed: {
-      "@type": "Country",
-      name: "Nepal",
-    },
-    priceRange: "₨₨-₨₨₨₨",
-    address: {
-      "@type": "PostalAddress",
-      addressCountry: "Nepal",
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: "27.7172",
-      longitude: "85.324",
+    applicationCategory: "Vehicle Rental Platform",
+    operatingSystem: "Any",
+    offers: {
+      "@type": "AggregateOffer",
+      availability: "https://schema.org/InStock",
+      priceCurrency: "NPR",
+      seller: {
+        "@type": "Organization",
+        name: "Velocit",
+      },
     },
   },
 };
+
+export function generateVendorStructuredData(
+  vendor: NonNullable<GetVendorType>,
+) {
+  return {
+    "@type": "VehicleRental",
+    name: vendor.name,
+    description: `${vendor.name} - ${vendor.location.address}`,
+    url: `${getBaseUrl()}/vendor/${vendor.slug}`,
+    areaServed: {
+      "@type": "City",
+      name: vendor.location.city,
+    },
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: "Nepal",
+      addressRegion: vendor.location.address,
+      addressLocality: vendor.location.city,
+      streetAddress: vendor.location.address,
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: vendor.location.lat,
+      longitude: vendor.location.lng,
+    },
+  };
+}
 
 export function constructMetadata({
   title = siteConfig.title,
@@ -84,16 +105,36 @@ export function constructMetadata({
   icons = [
     {
       rel: "apple-touch-icon",
-      sizes: "32x32",
-      url: "/logo.png",
+      sizes: "180x180",
+      url: "/apple-touch-icon.png",
     },
     {
       rel: "icon",
-      type: "image/x-icon",
-      url: "/favicon.ico",
+      type: "image/png",
+      sizes: "96x96",
+      url: "/favicon-96x96.png",
+    },
+    {
+      rel: "icon",
+      type: "image/png",
+      sizes: "32x32",
+      url: "/favicon-32x32.png",
+    },
+    {
+      rel: "icon",
+      type: "image/png",
+      sizes: "16x16",
+      url: "/favicon-16x16.png",
+    },
+    {
+      rel: "manifest",
+      url: "/site.webmanifest",
     },
   ],
   url = getBaseUrl(),
+  noIndex = false,
+  structuredData,
+  alternates = {},
 }: {
   title?: string;
   description?: string;
@@ -101,10 +142,31 @@ export function constructMetadata({
   icons?: Metadata["icons"];
   noIndex?: boolean;
   url?: string;
+  structuredData?: Record<string, unknown>;
+  alternates?: Metadata["alternates"];
 } = {}): Metadata {
   return {
-    title,
+    metadataBase: new URL(getBaseUrl()),
+    title: {
+      default: title,
+      template: `%s | ${siteConfig.name}`,
+    },
     description,
+    applicationName: siteConfig.name,
+    authors: [{ name: siteConfig.author, url: links.authorsWebsite }],
+    generator: "Next.js",
+    keywords: siteConfig.keywords,
+    referrer: "origin-when-cross-origin",
+    viewport: {
+      width: "device-width",
+      initialScale: 1,
+      maximumScale: 5,
+      minimumScale: 1,
+    },
+    alternates: {
+      canonical: url,
+      ...alternates,
+    },
     openGraph: {
       title,
       description,
@@ -119,6 +181,7 @@ export function constructMetadata({
             width: 1200,
             height: 630,
             alt: `${siteConfig.name} - ${siteConfig.tagline}`,
+            type: "image/jpeg",
           },
         ],
       }),
@@ -132,21 +195,26 @@ export function constructMetadata({
       ...(image && { images: [image] }),
     },
     icons,
-    metadataBase: new URL(getBaseUrl()),
     verification: {
       google: "ZXUhxd8j6vspU4L4i5Xk0crzK1dLrwwIYch8mOKVAc0",
     },
     robots: {
-      index: true,
-      follow: true,
+      index: !noIndex,
+      follow: !noIndex,
       googleBot: {
-        index: true,
-        follow: true,
+        index: !noIndex,
+        follow: !noIndex,
         "max-video-preview": -1,
         "max-image-preview": "large",
         "max-snippet": -1,
+        noimageindex: false,
       },
     },
-    keywords: siteConfig.keywords.join(", "),
+    other: {
+      "format-detection": "telephone=no",
+      ...(structuredData && {
+        "script:ld+json": JSON.stringify(structuredData),
+      }),
+    },
   };
 }

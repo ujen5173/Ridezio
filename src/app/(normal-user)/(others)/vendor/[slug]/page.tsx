@@ -1,9 +1,10 @@
 import { type Metadata } from "next";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import { constructMetadata } from "~/app/utils/site";
+import { env } from "~/env";
 import { api } from "~/trpc/server";
 import VendorWrapper from "./_components/VendorWrapper";
 
@@ -20,12 +21,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const vendor = await getVendorDetails(params.slug);
 
-  if (!vendor) return constructMetadata();
+  if (!vendor) return notFound();
 
   return constructMetadata({
-    title: `${vendor.name} - Velocit`,
-    description: vendor.name + " - " + vendor.location.address,
-    image: vendor.images?.[0]?.url,
+    title: `${vendor.name} - Vehicle Rentals in ${vendor.location.city} | Velocit`,
+    description: `Rent vehicles from ${vendor.name} in ${vendor.location.city}. ${vendor.availableVehicleTypes.join(
+      ", ",
+    )} available. Best rates, instant booking.`,
+    image: vendor.images?.[0]?.url ?? null,
+    alternates: {
+      canonical: `${env.NEXT_PUBLIC_APP_URL}/vendor/${params.slug}`,
+    },
   });
 }
 

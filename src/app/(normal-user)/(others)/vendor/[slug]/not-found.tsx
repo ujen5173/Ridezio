@@ -1,8 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 
 const NotFound = () => {
+  const router = useRouter();
+
   return (
     <div
       style={{
@@ -21,7 +24,7 @@ const NotFound = () => {
       <div className="flex gap-2">
         <Button
           onClick={() => {
-            window.location.reload();
+            router.refresh();
           }}
           variant={"outline"}
         >
@@ -30,7 +33,7 @@ const NotFound = () => {
         <Button
           variant={"primary"}
           onClick={() => {
-            window.location.href = "/";
+            router.push("/");
           }}
         >
           Back to Homepage
