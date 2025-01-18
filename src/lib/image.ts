@@ -97,58 +97,26 @@ const webpBase64ArrayToFiles = (
 };
 
 interface ImageConversionOptions {
-  maxWidth?: number;
-  maxHeight?: number;
+  constantWidth: number;
+  constantHeight: number;
   quality?: number;
   fileName?: string;
   fileType?: string;
-  maintainAspectRatio?: boolean;
 }
 
 const DEFAULT_OPTIONS: ImageConversionOptions = {
-  maxWidth: 1920,
-  maxHeight: 1080,
-  quality: 0.6,
-  maintainAspectRatio: true,
+  constantWidth: 800,
+  constantHeight: 600,
+  quality: 1,
 };
 
 /**
- * Calculates new dimensions while maintaining aspect ratio
- */
-const calculateAspectRatioDimensions = (
-  originalWidth: number,
-  originalHeight: number,
-  maxWidth: number,
-  maxHeight: number,
-): { width: number; height: number } => {
-  let newWidth = originalWidth;
-  let newHeight = originalHeight;
-
-  if (originalWidth > maxWidth) {
-    newWidth = maxWidth;
-    newHeight = (originalHeight * maxWidth) / originalWidth;
-  }
-
-  if (newHeight > maxHeight) {
-    newHeight = maxHeight;
-    newWidth = (newWidth * maxHeight) / newHeight;
-  }
-
-  return {
-    width: Math.floor(newWidth),
-    height: Math.floor(newHeight),
-  };
-};
-
-/**
- * Converts a file to WebP format with compression and optional resizing
+ * Converts a file to WebP format without resizing
  */
 export const convertToWebP = (
   file: File,
-  options: ImageConversionOptions = {},
+  options: ImageConversionOptions = DEFAULT_OPTIONS,
 ): Promise<ConvertedImage> => {
-  const finalOptions = { ...DEFAULT_OPTIONS, ...options };
-
   return new Promise((resolve, reject) => {
     const img = new Image();
     const reader = new FileReader();
@@ -163,28 +131,9 @@ export const convertToWebP = (
       img.onload = function () {
         const canvas = document.createElement("canvas");
 
-        // Calculate new dimensions
-        let { width, height } = img;
-        if (
-          finalOptions.maintainAspectRatio &&
-          finalOptions.maxWidth &&
-          finalOptions.maxHeight
-        ) {
-          const newDimensions = calculateAspectRatioDimensions(
-            width,
-            height,
-            finalOptions.maxWidth,
-            finalOptions.maxHeight,
-          );
-          width = newDimensions.width;
-          height = newDimensions.height;
-        } else {
-          width = finalOptions.maxWidth ?? width;
-          height = finalOptions.maxHeight ?? height;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
+        // Use original image dimensions
+        canvas.width = img.width;
+        canvas.height = img.height;
 
         const ctx = canvas.getContext("2d");
         if (!ctx) {
@@ -192,11 +141,8 @@ export const convertToWebP = (
           return;
         }
 
-        // Enable image smoothing for better quality
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
-        // Draw image with new dimensions
-        ctx.drawImage(img, 0, 0, width, height);
+        // Draw image at original size
+        ctx.drawImage(img, 0, 0);
 
         canvas.toBlob(
           (blob: Blob | null) => {
@@ -228,7 +174,7 @@ export const convertToWebP = (
             }
           },
           "image/webp",
-          finalOptions.quality,
+          options.quality,
         );
       };
 
@@ -250,7 +196,11 @@ export const convertToWebP = (
  */
 export const convertMultipleToWebP = async (
   files: File[],
-  options: ImageConversionOptions = {},
+  options: ImageConversionOptions = {
+    constantWidth: 1200,
+    constantHeight: 700,
+    quality: 1,
+  },
 ): Promise<ConvertedImage[]> => {
   try {
     const conversions = files.map((file, index) =>

@@ -41,8 +41,8 @@ const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
                   <Link href={`/vendor/${shop.slug}`}>
                     <OptimizedImage
                       alt={`${shop.name}'s Images`}
-                      width={450}
-                      height={450}
+                      width={1440}
+                      height={810}
                       priority
                       quality={100}
                       className="m-auto aspect-[11/7] w-full rounded-md object-fill"

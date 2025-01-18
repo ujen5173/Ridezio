@@ -70,7 +70,6 @@ const FileUploaderWrapper = ({
   isUploading,
   images,
   form,
-  recommendedSize = "1960 x 1020",
 }: {
   dropzone?: DropzoneOptions;
   files: File[] | null;
@@ -84,7 +83,6 @@ const FileUploaderWrapper = ({
     order: number;
   }[];
   form: UseFormReturn<z.infer<typeof imageSchema>>;
-  recommendedSize?: string;
 }) => {
   // Use state to keep track of unique uploaded file keys
   const [uploadedFileKeys, setUploadedFileKeys] = useState<string[]>([]);
@@ -116,6 +114,8 @@ const FileUploaderWrapper = ({
         ...img,
         order: index + 1,
       }));
+
+      console.log({ updatedImages });
 
       setLocalImages(updatedImages);
       form.setValue("images", updatedImages, {
@@ -252,10 +252,10 @@ const FileUploaderWrapper = ({
                 <p className="flex items-center gap-2 text-lg font-semibold text-gray-700">
                   Drop files here
                 </p>
-                <span className="block text-base font-medium italic text-gray-500">
-                  (Recomended{" "}
-                  <span className="text-red-500">{recommendedSize}</span> size
-                  for best experience)
+                <span className="block text-center text-base font-medium italic text-gray-500">
+                  Upload clear and high-quality images to showcase your store.
+                  <br />
+                  (Recommended size: 1200x700)
                 </span>
               </>
             )}
@@ -278,7 +278,7 @@ const FileUploaderWrapper = ({
                   <ScrollBar orientation="horizontal" />
 
                   {localImages.map((image, index) => (
-                    <div key={image.id} className="relative h-24 w-32">
+                    <div key={image.id + index} className="relative h-24 w-32">
                       <ImageDragItem
                         id={image.id}
                         file={image.url}

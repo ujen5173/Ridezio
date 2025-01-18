@@ -37,7 +37,9 @@ const ImageDragItem = ({
     >
       <button
         type="button"
-        onClick={() => handleRemoveFile(index)}
+        onClick={() => {
+          handleRemoveFile(index);
+        }}
         className="absolute right-1 top-1 z-20 rounded-sm border border-slate-200/70 bg-slate-200/70 p-1 shadow-sm"
       >
         <Trash2 className="h-4 w-4 text-destructive" />
@@ -53,9 +55,10 @@ const ImageDragItem = ({
         <OptimizedImage
           src={file}
           alt={`Image ${index + 1}`}
-          fill
+          width={160}
+          height={160}
+          quality={75}
           sizes="(max-width: 768px) 33vw, 25vw"
-          quality={80}
           className="h-full w-full rounded-md object-cover"
         />
       </div>

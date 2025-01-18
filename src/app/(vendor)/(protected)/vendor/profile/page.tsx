@@ -13,7 +13,7 @@ import BusinessAccountSettings from "./components/BusinessAccountSettings";
 
 export async function generateMetadata(): Promise<Metadata> {
   return constructMetadata({
-    title: `Profile | Velocit`,
+    title: `Vendor Profile`,
     url: `${env.NEXT_PUBLIC_APP_URL}/vendor/profile`,
   });
 }

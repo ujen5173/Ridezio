@@ -67,58 +67,58 @@ const ExplorePopularPlaces = () => {
             <CarouselContent className="">
               {[
                 {
-                  id: crypto.randomUUID(),
+                  // id: crypto.randomUUID(),
                   label: "Kathmandu",
                   imgSource: "/destinations/kathmandu.webp",
                 },
                 {
-                  id: crypto.randomUUID(),
+                  // id: crypto.randomUUID(),
                   label: "Pokhara",
                   imgSource: "/destinations/pokhara.webp",
                 },
                 {
-                  id: crypto.randomUUID(),
+                  // id: crypto.randomUUID(),
                   label: "Chitwan",
                   imgSource: "/destinations/chitwan.webp",
                 },
                 {
-                  id: crypto.randomUUID(),
+                  // id: crypto.randomUUID(),
                   label: "Lumbini",
                   imgSource: "/destinations/lumbini.webp",
                 },
                 {
-                  id: crypto.randomUUID(),
+                  // id: crypto.randomUUID(),
                   label: "Bandipur",
                   imgSource: "/destinations/bandipur.webp",
                 },
                 {
-                  id: crypto.randomUUID(),
+                  // id: crypto.randomUUID(),
                   label: "Nagarkot",
                   imgSource: "/destinations/nagarkot.webp",
                 },
                 {
-                  id: crypto.randomUUID(),
+                  // id: crypto.randomUUID(),
                   label: "Ilam",
                   imgSource: "/destinations/ilam.webp",
                 },
                 {
-                  id: crypto.randomUUID(),
+                  // id: crypto.randomUUID(),
                   label: "Besisahar",
                   imgSource: "/destinations/besisahar.webp",
                 },
                 {
-                  id: crypto.randomUUID(),
+                  // id: crypto.randomUUID(),
                   label: "Dhulikhel",
                   imgSource: "/destinations/dhulikhel.webp",
                 },
                 {
-                  id: crypto.randomUUID(),
+                  // id: crypto.randomUUID(),
                   label: "Birjung",
                   imgSource: "/destinations/birjung.webp",
                 },
               ].map((shop) => (
                 <CarouselItem
-                  key={shop.id}
+                  key={shop.label}
                   className="basis-full select-none shadow-sm xs:basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6"
                 >
                   <Link href={`/search?location=${shop.label}`}>

@@ -122,8 +122,8 @@ const VendorDetails = () => {
                         alt={`${vendor.name!}'s Images`}
                         width={160}
                         height={160}
-                        priority={index === 0}
-                        quality={60}
+                        quality={75}
+                        sizes="(max-width: 768px) 33vw, 25vw"
                         onClick={() => api?.scrollTo(index)}
                         className="aspect-square size-16 rounded-md object-cover hover:ring-2 hover:ring-secondary hover:ring-offset-2"
                         src={image.url}
@@ -145,15 +145,12 @@ const VendorDetails = () => {
                     <div className="absolute inset-0 z-0 ml-4 animate-pulse rounded-md bg-slate-100"></div>
                     <OptimizedImage
                       alt={`${vendor.name!}'s Images`}
-                      width={1360}
-                      height={765}
-                      priority={index === 0}
-                      quality={85}
+                      width={1200}
+                      height={700}
+                      quality={50}
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw"
                       className="relative z-10 aspect-[16/12] rounded-md object-cover"
                       src={_.url}
-                      placeholder="blur"
-                      blurDataURL={`data:image/svg+xml;base64,...`}
                     />
                   </CarouselItem>
                 ))}

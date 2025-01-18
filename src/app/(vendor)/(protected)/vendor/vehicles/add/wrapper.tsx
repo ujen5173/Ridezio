@@ -132,8 +132,6 @@ const Wrapper = ({
 
   const images = imageForm.watch("images") || [];
 
-  console.log({ images });
-
   useEffect(() => {
     if (uploadedFile && uploadedFile.length > 0) {
       imageForm.setValue(
@@ -218,7 +216,6 @@ const Wrapper = ({
                   isUploading={isUploading}
                   images={images}
                   form={imageForm}
-                  recommendedSize="800 x 522"
                 />
               </div>
             </div>

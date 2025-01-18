@@ -63,7 +63,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                   )}
                 />
               </SheetTrigger>
-              <SheetContent className="flex flex-col">
+              <SheetContent side="left" className="flex flex-col">
                 <SheetHeader>
                   <SheetTitle className="mb-8">
                     <Logo tw="h-6 fill-pink-500" />
