@@ -45,9 +45,6 @@ export const env = createEnv({
       .default("http://localhost:3000/failure"),
     NEXT_PUBLIC_ENROLL_EVENTS: z.enum(["true", "false"]).default("false"),
     NEXT_PUBLIC_IPAPI_KEY: z.string(),
-    NEXT_PUBLIC_STATE: z
-      .enum(["development", "production"])
-      .default("development"),
   },
 
   runtimeEnv: {
@@ -76,7 +73,6 @@ export const env = createEnv({
     NEXT_PUBLIC_ENROLL_EVENTS: process.env.NEXT_PUBLIC_ENROLL_EVENTS,
 
     NEXT_PUBLIC_IPAPI_KEY: process.env.NEXT_PUBLIC_IPAPI_KEY,
-    NEXT_PUBLIC_STATE: process.env.NEXT_PUBLIC_STATE,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
