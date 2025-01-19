@@ -55,10 +55,6 @@ const ImageDragItem = ({
         <OptimizedImage
           src={file}
           alt={`Image ${index + 1}`}
-          width={160}
-          height={160}
-          quality={75}
-          sizes="(max-width: 768px) 33vw, 25vw"
           className="h-full w-full rounded-md object-cover"
         />
       </div>

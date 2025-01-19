@@ -58,9 +58,6 @@ const VehicleDetailView = ({
                           <div className="aspect-video w-auto">
                             <OptimizedImage
                               alt={`${vehicle.name}`}
-                              width={1440}
-                              height={1440}
-                              priority
                               className="m-auto h-full w-full rounded-md object-cover mix-blend-multiply"
                               src={_.url}
                             />

@@ -124,13 +124,7 @@ const Vehicles = () => {
                     <div className="aspect-[16/10] w-auto">
                       <OptimizedImage
                         alt={vehicle.name}
-                        width={850}
-                        height={570}
-                        priority={index === 0}
-                        quality={75}
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                         className="aspect-video w-full rounded-md object-cover mix-blend-multiply"
-                        loading={index === 0 ? "eager" : "lazy"}
                         src={
                           (vehicle.images ?? []).sort(
                             (a, b) => a.order - b.order,

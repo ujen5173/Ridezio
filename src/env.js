@@ -29,6 +29,9 @@ export const env = createEnv({
       .string()
       .default("https://uat.esewa.com.np/epay/transrec"),
     ESEWA_MERCHANT_CODE: z.string().min(1),
+
+    CLOUDINARY_API_KEY: z.string(),
+    CLOUDINARY_API_SECRET: z.string(),
   },
 
   client: {
@@ -45,6 +48,8 @@ export const env = createEnv({
       .default("http://localhost:3000/failure"),
     NEXT_PUBLIC_ENROLL_EVENTS: z.enum(["true", "false"]).default("false"),
     NEXT_PUBLIC_IPAPI_KEY: z.string(),
+
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string(),
   },
 
   runtimeEnv: {
@@ -73,6 +78,11 @@ export const env = createEnv({
     NEXT_PUBLIC_ENROLL_EVENTS: process.env.NEXT_PUBLIC_ENROLL_EVENTS,
 
     NEXT_PUBLIC_IPAPI_KEY: process.env.NEXT_PUBLIC_IPAPI_KEY,
+
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:
+      process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,

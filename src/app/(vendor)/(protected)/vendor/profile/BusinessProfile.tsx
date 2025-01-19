@@ -111,7 +111,6 @@ export const imageSchema = z.object({
 
 const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
   const { update, data } = useSession(); // to update the user in the session
-  const [success, setSuccess] = useState(false);
   const router = useRouter();
 
   const { mutateAsync, status } = api.business.update.useMutation();
@@ -195,13 +194,6 @@ const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
           vendor_setup_complete: true,
         },
       } as Session | null;
-
-      if (data?.user.vendor_setup_complete === false) {
-        setSuccess(true);
-        setTimeout(() => {
-          setSuccess(false);
-        }, 2500);
-      }
 
       if (data?.user.vendor_setup_complete) {
         toast({

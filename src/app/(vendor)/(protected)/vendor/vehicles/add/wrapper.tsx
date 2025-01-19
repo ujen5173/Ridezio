@@ -1,10 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {} from "cmdk";
+import { } from "cmdk";
 import { Check, ChevronsUpDown, Loader, Plus, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import FileUploaderWrapper from "~/app/_components/_/FileUploaderWrapper";
@@ -35,7 +35,7 @@ import {
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { Separator } from "~/components/ui/separator";
 import { toast } from "~/hooks/use-toast";
-import { useUploadFile } from "~/hooks/useUploadthing";
+import { useCloudinaryUpload } from "~/hooks/useCloudinaryUpload";
 import { cn } from "~/lib/utils";
 import { VEHICLE_CATEGORY } from "~/lib/vehicle-category";
 import { vehicleTypeEnum } from "~/server/db/schema";
@@ -103,11 +103,7 @@ const Wrapper = ({
   );
 
   const [files, setFiles] = useState<File[] | null>([]);
-
-  const { uploadFiles, uploadedFile, isUploading } = useUploadFile(
-    "imageUploader",
-    {},
-  );
+ 
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -132,18 +128,13 @@ const Wrapper = ({
 
   const images = imageForm.watch("images") || [];
 
-  useEffect(() => {
-    if (uploadedFile && uploadedFile.length > 0) {
-      imageForm.setValue(
-        "images",
-        uploadedFile.map((e, idx) => ({
-          id: e.key,
-          order: idx,
-          url: e.url,
-        })),
-      );
-    }
-  }, [uploadedFile, imageForm]);
+  const { uploadToCloudinary, uploadedFiles, isUploading } =
+    useCloudinaryUpload();
+
+  const handleFileUpload = async (files: File[]) => {
+    setFiles(files);
+    await uploadToCloudinary(files);
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!business) {
@@ -211,8 +202,8 @@ const Wrapper = ({
                 <FileUploaderWrapper
                   files={files}
                   setFiles={setFiles}
-                  onFileUpload={uploadFiles}
-                  uploadedFile={uploadedFile}
+                  onFileUpload={handleFileUpload}
+                  uploadedFiles={uploadedFiles}
                   isUploading={isUploading}
                   images={images}
                   form={imageForm}

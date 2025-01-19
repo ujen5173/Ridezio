@@ -404,6 +404,11 @@ export const businessRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       try {
         const business = await ctx.db.query.businesses.findFirst({
+          columns: {
+            id: true,
+            ownerId: true,
+            totalViewCount: true,
+          },
           where: eq(businesses.slug, input.slug),
         });
 
@@ -414,21 +419,26 @@ export const businessRouter = createTRPCRouter({
           });
         }
 
-        await ctx.db
-          .update(businesses)
-          .set({
-            totalViewCount: sql`${businesses.totalViewCount} + 1`,
-          })
-          .where(eq(businesses.slug, input.slug));
+        if (business.ownerId === ctx.session?.user.id) {
+          return false;
+        }
 
-        await ctx.db.insert(views).values({
-          businessId: business.id,
-          userId: ctx.session?.user.id,
+        await ctx.db.transaction(async (trx) => {
+          trx
+            .update(businesses)
+            .set({
+              totalViewCount: sql`${businesses.totalViewCount} + 1`,
+            })
+            .where(eq(businesses.slug, input.slug));
+
+          trx.insert(views).values({
+            businessId: business.id,
+            userId: ctx.session?.user.id,
+          });
         });
 
         return true;
       } catch (err) {
-        console.log({ err });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to increment view count",
@@ -919,7 +929,6 @@ export const businessRouter = createTRPCRouter({
 
         return updatedBusiness[0];
       } catch (error) {
-        console.log({ error });
         if (error instanceof z.ZodError) {
           throw new TRPCError({
             code: "BAD_REQUEST",

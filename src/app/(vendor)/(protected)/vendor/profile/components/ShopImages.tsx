@@ -4,7 +4,7 @@ import { type UseFormReturn } from "react-hook-form";
 import { type z } from "zod";
 import FileUploaderWrapper from "~/app/_components/_/FileUploaderWrapper";
 import { Label } from "~/components/ui/label";
-import { useUploadFile } from "~/hooks/useUploadthing";
+import { useCloudinaryUpload } from "~/hooks/useCloudinaryUpload";
 import { type imageSchema } from "../BusinessProfile";
 
 const ShopImages = ({
@@ -19,15 +19,12 @@ const ShopImages = ({
   }[];
 }) => {
   const [files, setFiles] = useState<File[] | null>([]);
-
-  const { uploadFiles, uploadedFile, isUploading } = useUploadFile(
-    "imageUploader",
-    {},
-  );
+  const { uploadToCloudinary, uploadedFiles, isUploading } =
+    useCloudinaryUpload();
 
   const handleFileUpload = async (files: File[]) => {
     setFiles(files);
-    await uploadFiles(files);
+    await uploadToCloudinary(files);
   };
 
   return (
@@ -45,7 +42,7 @@ const ShopImages = ({
         images={images}
         onFileUpload={handleFileUpload}
         setFiles={setFiles}
-        uploadedFile={uploadedFile}
+        uploadedFiles={uploadedFiles}
         isUploading={isUploading}
       />
     </div>

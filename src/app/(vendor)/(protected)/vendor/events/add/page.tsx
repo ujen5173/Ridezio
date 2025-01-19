@@ -9,7 +9,7 @@ import {
   Ticket,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import FileUploaderWrapper from "~/app/_components/_/FileUploaderWrapper";
@@ -41,7 +41,7 @@ import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/hooks/use-toast";
-import { useUploadFile } from "~/hooks/useUploadthing";
+import { useCloudinaryUpload } from "~/hooks/useCloudinaryUpload";
 import { cn } from "~/lib/utils";
 import LocationPicker from "./Location";
 
@@ -115,11 +115,13 @@ const CreateEvent = () => {
     setMinutes(setHours(addDays(new Date(), 1), 12), 0),
     0,
   );
+  const { uploadToCloudinary, uploadedFiles, isUploading } =
+    useCloudinaryUpload();
 
-  const { uploadFiles, uploadedFile, isUploading } = useUploadFile(
-    "imageUploader",
-    {},
-  );
+  const handleFileUpload = async (files: File[]) => {
+    setFiles(files);
+    await uploadToCloudinary(files);
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -144,19 +146,6 @@ const CreateEvent = () => {
   });
 
   const images = imageForm.watch("images") || [];
-
-  useEffect(() => {
-    if (uploadedFile && uploadedFile.length > 0) {
-      imageForm.setValue(
-        "images",
-        uploadedFile.map((e, idx) => ({
-          id: e.key,
-          order: idx,
-          url: e.url,
-        })),
-      );
-    }
-  }, [uploadedFile, imageForm]);
 
   const handleLocationSelect = (location: Location) => {
     form.setValue("meetup_location", location.display_place);
@@ -196,8 +185,8 @@ const CreateEvent = () => {
                   <FileUploaderWrapper
                     files={files}
                     setFiles={setFiles}
-                    onFileUpload={uploadFiles}
-                    uploadedFile={uploadedFile}
+                    onFileUpload={handleFileUpload}
+                    uploadedFiles={uploadedFiles}
                     isUploading={isUploading}
                     images={images}
                     form={imageForm}

@@ -113,8 +113,6 @@ const Reviews = () => {
                         <OptimizedImage
                           src={review.rental.vehicle.images[0]!.url}
                           alt={review.rental.vehicle.name}
-                          width={100}
-                          height={100}
                           className="rounded-md"
                         />
                       </div>

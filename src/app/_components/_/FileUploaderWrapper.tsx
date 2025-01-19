@@ -27,7 +27,7 @@ import {
   FileUploaderContent,
 } from "~/components/ui/file-uploader";
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
-import { type UploadedFileType } from "~/hooks/useUploadthing";
+import { type CloudinaryResponse } from "~/hooks/useCloudinaryUpload";
 import { convertMultipleToWebP, webpBase64ArrayToFiles } from "~/lib/image";
 import ImageDragItem from "./ImageDragItem";
 
@@ -66,7 +66,7 @@ const FileUploaderWrapper = ({
   files,
   setFiles,
   onFileUpload,
-  uploadedFile,
+  uploadedFiles,
   isUploading,
   images,
   form,
@@ -75,7 +75,7 @@ const FileUploaderWrapper = ({
   files: File[] | null;
   setFiles: React.Dispatch<React.SetStateAction<File[] | null>>;
   onFileUpload: (files: File[]) => void;
-  uploadedFile: UploadedFileType[] | undefined;
+  uploadedFiles: CloudinaryResponse[];
   isUploading: boolean;
   images: {
     id: string;
@@ -84,8 +84,7 @@ const FileUploaderWrapper = ({
   }[];
   form: UseFormReturn<z.infer<typeof imageSchema>>;
 }) => {
-  // Use state to keep track of unique uploaded file keys
-  const [uploadedFileKeys, setUploadedFileKeys] = useState<string[]>([]);
+  const [uploadedFileIds, setUploadedFileIds] = useState<string[]>([]);
   const [localImages, setLocalImages] = useState<
     {
       id: string;
@@ -114,8 +113,7 @@ const FileUploaderWrapper = ({
         ...img,
         order: index + 1,
       }));
-
-      console.log({ updatedImages });
+ 
 
       setLocalImages(updatedImages);
       form.setValue("images", updatedImages, {
@@ -126,41 +124,38 @@ const FileUploaderWrapper = ({
   };
 
   useEffect(() => {
-    if (uploadedFile && uploadedFile.length > 0) {
-      // Create a Set for faster lookup of existing keys
-      const processedKeys = new Set(uploadedFileKeys);
+    if (uploadedFiles && uploadedFiles.length > 0) {
+      const processedIds = new Set(uploadedFileIds);
       const existingUrls = new Set(localImages.map((img) => img.url));
 
-      // Filter out files that are either already processed or exist in localImages
-      const newUniqueUploads = uploadedFile.filter(
-        (newFile) =>
-          !processedKeys.has(newFile.key) && !existingUrls.has(newFile.url),
+      const newUploads = uploadedFiles.filter(
+        (file) =>
+          !processedIds.has(file.public_id) &&
+          !existingUrls.has(file.secure_url),
       );
 
-      if (newUniqueUploads.length > 0) {
-        const newUploadedImages = newUniqueUploads.map((file, idx) => ({
-          id: file.key,
+      if (newUploads.length > 0) {
+        const newImages = newUploads.map((file, idx) => ({
+          id: file.public_id,
           order: localImages.length + idx + 1,
-          url: file.url,
+          url: file.secure_url,
         }));
 
-        const updatedImages = [...localImages, ...newUploadedImages];
+        const updatedImages = [...localImages, ...newImages];
 
-        // Update local images and file keys
         setLocalImages(updatedImages);
-        setUploadedFileKeys((prev) => [
+        setUploadedFileIds((prev) => [
           ...prev,
-          ...newUniqueUploads.map((file) => file.key),
+          ...newUploads.map((file) => file.public_id),
         ]);
 
-        // Update form state
         form.setValue("images", updatedImages, {
           shouldDirty: true,
           shouldTouch: true,
         });
       }
     }
-  }, [uploadedFile, form, uploadedFileKeys, localImages]);
+  }, [uploadedFiles, form, uploadedFileIds, localImages]);
 
   const imageIds = useMemo(
     () => localImages.map((img) => img.id),
