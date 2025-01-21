@@ -4,7 +4,8 @@ import L from "leaflet";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet/dist/leaflet.css";
-import { Loader2 } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
+import Link from "next/link";
 import React, {
   useCallback,
   useEffect,
@@ -15,12 +16,24 @@ import React, {
 import {
   MapContainer,
   Marker,
+  Popup,
   TileLayer,
   ZoomControl,
   useMap,
 } from "react-leaflet";
 import { v4 as uuidv4 } from "uuid";
+import { bricolage } from "~/app/utils/font";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "~/components/ui/carousel";
+import { OptimizedImage } from "~/components/ui/optimized-image";
+import { cn } from "~/lib/utils";
 import { type GetSearchedShops } from "~/server/api/routers/business";
+import "~/styles/globals.css";
 
 interface MapProps {
   mapLoading: boolean;
@@ -160,13 +173,7 @@ const ComponentResize = () => {
   return null;
 };
 
-const Map: React.FC<MapProps> = ({
-  mapLoading,
-  setData,
-  location,
-  places,
-  isLoading,
-}) => {
+const Map: React.FC<MapProps> = ({ setData, location, places, isLoading }) => {
   const memoizedMarkers = useMemo(() => {
     return places.map((place) => (
       <Marker
@@ -174,23 +181,105 @@ const Map: React.FC<MapProps> = ({
         position={[place.location.lat!, place.location.lng!]}
         icon={L.divIcon({
           html: `
-          <div class="rotate-45 rounded-t-full w-9 h-9 rounded-l-full p-0.5 bg-white shadow-lg">
-            <img
-              src="${place.logo}"
-              alt="Place Logo"
-              width="100%"
-              height="100%"
-              style="width: 100%;"
-              class="w-full h-full border border-border bg-white rounded-full object-contain -rotate-45"
-            />
-          </div>
+            <div class="rotate-45 rounded-t-full w-10 h-10 rounded-l-full p-0.5 bg-white shadow-lg transition-transform hover:scale-110">
+              <img
+                src="${place.logo}"
+                alt="Place Logo"
+                width="100%"
+                height="100%"
+                priority="true"
+                style="width: 100%;"
+                class="w-full h-full border border-border bg-white rounded-full object-contain -rotate-45"
+              />
+            </div>
           `,
           className: "custom-div-icon",
           iconSize: [32, 32],
           iconAnchor: [16, 32],
           popupAnchor: [0, -32],
         })}
-      />
+      >
+        <Popup
+          maxWidth={300}
+          minWidth={300}
+          autoClose
+          closeButton={false}
+          closeOnEscapeKey
+          className="p-0"
+        >
+          <div
+            className={cn(bricolage.className, "rounded-lg bg-white shadow-lg")}
+          >
+            <div className="relative aspect-[11/7] w-full overflow-hidden rounded-t-md border-b border-border">
+              <Carousel className="h-full w-full">
+                <CarouselPrevious />
+                <CarouselNext />
+                <CarouselContent>
+                  {place.images
+                    .sort((a, b) => a.order - b.order)
+                    .map((image, index) => (
+                      <CarouselItem key={index} className="relative p-0">
+                        <Link href={`/vendor/${place.slug}`}>
+                          <OptimizedImage
+                            alt={`${place.name}'s Images`}
+                            className="m-auto aspect-[11/7] w-full rounded-none object-fill"
+                            src={image.url}
+                          />
+                        </Link>
+                      </CarouselItem>
+                    ))}
+                </CarouselContent>
+              </Carousel>
+            </div>
+            <div className="px-3 py-2">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="flex-1">
+                  <h3 className="line-clamp-1 text-base font-semibold text-slate-700">
+                    {place.name}
+                  </h3>
+                </div>
+                <div className="flex items-center gap-1 text-sm text-gray-600">
+                  <Star
+                    size={18}
+                    className="fill-yellow-500 stroke-yellow-500"
+                  />
+                  <span className="text-sm">
+                    {+place.rating <= 0 ? "N/A" : (+place.rating).toFixed(1)}
+                  </span>
+                  {!!place.ratingCount && (
+                    <span className="text-sm">{`(${place.ratingCount})`}</span>
+                  )}
+                </div>
+              </div>
+              <div>
+                <div className="mb-2">
+                  <p className="text-sm text-slate-700">Available Vehicles</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  {place.availableVehiclesTypes.map((vehicle) => (
+                    <div
+                      key={vehicle}
+                      className={cn(
+                        "flex items-center gap-1 rounded-full px-2 py-1 text-xs capitalize text-slate-100 shadow-sm",
+                        {
+                          "bg-car-color/80": vehicle === "car",
+                          "bg-e-car-color/80": vehicle === "e-car",
+                          "bg-bike-color/80": vehicle === "bike",
+                          "bg-bicycle-color/80": vehicle === "bicycle",
+                          "bg-e-bicycle-color/80": vehicle === "e-bicycle",
+                          "bg-scooter-color/80": vehicle === "scooter",
+                        },
+                      )}
+                    >
+                      {vehicle}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Popup>
+      </Marker>
     ));
   }, [places]);
 
@@ -228,6 +317,7 @@ const Map: React.FC<MapProps> = ({
         scrollWheelZoom={true}
       >
         <ComponentResize />
+
         {isLoading && (
           <div className="absolute left-1/2 top-20 z-[999] flex h-12 w-32 -translate-x-1/2 items-center justify-center gap-1 rounded-sm bg-white text-sm font-medium text-slate-700 shadow-lg">
             <Loader2 className="size-5 animate-spin text-secondary" />
@@ -240,6 +330,7 @@ const Map: React.FC<MapProps> = ({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         />
+
         {memoizedMarkers}
       </MapContainer>
     </>

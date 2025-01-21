@@ -309,15 +309,15 @@ const Bookings: React.FC<BookingsProps> = ({
                               setQuantity(1);
                             }}
                           >
-                            <span className="text-sm font-medium capitalize">
+                            <span className="text-sm font-semibold capitalize">
                               {data.label}
                             </span>
                             <div
                               className={cn(
-                                "absolute -bottom-[0.80rem] right-2 rounded-full bg-slate-600 px-3 py-1 text-[0.65rem] text-slate-50",
+                                "absolute -bottom-[0.80rem] right-2 rounded-full bg-slate-600 px-3 py-1.5 text-xs text-slate-50",
                               )}
                             >
-                              From ${data.startingPrice}
+                              Starting from NPR. {data.startingPrice} /-
                             </div>
                           </div>
                         );

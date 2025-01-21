@@ -247,3 +247,11 @@ input[type="number"] {
 .remove-scroll::-webkit-scrollbar {
   display: none;
 }
+
+.leaflet-popup-content {
+  margin: 0 !important;
+}
+
+.leaflet-popup-content p {
+  margin: 0 !important;
+}

@@ -685,6 +685,7 @@ export const businessRouter = createTRPCRouter({
             name: businesses.name,
             slug: businesses.slug,
             logo: businesses.logo,
+            ratingCount: businesses.ratingCount,
             rating: businesses.rating,
             location: businesses.location,
             availableVehiclesTypes: businesses.availableVehicleTypes,

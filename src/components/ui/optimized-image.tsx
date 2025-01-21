@@ -9,9 +9,11 @@ export function OptimizedImage({
   alt,
   src,
   className,
+  style,
 }: {
   alt: string;
   src: string;
+  style?: Record<string, string>;
   className?: string;
 }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -25,6 +27,7 @@ export function OptimizedImage({
         onLoad={() => setIsLoading(false)}
         src={src}
         alt={alt}
+        {...style}
         className={cn(
           "transition-opacity duration-100",
           isLoading ? "opacity-0" : "opacity-100",
