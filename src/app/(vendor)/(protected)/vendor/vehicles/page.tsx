@@ -7,7 +7,7 @@ import VehiclesTable from "./_components/VehiclesTable";
 
 export async function generateMetadata(): Promise<Metadata> {
   return constructMetadata({
-    title: `All Vehicles | Velocit`,
+    title: `All Vehicles`,
     url: `${env.NEXT_PUBLIC_APP_URL}/vendor/vehicles`,
   });
 }

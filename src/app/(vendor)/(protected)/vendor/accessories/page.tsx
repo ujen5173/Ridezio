@@ -6,7 +6,7 @@ import AccessoriesTable from "./components/AccessoriesTable";
 
 export async function generateMetadata(): Promise<Metadata> {
   return constructMetadata({
-    title: `Accessories | Velocit`,
+    title: `Accessories`,
     url: `${env.NEXT_PUBLIC_APP_URL}/vendor/accessories`,
   });
 }

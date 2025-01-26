@@ -12,7 +12,7 @@ import GeneralSettings from "./_components/general";
 
 export async function generateMetadata(): Promise<Metadata> {
   return constructMetadata({
-    title: `Settings | Velocit`,
+    title: `Settings`,
     url: `${env.NEXT_PUBLIC_APP_URL}/settings`,
   });
 }

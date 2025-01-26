@@ -7,7 +7,7 @@ import Wrapper from "./wrapper";
 
 export async function generateMetadata(): Promise<Metadata> {
   return constructMetadata({
-    title: `Add Accessories | Velocit`,
+    title: `Add Accessories`,
     url: `${env.NEXT_PUBLIC_APP_URL}/vendor/accessories/add`,
   });
 }

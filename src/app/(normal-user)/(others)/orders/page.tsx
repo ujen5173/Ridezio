@@ -7,7 +7,7 @@ import OrdersPage from "./_components/OrdersPage";
 
 export async function generateMetadata(): Promise<Metadata> {
   return constructMetadata({
-    title: `Orders | Velocit`,
+    title: `Orders`,
     description: `View your orders`,
     url: `${env.NEXT_PUBLIC_APP_URL}/orders`,
   });

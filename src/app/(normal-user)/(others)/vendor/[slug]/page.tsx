@@ -24,7 +24,7 @@ export async function generateMetadata({
   if (!vendor) return notFound();
 
   return constructMetadata({
-    title: `${vendor.name} - Vehicle Rentals in ${vendor.location.city} | Velocit`,
+    title: `${vendor.name} - Vehicle Rentals in ${vendor.location.city}`,
     description: `Rent vehicles from ${vendor.name} in ${vendor.location.city}. ${vendor.availableVehicleTypes.join(
       ", ",
     )} available. Best rates, instant booking.`,
@@ -44,11 +44,25 @@ const VendorPage = async ({
   }>;
   searchParams: Promise<{
     data?: string;
+    pidx?: string;
+    transaction_id?: string;
+    tidx?: string;
+    amount?: string;
+    total_amount?: string;
+    mobile?: string;
+    status?: string;
+    purchase_order_id?: string;
+    purchase_order_name?: string;
     paymentMethod?: string;
   }>;
 }) => {
   const { slug } = await params;
-  const { data: paramsData, paymentMethod } = await searchParams;
+  const {
+    data: paramsData,
+    paymentMethod,
+    ...khaltiParams
+    // pidx: khaltiId,
+  } = await searchParams;
 
   if (!slug) redirect("/");
 
@@ -58,8 +72,12 @@ const VendorPage = async ({
     <>
       <HeaderHeight />
       <VendorWrapper
-        bookingProcessData={paramsData}
-        paymentMethod={paymentMethod === "online" ? "online" : "cash"}
+        // bookingProcessData={paramsData ?? khaltiParams.pidx}
+        // khaltiDetails={khaltiParams}
+        // paymentMethod === "online" ? "online" : "cash"
+        // paymentMethod={
+        //   paramsData ? "esewa" : khaltiParams.pidx ? "khalti" : "cash"
+        // }
         slug={slug}
         data={data}
       />

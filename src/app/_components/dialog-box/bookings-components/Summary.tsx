@@ -3,6 +3,7 @@
 import { type CheckedState } from "@radix-ui/react-checkbox";
 import { format } from "date-fns";
 import { CalendarClock, Loader } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -33,13 +34,10 @@ const Summary = ({
   quantity,
   fromVendor,
   message,
-  vendorId,
   acceptedPaymentMethods,
-  handleCheckout,
   setOpen,
 }: {
   getMaxAllowedQuantity: () => number;
-  handleCheckout: () => void;
   getSelectedVehicleId: () => string | undefined;
   getSelectedVehiclePrice: () => number;
   selectedVehicle: {
@@ -50,10 +48,13 @@ const Summary = ({
   quantity: number;
   fromVendor: boolean;
   message: string;
-  vendorId: string;
   acceptedPaymentMethods: PaymentMethod[];
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { data: user } = useSession();
+
   const acceptOnline =
     acceptedPaymentMethods.includes(PaymentMethod.Esewa) ||
     acceptedPaymentMethods.includes(PaymentMethod.Khalti);
@@ -68,9 +69,6 @@ const Summary = ({
 
   const { mutateAsync: paymentMutation } = api.payment.create.useMutation();
 
-  const pathname = usePathname();
-  const router = useRouter();
-
   const { mutateAsync: rentMutation } = api.rental.rent.useMutation();
   const [loading, setLoading] = useState(false);
 
@@ -82,6 +80,7 @@ const Summary = ({
         title: "Initiating Booking",
         description: "Please wait while we confirm your booking",
       });
+
       await rentMutation({
         vehicleId: getSelectedVehicleId()!,
         startDate: date?.from ?? new Date(),
@@ -137,100 +136,163 @@ const Summary = ({
       return;
     }
 
-    const startDate = date.from;
-    const endDate = date.to;
+    switch (selectedWallet) {
+      case "esewa":
+        const startDate = date.from;
+        const endDate = date.to;
 
-    const transactionUuid = `${Date.now()}-${uuidv4()}`;
+        const transactionUuid = `${Date.now()}-${uuidv4()}`;
 
-    try {
-      const payment = await paymentMutation({
-        method: "esewa",
-        amount: getSelectedVehiclePrice(),
-        productName: "",
-        transactionId: "",
-        transactionUuid,
-        businessId: vendorId,
-      });
+        try {
+          const payment = await paymentMutation({
+            method: "esewa",
+            amount: getSelectedVehiclePrice(),
+            productName: "",
 
-      const localStorageObject = {
-        vehicleId: selectedVehicleId,
-        startDate,
-        totalPrice: getSelectedVehiclePrice(),
-        endDate,
-        quantity: quantity,
-        paymentId: transactionUuid,
-        paymentMethod: null,
-        paymentStatus: "pending",
-        notes: message,
-      };
+            transactionUuid,
+          });
 
-      localStorage.setItem("rental", JSON.stringify(localStorageObject));
+          const localStorageObject = {
+            vehicleId: selectedVehicleId,
+            startDate,
+            totalPrice: getSelectedVehiclePrice(),
+            endDate,
+            quantity: quantity,
+            paymentId: transactionUuid,
+            paymentMethod: null,
+            paymentStatus: "pending",
+            notes: message,
+          };
 
-      toast({
-        title: "Payment Initiated",
-        description: "Redirecting to eSewa payment gateway...",
-      });
+          localStorage.setItem("rental", JSON.stringify(localStorageObject));
 
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
+          toast({
+            title: "Payment Initiated",
+            description: "Redirecting to eSewa payment gateway...",
+          });
 
-      const esewaPayload = {
-        amount: payment.amount,
-        tax_amount: payment.esewaConfig.tax_amount,
-        total_amount: payment.esewaConfig.total_amount,
-        transaction_uuid: payment.esewaConfig.transaction_uuid,
-        product_code: payment.esewaConfig.product_code,
-        product_service_charge: payment.esewaConfig.product_service_charge,
-        product_delivery_charge: payment.esewaConfig.product_delivery_charge,
-        success_url: payment.esewaConfig.success_url,
-        failure_url: payment.esewaConfig.failure_url,
-        signed_field_names: payment.esewaConfig.signed_field_names,
-        signature: payment.esewaConfig.signature,
-      };
+          if (payment?.esewaConfig) {
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
 
-      Object.entries(esewaPayload).forEach(([key, value]) => {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = String(value);
-        form.appendChild(input);
-      });
+            const esewaPayload = {
+              amount: payment.amount,
+              tax_amount: payment.esewaConfig.tax_amount,
+              total_amount: payment.esewaConfig.total_amount,
+              transaction_uuid: payment.esewaConfig.transaction_uuid,
+              product_code: payment.esewaConfig.product_code,
+              product_service_charge:
+                payment.esewaConfig.product_service_charge,
+              product_delivery_charge:
+                payment.esewaConfig.product_delivery_charge,
+              success_url: payment.esewaConfig.success_url,
+              failure_url: payment.esewaConfig.failure_url,
+              signed_field_names: payment.esewaConfig.signed_field_names,
+              signature: payment.esewaConfig.signature,
+            };
 
-      document.body.appendChild(form);
-      form.submit();
-      document.body.removeChild(form);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "An unknown error occurred";
-      toast({
-        variant: "destructive",
-        title: errorMessage,
-        description: "Payment initiation failed. Please try again.",
-      });
+            Object.entries(esewaPayload).forEach(([key, value]) => {
+              const input = document.createElement("input");
+              input.type = "hidden";
+              input.name = key;
+              input.value = String(value);
+              form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+          } else {
+            throw new Error(
+              "eSewa configuration not received or payment object is invalid",
+            );
+          }
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : "An unknown error occurred";
+          toast({
+            variant: "destructive",
+            title: errorMessage,
+            description: "Payment initiation failed. Please try again.",
+          });
+        }
+        break;
+      case "khalti":
+        try {
+          const startDate = date.from;
+          const endDate = date.to;
+
+          const transactionUuid = `${Date.now()}-${uuidv4()}`;
+
+          const localStorageObject = {
+            vehicleId: selectedVehicleId,
+            startDate,
+            totalPrice: getSelectedVehiclePrice(),
+            endDate,
+            quantity: quantity,
+            paymentId: transactionUuid,
+            paymentMethod: null,
+            paymentStatus: "pending",
+            notes: message,
+          };
+
+          localStorage.setItem("rental", JSON.stringify(localStorageObject));
+
+          const transactionId = `${Date.now()}-${uuidv4()}`;
+
+          const data = await paymentMutation({
+            method: "khalti",
+            amount: getSelectedVehiclePrice(),
+            productName: selectedVehicle.vehicleModel,
+            transactionUuid: transactionId,
+          });
+
+          if (!data.khaltiPaymentUrl) {
+            throw new Error("Khalti payment URL not received");
+          }
+
+          router.push(data.khaltiPaymentUrl);
+        } catch (error) {
+          console.error("Payment error:", error);
+          alert("Payment initiation failed. Please try again.");
+        } finally {
+        }
+        break;
+
+      default:
+        break;
     }
   };
 
   const checkOut = async () => {
-    if (selectedPaymentMethod === "online") {
-      if (selectedWallet === "esewa") {
-        void handlePayment();
-      } else if (selectedWallet === "khalti") {
-        toast({
-          title: "Payment Method Not Supported",
-          description: "Khalti payment method is not supported yet.",
-        });
-      } else {
-        toast({
-          title: "Select a Payment Wallet",
-          description: "Please select a payment wallet to proceed.",
-        });
-      }
-    } else {
-      await reserveBooking("cash");
+    if (user?.user.role === "VENDOR") {
+      await reserveBooking(
+        selectedPaymentMethod === "online" ? "online-payment" : "cash",
+      );
       router.push(pathname + `?data=success&paymentMethod=cash`, {
         scroll: false,
       });
+    } else {
+      if (selectedPaymentMethod === "online") {
+        if (selectedWallet === "esewa") {
+          void handlePayment();
+        } else if (selectedWallet === "khalti") {
+          void handlePayment();
+        } else {
+          toast({
+            title: "Select a Payment Wallet",
+            description: "Please select a payment wallet to proceed.",
+          });
+        }
+      } else {
+        await reserveBooking("cash");
+        router.push(pathname + `?data=success&paymentMethod=cash`, {
+          scroll: false,
+        });
+      }
     }
   };
 
@@ -295,8 +357,9 @@ const Summary = ({
             <div className="flex items-center gap-4">
               <CalendarClock className="size-8 text-secondary" />
               <p className="flex-1 text-sm text-slate-700">
-                Your reservation won’t be confirmed until the Vendor accepts
-                your request. You will receive a email on update from vendor.
+                Your reservation won&apos;t be confirmed until the Vendor
+                accepts your request. You will receive a email on update from
+                vendor.
               </p>
             </div>
 

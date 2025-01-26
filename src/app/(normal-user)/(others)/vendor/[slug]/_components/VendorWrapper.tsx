@@ -3,16 +3,21 @@
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { notFound, usePathname, useRouter } from "next/navigation";
-import { createContext, useCallback, useEffect, useRef, useState } from "react";
+import {
+  notFound,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import { createContext, useEffect, useRef, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import BookingProcessing from "~/app/_components/dialog-box/BookingProcessing";
 import { Button } from "~/components/ui/button";
 import { env } from "~/env";
 import { toast } from "~/hooks/use-toast";
 import useViewTracker from "~/hooks/use-view-counter";
+import usePayment from "~/hooks/usePayment";
 import { type GetVendorType } from "~/server/api/routers/business";
-import { decodeEsewaSignature } from "~/server/utils/generate-payment-token";
 import { api } from "~/trpc/react";
 import Bookings from "../../../../../_components/dialog-box/Bookings";
 import Faqs from "./Faqs";
@@ -32,32 +37,30 @@ export const VendorContext = createContext<{
   },
 });
 
-type PaymentBase64Data = {
-  status: "COMPLETE" | "PENDING" | "FAILED";
-  transaction_uuid: string;
-};
-
-type RentalBookingData = {
-  vehicleId: string;
-  startDate: Date;
-  endDate: Date;
-  totalPrice: number;
-  quantity: number;
-  paymentId: string;
-  notes: string;
-};
-
 const VendorWrapper = ({
   data,
-  bookingProcessData,
-  paymentMethod = "cash",
   slug,
 }: {
   data: GetVendorType;
   slug: string;
-  paymentMethod: "cash" | "online";
-  bookingProcessData: string | undefined;
 }) => {
+  const paramsData = useSearchParams().get("data");
+  const { transaction_id, pidx } = Object.fromEntries(
+    useSearchParams().entries(),
+  );
+
+  const paymentMethod =
+    paramsData === "success"
+      ? "cash"
+      : paramsData
+        ? "esewa"
+        : pidx
+          ? "khalti"
+          : "cash";
+
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+  const bookingProcessData = paramsData || transaction_id;
+
   const { data: bookingsDetails } = api.business.getBookingsDetails.useQuery(
     {
       businessId: data!.id,
@@ -74,94 +77,23 @@ const VendorWrapper = ({
 
   const router = useRouter();
   const pathname = usePathname();
-  const [loading, setLoading] = useState(false);
-  const { mutateAsync: rentUpdateStatusMutation, isError } =
-    api.rental.rent.useMutation();
+
   const hasProcessedPayment = useRef(false);
   const [bookingModelOpen, setBookingModelOpen] =
     useState<boolean>(!!bookingProcessData);
 
   const { data: user } = useSession();
-
-  const processPayment = useCallback(async () => {
-    setLoading(true);
-
-    if (!bookingProcessData) {
-      return;
-    }
-
-    try {
-      // Decode payment signature
-      const decodedPaymentHash = decodeEsewaSignature(bookingProcessData);
-      const paymentData = JSON.parse(decodedPaymentHash) as PaymentBase64Data;
-
-      // Validate payment status
-      if (paymentData.status !== "COMPLETE") {
-        toast({
-          variant: "destructive",
-          title: "Payment Error",
-          description: "Payment initiation failed. Please try again.",
-        });
-        return false;
-      }
-
-      // Retrieve local storage booking data
-      const localStorageObject = localStorage.getItem("rental");
-      if (!localStorageObject) {
-        return false;
-      }
-
-      // Parse local storage data
-      const parsedData = JSON.parse(localStorageObject) as RentalBookingData;
-
-      // Validate transaction
-      if (parsedData.paymentId !== paymentData.transaction_uuid) {
-        toast({
-          variant: "destructive",
-          title: "Booking mismatch",
-          description: "Please contact support for assistance.",
-        });
-        return false;
-      }
-
-      // Update rental status
-      const res = await rentUpdateStatusMutation({
-        ...parsedData,
-        paymentMethod: "online",
-        startDate: new Date(parsedData.startDate),
-        endDate: new Date(parsedData.endDate),
-        paymentStatus: "complete",
-      });
-
-      if (res) {
-        toast({
-          title: "Payment Successful",
-          description: "Your payment has been successfully processed.",
-        });
-        toast({
-          title: "Wait for Booking Confirmation",
-          description: "Please wait while vendor validates your booking.",
-        });
-        return true;
-      }
-
-      return false;
-    } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Payment Processing Failed",
-        description: "Please contact support or vendor.",
-      });
-      router.push(pathname, { scroll: false });
-    } finally {
-      setLoading(false);
-      localStorage.removeItem("rental");
-      router.push(pathname, { scroll: false });
-    }
-  }, []);
+  const { processPayment, verifyingPayment, processingBooking, isError } =
+    usePayment({
+      bookingProcessData,
+      pathname,
+      pidx,
+      paymentMethod,
+      userType: user?.user.role ?? "USER",
+    });
 
   useEffect(() => {
-    if (paymentMethod === "online") {
+    if (paymentMethod !== "cash") {
       if (bookingProcessData && !hasProcessedPayment.current) {
         const handlePayment = async () => {
           hasProcessedPayment.current = true;
@@ -169,10 +101,6 @@ const VendorWrapper = ({
         };
 
         void handlePayment();
-      }
-    } else {
-      if (bookingProcessData) {
-        setBookingModelOpen(true);
       }
     }
   }, [bookingProcessData, router, pathname, processPayment]);
@@ -242,21 +170,18 @@ const VendorWrapper = ({
         {bookingModelOpen && (
           // Booking Model
           <BookingProcessing
-            {...{
-              bookingModelOpen,
-              setBookingModelOpen,
-              loading,
-              isError,
-              paymentMethod,
-              user: user?.user.role ?? "USER",
-            }}
+            bookingModelOpen={bookingModelOpen}
+            setBookingModelOpen={setBookingModelOpen}
+            isError={isError}
+            user={user?.user.role ?? "USER"}
+            processingBooking={processingBooking}
+            verifyingPayment={verifyingPayment}
           />
         )}
         {bookingsDetails !== null &&
           bookingsDetails !== undefined &&
           !!data && (
             <Bookings
-              vendorId={data?.id}
               vendorUserId={data?.ownerId}
               open={open}
               fromVendor={data.ownerId === user?.user.id}

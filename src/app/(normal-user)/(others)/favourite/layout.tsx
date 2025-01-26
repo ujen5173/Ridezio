@@ -5,7 +5,7 @@ import { env } from "~/env";
 
 export async function generateMetadata(): Promise<Metadata> {
   return constructMetadata({
-    title: `Favourites | Velocit`,
+    title: `Favourites`,
     description: `Your favourite vehicles on Velocit`,
     url: `${env.NEXT_PUBLIC_APP_URL}/favorite`,
   });

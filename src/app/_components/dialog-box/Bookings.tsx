@@ -38,7 +38,6 @@ interface BookingsProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   bookingsDetails: GetBookingsType;
-  vendorId: string;
   vendorUserId: string;
   fromVendor: boolean;
   paymentDetails: {
@@ -51,7 +50,6 @@ const Bookings: React.FC<BookingsProps> = ({
   open,
   setOpen,
   vendorUserId,
-  vendorId,
   paymentDetails,
   fromVendor = false,
 }) => {
@@ -204,10 +202,6 @@ const Bookings: React.FC<BookingsProps> = ({
     const maxQuantity = getMaxAllowedQuantity();
     return maxQuantity === 0 || quantity > maxQuantity;
   }, [date, quantity]);
-
-  const handleCheckout = () => {
-    setShowBookingSummary(true);
-  };
 
   const getSelectedVehiclePrice = (): number => {
     const vehicles = getCurrentVehicles();
@@ -414,7 +408,7 @@ const Bookings: React.FC<BookingsProps> = ({
                     ) {
                       return;
                     } else {
-                      handleCheckout();
+                      setShowBookingSummary(true);
                     }
                   }}
                   disabled={
@@ -450,7 +444,6 @@ const Bookings: React.FC<BookingsProps> = ({
               message={message}
               getSelectedVehiclePrice={getSelectedVehiclePrice}
               selectedVehicle={selectedVehicle}
-              handleCheckout={handleCheckout}
               date={date}
               quantity={quantity}
               fromVendor={fromVendor}
@@ -462,7 +455,6 @@ const Bookings: React.FC<BookingsProps> = ({
 
                 return method;
               })()}
-              vendorId={vendorId}
               setOpen={setOpen}
             />
           </ScrollArea>

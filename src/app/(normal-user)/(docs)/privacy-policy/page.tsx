@@ -5,7 +5,7 @@ import { env } from "~/env";
 
 export async function generateMetadata(): Promise<Metadata> {
   return constructMetadata({
-    title: `Privacy Policy | Velocit`,
+    title: `Privacy Policy`,
     description: `Learn about Velocit's privacy policy. Read about how we collect, use, and protect your personal information.`,
     url: `${env.NEXT_PUBLIC_APP_URL}/cookie-policy`,
   });

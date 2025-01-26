@@ -419,7 +419,6 @@ const VehicleBookingsTable = () => {
           vendorUserId={vendor?.ownerId}
           bookingsDetails={bookingsDetails}
           fromVendor={true}
-          vendorId={vendor?.id ?? ""}
         />
       )}
 

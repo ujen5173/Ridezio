@@ -10,7 +10,7 @@ import VehicleBookingsTable from "./VehicleBookingsTable";
 
 export async function generateMetadata(): Promise<Metadata> {
   return constructMetadata({
-    title: `Dashboard | Velocit`,
+    title: `Dashboard`,
     url: `${env.NEXT_PUBLIC_APP_URL}/dashboard`,
   });
 }

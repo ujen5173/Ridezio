@@ -7,37 +7,16 @@ import { useEffect, useRef, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import BookingProcessing from "~/app/_components/dialog-box/BookingProcessing";
 import { inter } from "~/app/utils/font";
-import { toast } from "~/hooks/use-toast";
+import usePayment from "~/hooks/usePayment";
 import { cn } from "~/lib/utils";
 import { type GetDashboardInfo } from "~/server/api/routers/business";
-import { decodeEsewaSignature } from "~/server/utils/generate-payment-token";
-import { api } from "~/trpc/react";
 import { Chart } from "./Chart";
-
-type PaymentBase64Data = {
-  status: "COMPLETE" | "PENDING" | "FAILED";
-  transaction_uuid: string;
-};
-
-type RentalBookingData = {
-  vehicleId: string;
-  startDate: Date;
-  endDate: Date;
-  totalPrice: number;
-  quantity: number;
-  paymentId: string;
-  paymentMethod: "online" | "cash" | null;
-  notes: string;
-};
 
 const Stats = ({ data }: { data: GetDashboardInfo }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { data: user } = useSession();
   const paymentHash = useSearchParams().get("data");
-  const [loading, setLoading] = useState(false);
-  const { mutateAsync: rentUpdateStatusMutation, isError } =
-    api.rental.rent.useMutation();
   const hasProcessedPayment = useRef(false);
 
   const [bookingModelOpen, setBookingModelOpen] = useState(false);
@@ -48,77 +27,86 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
     }
   }, [paymentHash]);
 
-  const processPayment = async () => {
-    setLoading(true);
-    if (!paymentHash) {
-      return;
-    }
+  // const processPayment = async () => {
+  //   setLoading(true);
+  //   if (!paymentHash) {
+  //     return;
+  //   }
 
-    try {
-      // Decode payment signature
-      const decodedPaymentHash = decodeEsewaSignature(paymentHash);
-      const paymentData = JSON.parse(decodedPaymentHash) as PaymentBase64Data;
+  //   try {
+  //     // Decode payment signature
+  //     const decodedPaymentHash = decodeEsewaSignature(paymentHash);
+  //     const paymentData = JSON.parse(decodedPaymentHash) as PaymentBase64Data;
 
-      // Validate payment status
-      if (paymentData.status !== "COMPLETE") {
-        toast({
-          variant: "destructive",
-          title: "Payment Error",
-          description: "Payment initiation failed. Please try again.",
-        });
-        return false;
-      }
+  //     // Validate payment status
+  //     if (paymentData.status !== "COMPLETE") {
+  //       toast({
+  //         variant: "destructive",
+  //         title: "Payment Error",
+  //         description: "Payment initiation failed. Please try again.",
+  //       });
+  //       return false;
+  //     }
 
-      // Retrieve local storage booking data
-      const localStorageObject = localStorage.getItem("rental");
-      if (!localStorageObject) {
-        return false;
-      }
+  //     // Retrieve local storage booking data
+  //     const localStorageObject = localStorage.getItem("rental");
+  //     if (!localStorageObject) {
+  //       return false;
+  //     }
 
-      // Parse local storage data
-      const parsedData = JSON.parse(localStorageObject) as RentalBookingData;
+  //     // Parse local storage data
+  //     const parsedData = JSON.parse(localStorageObject) as RentalBookingData;
 
-      // Validate transaction
-      if (parsedData.paymentId !== paymentData.transaction_uuid) {
-        toast({
-          variant: "destructive",
-          title: "Booking mismatch",
-          description: "Please contact support for assistance.",
-        });
-        return false;
-      }
+  //     // Validate transaction
+  //     if (parsedData.paymentId !== paymentData.transaction_uuid) {
+  //       toast({
+  //         variant: "destructive",
+  //         title: "Booking mismatch",
+  //         description: "Please contact support for assistance.",
+  //       });
+  //       return false;
+  //     }
 
-      // Update rental status
-      const res = await rentUpdateStatusMutation({
-        ...parsedData,
-        startDate: new Date(parsedData.startDate),
-        endDate: new Date(parsedData.endDate),
-        paymentStatus: "complete",
-      });
+  //     // Update rental status
+  //     const res = await rentUpdateStatusMutation({
+  //       ...parsedData,
+  //       startDate: new Date(parsedData.startDate),
+  //       endDate: new Date(parsedData.endDate),
+  //       paymentStatus: "complete",
+  //     });
 
-      if (res) {
-        toast({
-          title: "Booking Successful",
-          description: "Your booking has been successfully processed.",
-        });
-        return true;
-      }
+  //     if (res) {
+  //       toast({
+  //         title: "Booking Successful",
+  //         description: "Your booking has been successfully processed.",
+  //       });
+  //       return true;
+  //     }
 
-      return false;
-    } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "Payment Processing Failed",
-        description: "Please contact support or vendor.",
-      });
+  //     return false;
+  //   } catch (err) {
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Payment Processing Failed",
+  //       description: "Please contact support or vendor.",
+  //     });
 
-      router.push(pathname, { scroll: false });
-    } finally {
-      setLoading(false);
-      localStorage.removeItem("rental");
-      router.push(pathname, { scroll: false });
-    }
-  };
+  //     router.push(pathname, { scroll: false });
+  //   } finally {
+  //     setLoading(false);
+  //     localStorage.removeItem("rental");
+  //     router.push(pathname, { scroll: false });
+  //   }
+  // };
+
+  const { processPayment, verifyingPayment, processingBooking, isError } =
+    usePayment({
+      bookingProcessData: undefined,
+      pathname,
+      pidx: undefined,
+      paymentMethod: null,
+      userType: user?.user.role ?? "USER",
+    });
 
   useEffect(() => {
     if (paymentHash && !hasProcessedPayment.current) {
@@ -136,14 +124,12 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
       {bookingModelOpen && (
         // Booking Model
         <BookingProcessing
-          {...{
-            bookingModelOpen,
-            setBookingModelOpen,
-            loading,
-            isError,
-            user: user?.user.role ?? "USER",
-            paymentMethod: "online",
-          }}
+          bookingModelOpen={bookingModelOpen}
+          setBookingModelOpen={setBookingModelOpen}
+          isError={isError}
+          user={user?.user.role ?? "USER"}
+          processingBooking={processingBooking}
+          verifyingPayment={verifyingPayment}
         />
       )}
       <div className="mb-8">
