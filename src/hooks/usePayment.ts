@@ -218,6 +218,7 @@ const usePayment = ({
               const res = await rentUpdateStatusMutation({
                 ...parsedData,
                 paymentMethod: "online",
+                paymentId: khaltiResponse.transaction_id ?? "",
                 startDate: new Date(parsedData.startDate),
                 endDate: new Date(parsedData.endDate),
                 paymentStatus: "complete",

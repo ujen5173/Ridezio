@@ -16,7 +16,7 @@ Welcome to **Velocit**, a full-stack platform that seamlessly connects vendors a
 - **Location-based Discovery**: Find nearby rental shops based on your current location.
 - **Variety of Vehicle Categories**: Rent from a wide range of vehicles like Cycles, E-cycles, Bikes, E-bikes, and Cars.
 - **Seamless Booking Experience**: Enjoy a smooth and intuitive booking flow from start to finish.
-- **Payments**: Integrated e-sewa payment method.
+- **Payments**: Integrated e-sewa and khalti payment method.
 - **Ratings & Reviews**: Share feedback and read others’ experiences to make informed decisions.
 
 ## 🛠️ Tech Stack
@@ -30,8 +30,8 @@ We’ve used the latest technologies to build a robust, scalable platform:
 - **[Drizzle ORM](https://orm.drizzle.team/)** - Type-safe ORM for seamless database interactions.
 - **[PostgreSQL](https://www.postgresql.org/)** - Powerful, open-source relational database.
 - **[NextAuth.js](https://next-auth.js.org/)** - Authentication for Next.js apps with support for various login providers.
-- **[UploadThing](https://uploadthing.com/)** - Simple file uploads for your app.
+- **[Cloudianry](https://cloudinary.com/)** - Simple file uploads for your app.
 - **[Leaflet Maps API](https://developers.google.com/maps)** - Location-based services to enhance user experience.
-- **[Posthog](https://posthog.com/)** - Web analytics platform.
+- **[Posthog](https://posthog.com/)** - Web analytics.
 
 Really Enjoyed working on this project. Hope this idea would be successful in the future. 🚀

@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import axios from "axios";
 import { and, eq, getTableColumns } from "drizzle-orm";
 import { z } from "zod";
 import {
@@ -295,12 +296,15 @@ export const rentalRouter = createTRPCRouter({
         });
       }
 
-      const result = await ctx.db
+      const [result] = await ctx.db
         .update(rentals)
         .set({
           status: input.status,
         })
-        .where(eq(rentals.id, input.orderId));
+        .where(eq(rentals.id, input.orderId))
+        .returning({
+          paymentId: rentals.paymentId,
+        });
 
       if (result) {
         // Send email to user after change of status
@@ -309,7 +313,29 @@ export const rentalRouter = createTRPCRouter({
           status: input.status,
         });
       }
+      try {
+        if (input.status === "rejected" || input.status === "cancelled") {
+          const { data } = await axios.post<{
+            detail: string;
+          }>(
+            `https://dev.khalti.com/api/merchant-transaction/${result?.paymentId}/refund/`,
+            {},
+            {
+              headers: {
+                Authorization: `Key live_secret_key_68791341fdd94846a146f0457ff7b455`,
+                "Content-Type": "application/json",
+              },
+            },
+          );
 
+          if (data.detail === "Transaction refund successful.") {
+            console.log("Refund successful");
+            return true;
+          }
+        }
+      } catch (err) {
+        console.log({ err });
+      }
       return true;
     }),
 });
