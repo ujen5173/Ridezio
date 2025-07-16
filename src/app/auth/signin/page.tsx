@@ -83,7 +83,7 @@ const SignInPage = () => {
             {/* Right content section */}
             <div className="p-6 md:col-span-3 md:p-8">
               <div className="mb-8 text-center">
-                <Logo tw="mx-auto fill-secondary h-6 mb-4 w-auto" />
+                <Logo tw="mx-auto text-secondary text-3xl mb-4 w-auto" />
                 <p className="mt-2 text-slate-600">
                   Choose your account type to continue
                 </p>

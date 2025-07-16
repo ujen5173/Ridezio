@@ -386,7 +386,12 @@ const Bookings: React.FC<BookingsProps> = ({
             <div className="flex w-full flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
               <div className="flex flex-wrap gap-1 text-lg font-semibold">
                 <span className="text-nowrap">
-                  Total: NPR.{getSelectedVehiclePrice()}/-
+                  Total:{" "}
+                  {Intl.NumberFormat("en-NP", {
+                    style: "currency",
+                    currency: "NPR",
+                  }).format(getSelectedVehiclePrice())}
+                  /-
                 </span>
 
                 {date?.from && date?.to && (

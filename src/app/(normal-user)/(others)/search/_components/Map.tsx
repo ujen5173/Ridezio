@@ -54,7 +54,7 @@ const BoundsHandler: React.FC<{
 }> = ({ setData, initialBounds }) => {
   const map = useMap();
   const [lastBounds, setLastBounds] = useState(initialBounds);
-  const boundsUpdateTimeout = useRef<NodeJS.Timeout>();
+  const boundsUpdateTimeout = useRef<NodeJS.Timeout | null>(null);
   const isInitialLoadRef = useRef(true);
   const isUserInteractionRef = useRef(false);
 
@@ -107,7 +107,7 @@ const BoundsHandler: React.FC<{
         setData(newBounds);
         setLastBounds(newBounds);
         isUserInteractionRef.current = false;
-      }, 500);
+      }, 500) as unknown as NodeJS.Timeout;
     }
   }, [map, lastBounds, setData]);
 

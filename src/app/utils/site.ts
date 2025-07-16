@@ -3,11 +3,11 @@ import { env } from "~/env";
 import { type GetVendorType } from "~/server/api/routers/business";
 
 const links = {
-  github: "https://github.com/ujen5173/velocit",
+  github: "https://github.com/ujen5173/Ridezio",
   twitter: "https://twitter.com/ujen_basi",
   linkedin: "https://www.linkedin.com/in/ujen-basi-167a4522a/",
-  facebook: "https://www.facebook.com/velocit",
-  instagram: "https://www.instagram.com/velocit",
+  facebook: "https://www.facebook.com/ridezio",
+  instagram: "https://www.instagram.com/ridezio",
   authorsWebsite: "https://ujenbasi.vercel.app",
   authorsGitHub: "https://github.com/ujen5173",
   openGraphImage: new URL("/api/og", env.NEXT_PUBLIC_APP_URL).toString(),
@@ -26,12 +26,14 @@ export function getBaseUrl() {
 }
 
 export const siteConfig = {
-  name: "Velocit",
-  namelower: "velocit",
-  title: "Rent Cycles, Bikes, Scooters & Cars | Velocit Vehicle Rentals",
+  name: "Ridezio",
+  namelower: "ridezio",
+  title:
+    "Rent Cycles, Bikes, Scooters & Cars Near You | Ridezio Vehicle Rentals",
   description:
-    "Affordable and flexible rentals for cycles, bikes, scooters, and cars. Find rides near you and book instantly with Velocit",
-  tagline: "Flexible, affordable vehicle rentals for every journey",
+    "Book affordable cycles, bikes, scooters, and cars for rent near you. Ridezio offers instant booking, flexible rental options, and the best prices for local vehicle rentals. Find your perfect ride today.",
+  tagline:
+    "Book cycles, bikes, scooters, and cars for rent near you with Ridezio.",
   links,
   url: getBaseUrl(),
   ogImage: links.openGraphImage,
@@ -48,7 +50,7 @@ export const siteConfig = {
   structuredData: {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "Velocit",
+    name: "Ridezio",
     url: getBaseUrl(),
     logo: {
       "@type": "ImageObject",
@@ -65,7 +67,7 @@ export const siteConfig = {
       priceCurrency: "NPR",
       seller: {
         "@type": "Organization",
-        name: "Velocit",
+        name: "Ridezio",
       },
     },
   },
@@ -190,7 +192,7 @@ export function constructMetadata({
       card: "summary_large_image",
       title,
       description,
-      site: "@velocit",
+      site: "@ridezio",
       creator: "@ujen_basi",
       ...(image && { images: [image] }),
     },

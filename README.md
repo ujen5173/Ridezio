@@ -1,6 +1,6 @@
-# 🏍️ Velocit - Revolutionizing Vehicle Rentals 🚲
+# 🏍️ Ridezio - Revolutionizing Vehicle Rentals 🚲
 
-Welcome to **Velocit**, a full-stack platform that seamlessly connects vendors and customers for a hassle-free vehicle rental experience. Whether you're looking to rent a bike, scooter, car, or e-bike, Velocit automates the entire process, from booking to return, all while offering real-time location-based services.
+Welcome to **Ridezio**, a full-stack platform that seamlessly connects vendors and customers for a hassle-free vehicle rental experience. Whether you're looking to rent a bike, scooter, car, or e-bike, Ridezio automates the entire process, from booking to return, all while offering real-time location-based services.
 
 ## ✨ Features
 

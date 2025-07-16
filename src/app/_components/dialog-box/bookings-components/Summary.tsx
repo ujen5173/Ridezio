@@ -327,7 +327,11 @@ const Summary = ({
           <div className="flex justify-between">
             <span>Total Amount:</span>
             <span className="font-semibold">
-              NPR.{getSelectedVehiclePrice()} /-
+              {Intl.NumberFormat("en-NP", {
+                style: "currency",
+                currency: "NPR",
+              }).format(getSelectedVehiclePrice())}{" "}
+              /-
             </span>
           </div>
         </div>
@@ -401,7 +405,12 @@ const Summary = ({
                 )}
               >
                 <p className="flex-1">
-                  Pay NPR. {getSelectedVehiclePrice()} /- now
+                  Pay{" "}
+                  {Intl.NumberFormat("en-NP", {
+                    style: "currency",
+                    currency: "NPR",
+                  }).format(getSelectedVehiclePrice())}{" "}
+                  /- now
                 </p>
                 <div className="flex items-center gap-2">
                   {!acceptOnline ? (

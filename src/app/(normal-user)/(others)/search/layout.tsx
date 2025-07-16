@@ -4,7 +4,7 @@ import { type ReactNode } from "react";
 import { constructMetadata } from "~/app/utils/site";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = headers();
+  const headersList = await headers();
   const pathname = headersList.get("x-url");
   const location =
     new URL(pathname ?? "").searchParams.get("location") ?? "from anywhere";
@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
     new URL(pathname ?? "").searchParams.get("vehicleType") ?? "vehicles";
 
   return constructMetadata({
-    title: `Rent ${vehicleType} in ${location} | Velocit Vehicle Rentals`,
+    title: `Rent ${vehicleType} in ${location} | Ridezio Vehicle Rentals`,
     description: `Find and rent ${vehicleType} in ${location}. Best prices, instant booking, and flexible rental options. Local vehicle rentals near you.`,
   });
 }

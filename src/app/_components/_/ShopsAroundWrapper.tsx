@@ -17,3 +17,5 @@ const ShopsAroundWrapper = async () => {
 };
 
 export default ShopsAroundWrapper;
+
+export const revalidate = 600; // 10 minutes cache

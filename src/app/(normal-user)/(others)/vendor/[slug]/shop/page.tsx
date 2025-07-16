@@ -38,7 +38,7 @@ const Shop = async ({
           <h1
             className={cn(
               handwritting.className,
-              "mb-10 text-4xl font-semibold md:text-5xl lg:text-6xl",
+              "mb-10 text-4xl font-semibold text-pink-700 md:text-5xl lg:text-6xl",
             )}
           >
             {business.name}

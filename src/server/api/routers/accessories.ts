@@ -51,8 +51,8 @@ export const accessoriesRouter = createTRPCRouter({
           brand: z.string().optional(),
           category: z.string(),
           description: z.string().optional(),
-          sizes: z.array(z.string()),
-          colors: z.array(z.string()),
+          sizes: z.array(z.string()).optional().default([]),
+          colors: z.array(z.string()).optional().default([]),
           discount: z.number().optional(),
         }),
         editId: z.string().optional(),
@@ -98,6 +98,7 @@ export const accessoriesRouter = createTRPCRouter({
           return true;
         }
       } catch (error) {
+        console.log({ error });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Something went wrong, please try again",

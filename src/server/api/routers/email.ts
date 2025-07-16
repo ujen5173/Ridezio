@@ -129,7 +129,7 @@ export const sendBookingDetailsEmail = async ({
 
     //? Email to VENDOR
     await transporter.sendMail({
-      from: "Velocit Team",
+      from: "Ridezio Team",
       to: bookingDetails.businessOwnerEmail,
       subject: `Vehicle ${bookingDetails.vehicleName} for ${format(new Date(bookingDetails.rentalStart), "dd MMM - yyyy")} - ${format(new Date(bookingDetails.rentalEnd), "dd MMM - yyyy")}`,
       html: bookingEmailToVendor(bookingDetails),
@@ -137,7 +137,7 @@ export const sendBookingDetailsEmail = async ({
 
     // Email to USER
     await transporter.sendMail({
-      from: "Velocit Team",
+      from: "Ridezio Team",
       to: session.user.email,
       subject: `Vehicle ${bookingDetails.vehicleName} for ${format(new Date(bookingDetails.rentalStart), "dd MMM - yyyy")} - ${format(new Date(bookingDetails.rentalEnd), "dd MMM - yyyy")}`,
       html: bookingEmailToUser(bookingDetails),
@@ -217,7 +217,7 @@ export const sendBookingUpdateEmail = async ({
 
     //? Email to USER
     await transporter.sendMail({
-      from: "Velocit Team",
+      from: "Ridezio Team",
       to: bookingDetails.user.email,
       subject: `Vehicle ${bookingDetails.vehicleName} for ${format(new Date(bookingDetails.rentalStart), "dd MMM - yyyy")} - ${format(new Date(bookingDetails.rentalEnd), "dd MMM - yyyy")} Update Email`,
       html:

@@ -90,8 +90,8 @@ export function AppSidebar({ slug }: { slug: string }) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center justify-between border-b border-border py-[1.1rem]">
-            <div className="scale-x-90">
-              <Logo link={"/dashboard"} tw="h-6 fill-secondary" />
+            <div className="">
+              <Logo tw={"text-3xl text-secondary"} />
             </div>
             <Button
               variant={"outline"}

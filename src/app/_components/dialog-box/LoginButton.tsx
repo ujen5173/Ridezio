@@ -39,7 +39,7 @@ const LoginButton = ({ children }: { children: React.ReactNode }) => {
                     chakra_petch.className,
                   )}
                 >
-                  Welcome to Velocit
+                  Welcome to Ridezio
                 </h1>
                 <p className="text-center text-base text-slate-600">
                   Log in to rent or list vehicles for rent. Convenient rentals,

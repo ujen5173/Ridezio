@@ -1,9 +1,15 @@
 import Link from "next/link";
+import { rubik } from "~/app/utils/font";
+import { cn } from "~/lib/utils";
 
 const Logo = ({ tw, link = "/" }: { link?: string; tw?: string }) => {
   return (
-    <Link href={link}>
-      <svg
+    <Link
+      className={cn("font-bold uppercase", rubik.className, tw)}
+      href={link}
+    >
+      Ridezio
+      {/* <svg
         className={tw}
         viewBox="0 0 958 168"
         xmlns="http://www.w3.org/2000/svg"
@@ -21,7 +27,7 @@ const Logo = ({ tw, link = "/" }: { link?: string; tw?: string }) => {
         <path d="M901.3 0.385673H857.602V158.152H901.3V0.385673Z" />
         <path d="M947.454 0.385673H812.043L821.497 35.7717H865.195H938.595L947.454 0.385673Z" />
         <path d="M602.81 81.2693C606.07 140.209 625.725 167.003 680.529 163.989C700.225 162.905 717.472 156.445 729.025 147.518L704.237 110.915C697.197 115.687 688.598 119.603 676.189 120.286C659.481 121.205 645.838 114.958 645.838 81.2693L602.81 81.2693Z" />
-      </svg>
+      </svg> */}
     </Link>
   );
 };

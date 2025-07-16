@@ -9,7 +9,7 @@ const NotFound = () => {
 
   return (
     <div className="flex h-screen flex-col items-center justify-center">
-      <Logo tw="h-10 fill-secondary mb-10" />
+      <Logo tw="text-4xl text-secondary mb-10" />
       <h1 className="text-center text-4xl font-semibold text-foreground">
         404: Off the Map and Off the Grid!
       </h1>

@@ -1,6 +1,6 @@
+import { LRUCache } from "lru-cache";
 import { type Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { cache } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import { constructMetadata } from "~/app/utils/site";
@@ -8,23 +8,31 @@ import { env } from "~/env";
 import { api } from "~/trpc/server";
 import VendorWrapper from "./_components/VendorWrapper";
 
-const getVendorDetails = cache(async (slug: string) => {
-  return await api.business.getVendor({
-    slug: slug,
-  });
+const vendorCache = new LRUCache<string, any>({
+  max: 100, // max 100 vendors in cache
+  ttl: 1000 * 60 * 10, // 10 minutes
 });
+
+export async function getVendorDetailsCached(slug: string) {
+  const cached = vendorCache.get(slug);
+  if (cached) return cached;
+
+  const data = await api.business.getVendor({ slug });
+  vendorCache.set(slug, data);
+  return data;
+}
 
 export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const vendor = await getVendorDetails(params.slug);
+  const vendor = await getVendorDetailsCached(params.slug);
 
   if (!vendor) return notFound();
 
   return constructMetadata({
-    title: `${vendor.name} - Vehicle Rentals in ${vendor.location.city}`,
+    title: `${vendor.name}`,
     description: `Rent vehicles from ${vendor.name} in ${vendor.location.city}. ${vendor.availableVehicleTypes.join(
       ", ",
     )} available. Best rates, instant booking.`,
@@ -66,7 +74,7 @@ const VendorPage = async ({
 
   if (!slug) redirect("/");
 
-  const data = await getVendorDetails(slug);
+  const data = await getVendorDetailsCached(slug);
 
   return (
     <>
@@ -86,3 +94,5 @@ const VendorPage = async ({
 };
 
 export default VendorPage;
+
+export const revalidate = 60 * 60 * 24; // 24 hours

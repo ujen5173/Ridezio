@@ -76,7 +76,10 @@ const Accessories = () => {
                     </h4>
                     <div className="flex items-end gap-2">
                       <span className={cn("text-xl font-semibold")}>
-                        NPR {(vehicle.price_per_hour ?? 1) * 65}{" "}
+                        {Intl.NumberFormat("en-NP", {
+                          style: "currency",
+                          currency: "NPR",
+                        }).format((vehicle.price_per_hour ?? 1) * 65)}{" "}
                       </span>
                     </div>
                   </div>

@@ -51,7 +51,14 @@ const AccessoriesCard = ({
           </div>
           <p className="text-base font-medium uppercase">Starting at</p>
           <h2 className="mb-4 text-2xl font-bold text-secondary">
-            NPR {accessory.basePrice}
+            {Intl.NumberFormat("en-NP", {
+              style: "currency",
+              currency: "NPR",
+            }).format(
+              accessory.discount
+                ? accessory.basePrice - accessory.discount
+                : accessory.basePrice,
+            )}
           </h2>
         </div>
       </div>

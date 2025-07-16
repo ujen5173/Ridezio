@@ -7,24 +7,19 @@ import { Button } from "~/components/ui/button";
 import BecomePartner from "./_components/BecomePartner";
 import ExplorePopularPlaces from "./_components/ExplorePopularPlaces";
 import Faqs from "./_components/Faqs";
+import JoinAffiateProgram from "./_components/JoinAffiateProgram";
 import ShopsAroundLoading from "./_components/ShopsAroundLoading";
 
 const Home = async () => {
-  // const [popularShops, events] = await Promise.all([
-  //   api.business.getPopularShops(),
-  //   api.events.getUpcomingEvents(),
-  // ]);
-
   return (
     <>
       <HeroSection />
       <Suspense fallback={<ShopsAroundLoading />}>
         <ShopsAroundWrapper />
       </Suspense>
-      {/* <PopularShops popularShopsData={popularShops} /> */}
-      {/* <UpcomingEvent events={events} /> */}
       <ExplorePopularPlaces />
       <BecomePartner />
+      <JoinAffiateProgram />
       <Faqs />
       <Button
         asChild

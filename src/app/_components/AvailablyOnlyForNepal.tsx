@@ -9,12 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
-import { api } from "~/trpc/react";
 
-export function AvailablyOnlyForNepal({ country }: { country: string }) {
+export function AvailablyOnlyForNepal() {
   const [open, setOpen] = useState(false);
-  const { mutateAsync, status } =
-    api.feedback.requestForOtherCountries.useMutation();
 
   const savePref = () => {
     localStorage.setItem("disableForNepalPopup", "true");
@@ -37,28 +34,28 @@ export function AvailablyOnlyForNepal({ country }: { country: string }) {
     >
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="mb-4 text-3xl text-slate-700">
-            Welcome to Velocit!
+          <DialogTitle className="mb-4 text-3xl font-bold text-slate-700">
+            Welcome to{" "}
+            <span className="text-secondary underline">Ridezio!</span>
           </DialogTitle>
           <DialogDescription className="text-lg">
-            We&apos;re currently available in
-            <u className="text-semibold mx-1 text-secondary">
-              Nepal!
-            </u> Want to list your rental shop? Let us know, we&apos;d love to
-            have you on board! 🚗🚲
+            Hey there! We noticed you&apos;re not viewing listings from Nepal.
+            Tap below to switch and see what&apos;s available in Nepal! 🚗🇳🇵
           </DialogDescription>
         </DialogHeader>
-        <Button
-          disabled={status === "pending"}
-          onClick={async () => {
-            savePref();
-            await mutateAsync({ country: country ?? "N/A" });
-            setOpen(false);
-          }}
-          variant="secondary"
-        >
-          {status === "pending" ? "Sending..." : "Notify us!"}
-        </Button>
+        <div className="grid grid-cols-1 items-center gap-2">
+          <Button
+            disabled={status === "pending"}
+            onClick={async () => {
+              savePref();
+              document.cookie = "change-location=true; path=/";
+              setOpen(false);
+            }}
+            variant="secondary"
+          >
+            View Nepal Listings
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

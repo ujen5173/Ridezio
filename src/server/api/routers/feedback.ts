@@ -12,9 +12,9 @@ const feedbackRouter = createTRPCRouter({
     )
     .mutation(async ({ input }) => {
       await transporter.sendMail({
-        from: "Velocit Team",
-        to: "velocit.company@gmail.com",
-        subject: "New Feedback Received - Velocit",
+        from: "Ridezio Team",
+        to: "Ridezio.company@gmail.com",
+        subject: "New Feedback Received - Ridezio",
         html: `  
         <body style="margin: 0; padding: 0; background-color: #f9fafb; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -28,14 +28,14 @@ const feedbackRouter = createTRPCRouter({
                     <h2 style="color: #1f2937; margin: 0 0 24px 0; font-size: 24px; font-weight: 600;">Expansion Opportunity Alert</h2>
                     
                     <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
-                        We've received a new request to bring Velocit to <strong style="color: ##fb7185;">${input.country}</strong>! Our platform's global appeal continues to grow.
+                        We've received a new request to bring Ridezio to <strong style="color: ##fb7185;">${input.country}</strong>! Our platform's global appeal continues to grow.
                     </p>
                 </div>
 
                 <!-- Footer -->
                 <div style="text-align: center; padding-top: 24px;">
                     <p style="color: #6b7280; font-size: 14px;">
-                        © 2025 Velocit. All rights reserved.
+                        © 2025 Ridezio. All rights reserved.
                     </p>
                 </div>
             </div>
@@ -61,9 +61,9 @@ const feedbackRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       try {
         await transporter.sendMail({
-          from: "Velocit Team",
-          to: "velocit.company@gmail.com",
-          subject: "New Feedback Received - Velocit",
+          from: "Ridezio Team",
+          to: "ridezio.company@gmail.com",
+          subject: "New Feedback Received - Ridezio",
           html: `  
             <body style="margin: 0; padding: 0; background-color: #f9fafb; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
               <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -102,7 +102,7 @@ const feedbackRouter = createTRPCRouter({
                   <!-- Footer -->
                   <div style="text-align: center; padding-top: 24px;">
                     <p style="color: #6b7280; font-size: 14px;">
-                      © 2025 Velocit. All rights reserved.
+                      © 2025 Ridezio. All rights reserved.
                     </p>
                   </div>
               </div>

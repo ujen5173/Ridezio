@@ -5,7 +5,7 @@ import { env } from "~/env";
 import { type IpInfoResponse } from "~/server/api/routers/business";
 
 export const getUserGeoFromIP = cache(async () => {
-  const headersList = headers();
+  const headersList = await headers();
 
   let ip: string | undefined | null;
 

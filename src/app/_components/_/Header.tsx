@@ -66,7 +66,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
               <SheetContent side="left" className="flex flex-col">
                 <SheetHeader>
                   <SheetTitle className="mb-8">
-                    <Logo tw="h-6 fill-pink-500" />
+                    <Logo tw="text-3xl text-pink-500" />
                   </SheetTitle>
                 </SheetHeader>
                 <div className="flex h-full flex-col">
@@ -146,8 +146,8 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
 
           <Logo
             tw={cn(
-              "h-6",
-              pth === "/" ? "fill-secondary md:fill-white" : "fill-secondary",
+              "text-3xl",
+              pth === "/" ? "text-secondary md:text-white" : "text-secondary",
             )}
           />
         </div>
@@ -254,7 +254,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                       </Button>
                     </LoginButton>
                   </div>
-                  <div className="hidden items-center gap-2 md:flex">
+                  <div className="hidden items-center md:flex">
                     <LoginButton>
                       <Button
                         variant={"link"}

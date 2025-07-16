@@ -31,12 +31,12 @@ const sampleBookingDetails: BookingDetails = {
   notes: null,
   businessImages: [
     {
-      url: "https://www.velocit.me/_next/image?url=https%3A%2F%2Futfs.io%2Ff%2FoGGp19TCxhl9z0iSCrog2rTZhiMdzf39c4oNO6tekp0JKBlA&w=1920&q=75",
+      url: "https://www.Ridezio.me/_next/image?url=https%3A%2F%2Futfs.io%2Ff%2FoGGp19TCxhl9z0iSCrog2rTZhiMdzf39c4oNO6tekp0JKBlA&w=1920&q=75",
       id: "img1",
       order: 1,
     },
   ],
-  businessOwnerEmail: "velocit.company@gmail.com",
+  businessOwnerEmail: "ridezio.company@gmail.com",
   businessPhone: ["98123432432"],
 };
 

@@ -5,7 +5,7 @@ import LoginButton from "../LoginButton";
 
 const SigninAlert = () => {
   return (
-    <Alert className="border-red-300 bg-red-100" variant="default">
+    <Alert className="border-red-200 bg-red-100" variant="default">
       <div className="flex flex-1 items-center gap-4">
         <TriangleAlert className="h-6 w-6 text-red-600" />
         <div className="flex-1">

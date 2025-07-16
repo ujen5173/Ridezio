@@ -27,7 +27,7 @@ const FavroiteButton = ({ id }: { id: string }) => {
       onClick={async () => {
         if (data?.user.role === "VENDOR") {
           toast({
-            title: "Vendors can't add to favourites",
+            title: "Vendors can't add to Favourites",
             variant: "destructive",
           });
           return;
@@ -69,7 +69,7 @@ const FavroiteButton = ({ id }: { id: string }) => {
           ) : (
             <Heart size={16} className="mr-2" />
           )}
-          Add to favourites
+          Add to Favourites
         </>
       )}
     </Button>

@@ -6,6 +6,7 @@ import {
   Merienda,
   Nunito,
   Playfair_Display,
+  Rubik,
 } from "next/font/google";
 import localFont from "next/font/local";
 
@@ -72,14 +73,15 @@ export const chakra_petch = Bitter({
   subsets: ["latin"],
   preload: true,
 });
-// export const chakra_petch = Chakra_Petch({
-//   weight: ["400", "500", "700"],
-//   style: "normal",
-//   display: "swap",
-//   variable: "--chakra-petch",
-//   subsets: ["latin"],
-//   preload: true,
-// });
+
+export const rubik = Rubik({
+  weight: ["400", "500", "700"],
+  style: "normal",
+  display: "swap",
+  variable: "--rubik",
+  subsets: ["latin"],
+  preload: true,
+});
 
 export const merienda = Merienda({
   weight: ["400", "700"],

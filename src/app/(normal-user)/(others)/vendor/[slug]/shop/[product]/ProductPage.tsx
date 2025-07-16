@@ -102,6 +102,7 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
           __html: JSON.stringify(productStructuredData),
         }}
       />
+
       <HeaderHeight />
 
       <section className="px-4">
@@ -422,6 +423,7 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
                 </Button>
                 <Button asChild variant={"outline"} className="flex-1 gap-2">
                   <Link
+                    target="_blank"
                     href={extractDirectionsFromIframe(
                       data?.business!.location.map ?? "",
                     )}

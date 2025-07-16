@@ -43,7 +43,7 @@ const ShopsAround = ({
             )}
           >
             <span>Rentals Around</span>
-            <span className="font-black capitalize text-secondary underline underline-offset-2">
+            <span className="font-black capitalize text-secondary underline decoration-wavy underline-offset-2">
               {city}
             </span>
           </h2>

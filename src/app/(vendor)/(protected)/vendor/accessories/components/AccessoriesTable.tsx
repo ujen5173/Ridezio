@@ -149,7 +149,10 @@ export const columns: ColumnDef<Accessory>[] = [
       const amount = row.getValue<number>("basePrice");
       return (
         <div className="w-max break-keep px-4 capitalize">
-          NPR {amount.toLocaleString()}
+          {Intl.NumberFormat("en-NP", {
+            style: "currency",
+            currency: "NPR",
+          }).format(+(amount.toLocaleString() ?? 0))}
         </div>
       );
     },

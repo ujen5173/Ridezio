@@ -18,7 +18,7 @@ export async function POST(request: Request) {
         .upload_stream(
           {
             resource_type: "auto",
-            folder: "velocit",
+            folder: "Ridezio",
           },
           (error, result) => {
             // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors

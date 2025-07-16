@@ -24,7 +24,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerAuthSession();
-  const headersList = headers();
+  const headersList = await headers();
   const pathname = headersList.get("x-pathname") ?? "/";
   const canonicalUrl = `${getBaseUrl()}${pathname}`;
   const { country_code, city, geo, country } = await getUserGeoFromIP();
@@ -39,9 +39,7 @@ export default async function RootLayout({
         <TRPCReactProvider>
           <HydrateClient>
             <CSPostHogProvider>
-              {country_code !== "NP" && (
-                <AvailablyOnlyForNepal country={country} />
-              )}
+              {country_code !== "NP" && <AvailablyOnlyForNepal />}
               <RootContext
                 country_code={country_code}
                 city={city}

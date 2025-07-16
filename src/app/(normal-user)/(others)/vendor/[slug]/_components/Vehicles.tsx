@@ -62,7 +62,7 @@ const Vehicles = () => {
         <div className="mb-10 flex items-center justify-between gap-10">
           <h1
             className={cn(
-              "mb-4 text-3xl font-semibold text-slate-700 md:text-4xl",
+              "text-3xl font-semibold text-slate-700 md:text-4xl",
               chakra_petch.className,
             )}
           >
@@ -143,10 +143,10 @@ const Vehicles = () => {
                       </p>
 
                       <h2 className="mb-4 text-2xl font-bold text-secondary">
-                        NPR{" "}
-                        {Intl.NumberFormat("en-IN").format(
-                          vehicle.basePrice ?? 0,
-                        )}{" "}
+                        {Intl.NumberFormat("en-NP", {
+                          style: "currency",
+                          currency: "NPR",
+                        }).format(vehicle.basePrice ?? 0)}{" "}
                         <span className="text-base font-normal">/day</span>
                       </h2>
                     </div>

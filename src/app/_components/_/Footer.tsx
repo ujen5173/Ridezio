@@ -214,13 +214,13 @@ const Footer = () => {
           </div>
 
           <div className="flex justify-center pt-20">
-            <Logo tw="h-14 sm:h-20 md:h-26 lg:h-32 fill-pink-400" />
+            <Logo tw="text-3xl sm:text-6xl md:text-7xl lg:text-9xl text-pink-400" />
           </div>
         </div>
 
         <div className="flex items-center justify-center py-10">
           <p className="text-sm text-slate-100">
-            © {new Date().getFullYear()} Velocit, Inc. All Rights Reserved.
+            © {new Date().getFullYear()} Ridezio, Inc. All Rights Reserved.
           </p>
         </div>
       </div>
