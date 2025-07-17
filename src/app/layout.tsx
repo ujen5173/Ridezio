@@ -1,6 +1,7 @@
 import "~/styles/globals.css";
 
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import HolyLoader from "holy-loader";
 import { type Metadata } from "next";
 import { headers } from "next/headers";
 import { extractRouterConfig } from "uploadthing/server";
@@ -16,6 +17,7 @@ import { CSPostHogProvider } from "./providers";
 import { bricolage } from "./utils/font";
 import { getUserGeoFromIP } from "./utils/ip";
 import { constructMetadata, getBaseUrl } from "./utils/site";
+
 export const metadata: Metadata = constructMetadata();
 
 export default async function RootLayout({
@@ -34,8 +36,11 @@ export default async function RootLayout({
       <head>
         <link rel="canonical" href={canonicalUrl} />
       </head>
+
       <body className={bricolage.className}>
         <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+        <HolyLoader height={4} color="#db2979" />
+
         <TRPCReactProvider>
           <HydrateClient>
             <CSPostHogProvider>

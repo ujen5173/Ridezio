@@ -90,9 +90,12 @@ export const accessoriesRouter = createTRPCRouter({
               businessId: business.id,
               slug: slugify(data.name, slugifyDefault),
             });
-            await trx.update(businesses).set({
-              sellGears: true,
-            });
+            await trx
+              .update(businesses)
+              .set({
+                sellGears: true,
+              })
+              .where(eq(accessories.businessId, business.id));
           });
 
           return true;

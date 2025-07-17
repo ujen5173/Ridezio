@@ -46,6 +46,19 @@ export const siteConfig = {
     "Cycle rental platform",
     "Electric scooter rentals",
     "Motorbike rentals online",
+    "Rent a bike in Nepal",
+    "Kathmandu car rental",
+    "Affordable scooter rental Kathmandu",
+    "Electric bike hire Pokhara",
+    "Best vehicle rental app Nepal",
+    "Self-drive car rental Nepal",
+    "Book a cycle online Kathmandu",
+    "Cheap bike rental near me",
+    "Airport car rental Nepal",
+    "24/7 vehicle rental Kathmandu",
+    "Family car rental Nepal",
+    "Two-wheeler rental Pokhara",
+    "Nepal rental deals and discounts",
   ],
   structuredData: {
     "@context": "https://schema.org",
@@ -103,7 +116,7 @@ export function generateVendorStructuredData(
 export function constructMetadata({
   title = siteConfig.title,
   description = siteConfig.description,
-  image = siteConfig.ogImage,
+  image,
   icons = [
     {
       rel: "apple-touch-icon",
@@ -137,6 +150,7 @@ export function constructMetadata({
   noIndex = false,
   structuredData,
   alternates = {},
+  keywords = siteConfig.keywords,
 }: {
   title?: string;
   description?: string;
@@ -146,6 +160,7 @@ export function constructMetadata({
   url?: string;
   structuredData?: Record<string, unknown>;
   alternates?: Metadata["alternates"];
+  keywords?: string[];
 } = {}): Metadata {
   return {
     metadataBase: new URL(getBaseUrl()),
@@ -157,7 +172,7 @@ export function constructMetadata({
     applicationName: siteConfig.name,
     authors: [{ name: siteConfig.author, url: links.authorsWebsite }],
     generator: "Next.js",
-    keywords: siteConfig.keywords,
+    keywords,
     referrer: "origin-when-cross-origin",
     viewport: {
       width: "device-width",

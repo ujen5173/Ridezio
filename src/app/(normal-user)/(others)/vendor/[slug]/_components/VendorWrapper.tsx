@@ -66,6 +66,8 @@ const VendorWrapper = ({
       businessId: data!.id,
     },
     {
+      // data will be fresh for 24 hour
+      staleTime: 3600000,
       enabled: !!data,
     },
   );

@@ -73,6 +73,7 @@
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.6",
     "geist": "^1.4.2",
+    "holy-loader": "^2.3.13",
     "leaflet": "^1.9.4",
     "leaflet-defaulticon-compatibility": "^0.1.2",
     "lodash.debounce": "^4.0.8",

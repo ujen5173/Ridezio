@@ -167,6 +167,9 @@ importers:
       geist:
         specifier: ^1.4.2
         version: 1.4.2(next@15.4.1(@babel/core@7.28.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
+      holy-loader:
+        specifier: ^2.3.13
+        version: 2.3.13(react@19.1.0)
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
@@ -3152,6 +3155,11 @@ packages:
 
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
+
+  holy-loader@2.3.13:
+    resolution: {integrity: sha512-SnQ06sfMgbhiRGkHZ0RFMbexSpZN3i6tgItt3q8GWNba3mOdsq1RNJXkoqsWkqPIAmyroj2/xIOHu1hCFnjkBQ==}
+    peerDependencies:
+      react: '>= 16.0.0'
 
   htmlparser2@8.0.2:
     resolution: {integrity: sha512-GYdjWKDkbRLkZ5geuHs5NY1puJ+PXwP7+fHPRz06Eirsb9ugf6d8kkXav6ADhcODhFFPMIXyxkxSuMf3D6NCFA==}
@@ -7556,6 +7564,10 @@ snapshots:
   hast-util-whitespace@3.0.0:
     dependencies:
       '@types/hast': 3.0.4
+
+  holy-loader@2.3.13(react@19.1.0):
+    dependencies:
+      react: 19.1.0
 
   htmlparser2@8.0.2:
     dependencies:

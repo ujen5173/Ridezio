@@ -1,6 +1,7 @@
 "use client";
 import "react-datepicker/dist/react-datepicker.css";
 import { chakra_petch } from "~/app/utils/font";
+import { constructMetadata } from "~/app/utils/site";
 import {
   Accordion,
   AccordionContent,
@@ -9,6 +10,28 @@ import {
 } from "~/components/ui/accordion";
 import { cn } from "~/lib/utils";
 import { faqs } from "./data/faqs";
+
+export const generateMetadata = () =>
+  constructMetadata({
+    title: "Frequently Asked Questions | Ridezio",
+    description:
+      "Answers to common questions about renting vehicles with Ridezio.",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "How do I rent a vehicle?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Choose your vehicle, select dates, and book instantly online.",
+          },
+        },
+        // ...more Q&A
+      ],
+    },
+  });
 
 const Faqs = () => {
   return (

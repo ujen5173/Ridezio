@@ -3,8 +3,11 @@ import { type Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import "react-datepicker/dist/react-datepicker.css";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
-import { constructMetadata } from "~/app/utils/site";
-import { env } from "~/env";
+import {
+  constructMetadata,
+  generateVendorStructuredData,
+  getBaseUrl,
+} from "~/app/utils/site";
 import type { GetVendorType } from "~/server/api/routers/business";
 import { api } from "~/trpc/server";
 import VendorWrapper from "./_components/VendorWrapper";
@@ -36,14 +39,46 @@ export async function generateMetadata({
   if (!vendor) return notFound();
 
   return constructMetadata({
-    title: `${vendor.name}`,
-    description: `Rent vehicles from ${vendor.name} in ${vendor.location.city}. ${vendor.availableVehicleTypes.join(
-      ", ",
-    )} available. Best rates, instant booking.`,
-    image: vendor.images?.[0]?.url ?? null,
-    alternates: {
-      canonical: `${env.NEXT_PUBLIC_APP_URL}/vendor/${slug}`,
+    title: `${vendor.name} - ${vendor.location.city} Vehicle Rental | Ridezio`,
+    description: `Rent bikes, cars, and scooters from ${vendor.name} in ${vendor.location.city}. Best prices, instant booking, verified reviews.`,
+    url: `${getBaseUrl()}/vendor/${vendor.slug}`,
+    structuredData: {
+      ...generateVendorStructuredData(vendor),
+      ...{
+        "@context": "https://schema.org",
+        breadcrumb: {
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Home",
+              item: getBaseUrl(),
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "Vendors",
+              item: `${getBaseUrl()}/vendors`,
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: vendor.name,
+              item: `${getBaseUrl()}/vendor/${vendor.slug}`,
+            },
+          ],
+        },
+      },
     },
+    keywords: [
+      `${vendor.name} rental`,
+      `${vendor.location.city} vehicle rental`,
+      "bike rental",
+      "car rental",
+      "scooter rental",
+      "Nepal",
+    ],
   });
 }
 
