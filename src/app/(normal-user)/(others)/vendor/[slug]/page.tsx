@@ -5,29 +5,33 @@ import "react-datepicker/dist/react-datepicker.css";
 import HeaderHeight from "~/app/_components/_/HeaderHeight";
 import { constructMetadata } from "~/app/utils/site";
 import { env } from "~/env";
+import type { GetVendorType } from "~/server/api/routers/business";
 import { api } from "~/trpc/server";
 import VendorWrapper from "./_components/VendorWrapper";
 
-const vendorCache = new LRUCache<string, any>({
+const vendorCache = new LRUCache<string, NonNullable<GetVendorType>>({
   max: 100, // max 100 vendors in cache
   ttl: 1000 * 60 * 10, // 10 minutes
 });
 
-export async function getVendorDetailsCached(slug: string) {
+async function getVendorDetailsCached(slug: string) {
   const cached = vendorCache.get(slug);
-  if (cached) return cached;
+  if (cached !== undefined) return cached;
 
   const data = await api.business.getVendor({ slug });
-  vendorCache.set(slug, data);
+  if (data) {
+    vendorCache.set(slug, data);
+  }
   return data;
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const vendor = await getVendorDetailsCached(params.slug);
+  const { slug } = await params;
+  const vendor = await getVendorDetailsCached(slug);
 
   if (!vendor) return notFound();
 
@@ -38,7 +42,7 @@ export async function generateMetadata({
     )} available. Best rates, instant booking.`,
     image: vendor.images?.[0]?.url ?? null,
     alternates: {
-      canonical: `${env.NEXT_PUBLIC_APP_URL}/vendor/${params.slug}`,
+      canonical: `${env.NEXT_PUBLIC_APP_URL}/vendor/${slug}`,
     },
   });
 }
@@ -95,4 +99,4 @@ const VendorPage = async ({
 
 export default VendorPage;
 
-export const revalidate = 60 * 60 * 24; // 24 hours
+export const revalidate = 86400; // 24 hours

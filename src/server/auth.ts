@@ -80,7 +80,7 @@ export const authOptions: NextAuthOptions = {
       token.id = token.sub;
 
       if (trigger === "signUp" && user) {
-        const roleCookie = cookies().get("role")?.value;
+        const roleCookie = (await cookies()).get("role")?.value;
 
         if (roleCookie) {
           token.role = roleCookie;
@@ -100,7 +100,7 @@ export const authOptions: NextAuthOptions = {
             }
           }
 
-          cookies().set("role", "", { maxAge: -1, path: "/" });
+          (await cookies()).set("role", "", { maxAge: -1, path: "/" });
         }
       }
 

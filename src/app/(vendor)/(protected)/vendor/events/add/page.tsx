@@ -78,7 +78,8 @@ const formSchema = z.object({
     .date({
       message: "Please select a valid starting date.",
     })
-    .default(new Date()),
+    .default(new Date())
+    .optional(),
   ending_date: z
     .date({
       message: "Please select a valid ending date.",
@@ -128,12 +129,9 @@ const CreateEvent = () => {
     defaultValues: {
       title: "",
       starting_date: start_date,
-      ending_date: undefined,
       meetup_location: "",
       destination_location: "",
       description: `Requirements: \nMention any specific prerequisites or materials needed (e.g., "Bring your own laptop and notebook").\n\nTimeline: \nOutline the schedule briefly (e.g., "10:00 AM - Gathering, 11:00 AM - Reaching destination, 1:00 PM - Lunch").\n\nAdditional Info: \nAdd any other details like event location.`,
-      fee: 0,
-      capacity: 0,
     },
   });
 

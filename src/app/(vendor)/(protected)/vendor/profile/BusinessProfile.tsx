@@ -56,7 +56,7 @@ export const formSchema = z.object({
       .max(50, { message: "Address is too long" }),
     city: z.string().min(2, { message: "Enter City name" }).max(50),
   }),
-  sellGears: z.boolean().default(false),
+  sellGears: z.boolean().default(false).optional(),
   phoneNumbers: z
     .array(
       z
@@ -95,8 +95,8 @@ export const formSchema = z.object({
       order: z.number(),
     }),
   ),
-  instagramHandle: z.string().default(""),
-  merchantCode: z.string().default(""),
+  instagramHandle: z.string().default("").optional(),
+  merchantCode: z.string().default("").optional(),
 });
 
 export const imageSchema = z.object({

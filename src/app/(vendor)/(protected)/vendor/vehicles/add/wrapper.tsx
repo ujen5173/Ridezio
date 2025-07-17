@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { } from "cmdk";
+import {} from "cmdk";
 import { Check, ChevronsUpDown, Loader, Plus, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -103,7 +103,6 @@ const Wrapper = ({
   );
 
   const [files, setFiles] = useState<File[] | null>([]);
- 
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
