@@ -213,7 +213,7 @@ export function constructMetadata({
     },
     icons,
     verification: {
-      google: "ZXUhxd8j6vspU4L4i5Xk0crzK1dLrwwIYch8mOKVAc0",
+      google: "vHvO1sl7U0_LurLmzNExXkguqkkHYyz5RLuhNSg3AwE",
     },
     robots: {
       index: !noIndex,

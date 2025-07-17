@@ -65,7 +65,7 @@ const Locations = () => {
                 </div>
                 <div>
                   <p className="text-base text-foreground">Instagram</p>
-                  <p className="text-base font-medium text-slate-600">
+                  <p className="text-base font-medium text-secondary">
                     @{vendor?.instagramHandle}
                   </p>
                 </div>
