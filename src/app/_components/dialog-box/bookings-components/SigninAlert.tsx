@@ -13,8 +13,7 @@ const SigninAlert = () => {
             Sign in to continue
           </AlertTitle>
           <AlertDescription className="text-red-600">
-            You need to sign in to continue booking a vehicle. Please sign in to
-            continue.
+            You need to sign in to continue booking a vehicle.
           </AlertDescription>
         </div>
         <LoginButton>

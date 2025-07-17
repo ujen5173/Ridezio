@@ -308,7 +308,7 @@ const Bookings: React.FC<BookingsProps> = ({
                             </span>
                             <div
                               className={cn(
-                                "absolute -bottom-[0.80rem] right-2 rounded-full bg-slate-600 px-3 py-1.5 text-xs text-slate-50",
+                                "absolute -bottom-[0.80rem] right-2 line-clamp-1 rounded-full bg-slate-600 px-3 py-1.5 text-xs text-slate-50",
                               )}
                             >
                               Starting from NPR. {data.startingPrice} /-

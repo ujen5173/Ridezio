@@ -1,6 +1,7 @@
 import "~/styles/globals.css";
 
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { Analytics } from "@vercel/analytics/next";
 import HolyLoader from "holy-loader";
 import { type Metadata } from "next";
 import { headers } from "next/headers";
@@ -17,7 +18,6 @@ import { CSPostHogProvider } from "./providers";
 import { bricolage } from "./utils/font";
 import { getUserGeoFromIP } from "./utils/ip";
 import { constructMetadata, getBaseUrl } from "./utils/site";
-
 export const metadata: Metadata = constructMetadata();
 
 export default async function RootLayout({
@@ -59,6 +59,7 @@ export default async function RootLayout({
           </HydrateClient>
         </TRPCReactProvider>
         <TailwindIndicator />
+        <Analytics />
       </body>
     </html>
   );
