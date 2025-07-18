@@ -8,7 +8,7 @@ export const metadata: Metadata = constructMetadata({
     "Log in to Ridezio and access the best vehicle rentals near you. Manage your bookings, explore rental options, and connect with trusted local shops.",
 });
 
-const SignInLayout = ({ children }: { children: ReactNode }) => {
+const SignInLayout = async ({ children }: { children: ReactNode }) => {
   return <>{children}</>;
 };
 

@@ -3,8 +3,11 @@ import Link from "next/link";
 import { chakra_petch } from "~/app/utils/font";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
+import { getServerAuthSession } from "~/server/auth";
 
-const JoinAffiateProgram = () => {
+const JoinAffiateProgram = async () => {
+  const user = await getServerAuthSession();
+
   return (
     <section className="w-full bg-slate-50">
       <div className="mx-auto flex max-w-[1440px] items-center gap-6 px-4 py-16">
@@ -29,14 +32,14 @@ const JoinAffiateProgram = () => {
             Earn with our{" "}
             <span className="text-secondary underline">Affiliate Program</span>
           </h1>
-          <p className="mb-8 w-full text-lg text-slate-600">
+          <p className="text-md mb-8 w-full text-slate-600 sm:text-lg">
             Help us grow the Ridezio community and get rewarded! Choose your
             path:
           </p>
           <div className="mb-8 grid gap-6 md:grid-cols-2">
             <div className="flex flex-col items-start rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md">
               <div className="flex-1">
-                <h2 className="mb-2 text-xl font-semibold text-slate-700">
+                <h2 className="mb-2 text-xl font-bold text-slate-700">
                   Onboard New Vendors
                 </h2>
                 <p className="mb-4 text-slate-600">
@@ -53,7 +56,7 @@ const JoinAffiateProgram = () => {
             </div>
             <div className="flex flex-col items-start rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md">
               <div className="flex-1">
-                <h2 className="mb-2 text-xl font-semibold text-slate-700">
+                <h2 className="mb-2 text-xl font-bold text-slate-700">
                   Onboard New Users
                 </h2>
                 <p className="mb-4 text-slate-600">
@@ -67,7 +70,13 @@ const JoinAffiateProgram = () => {
               </span>
             </div>
           </div>
-          <Link href="/auth/signin">
+          <Link
+            href={
+              user?.user.id
+                ? "/settings?tab=affiliate-program"
+                : "/auth/signin?redirect=affiliate-program"
+            }
+          >
             <Button variant="secondary" size="lg">
               Join Affiliate Program
             </Button>

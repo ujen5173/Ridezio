@@ -12,7 +12,9 @@ import { env } from "~/env";
 import { db } from "~/server/db";
 import {
   accounts,
+  affiliateStats,
   businesses,
+  referrals,
   sessions,
   users,
   verificationTokens,
@@ -51,6 +53,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     }),
   ],
+
   adapter: DrizzleAdapter(db, {
     usersTable: users,
     accountsTable: accounts,
@@ -81,6 +84,72 @@ export const authOptions: NextAuthOptions = {
 
       if (trigger === "signUp" && user) {
         const roleCookie = (await cookies()).get("role")?.value;
+        const referralId = (await cookies()).get("ref")?.value;
+
+        console.log({ referralId });
+
+        if (referralId) {
+          // referralId is the referrer (existing user), user.id is the new user
+          await db.transaction(async (ctx) => {
+            // 1. Insert referral record
+            await ctx.insert(referrals).values({
+              referrerUserId: referralId,
+              referredUserId: user.id,
+              rewardType: user.role === "USER" ? "points" : "free_rental",
+              rewardValue: user.role === "USER" ? 50 : 1, // 1 = one free rental
+            });
+
+            // 2. Update or create affiliateStats for referrer
+            const referrerStats = await ctx.query.affiliateStats.findFirst({
+              where: eq(affiliateStats.userId, referralId),
+            });
+            if (referrerStats) {
+              await ctx
+                .update(affiliateStats)
+                .set({
+                  totalReferrals: referrerStats.totalReferrals + 1,
+                  totalPoints:
+                    referrerStats.totalPoints + (user.role === "USER" ? 50 : 0),
+                  totalFreeRentals:
+                    referrerStats.totalFreeRentals +
+                    (user.role === "USER" ? 0 : 1),
+                  updatedAt: new Date(),
+                })
+                .where(eq(affiliateStats.userId, referralId));
+            } else {
+              await ctx.insert(affiliateStats).values({
+                userId: referralId,
+                totalReferrals: 1,
+                totalPoints: user.role === "USER" ? 50 : 0,
+                totalFreeRentals: user.role === "USER" ? 0 : 1,
+                updatedAt: new Date(),
+              });
+            }
+
+            // for the new user too.
+            const referredStats = await ctx.query.affiliateStats.findFirst({
+              where: eq(affiliateStats.userId, user.id),
+            });
+
+            if (referredStats) {
+              await ctx
+                .update(affiliateStats)
+                .set({
+                  totalPoints: referredStats.totalPoints + 50,
+                  updatedAt: new Date(),
+                })
+                .where(eq(affiliateStats.userId, user.id));
+            } else {
+              await ctx.insert(affiliateStats).values({
+                userId: user.id,
+                totalReferrals: 0,
+                totalPoints: 50,
+                totalFreeRentals: 0,
+                updatedAt: new Date(),
+              });
+            }
+          });
+        }
 
         if (roleCookie) {
           token.role = roleCookie;

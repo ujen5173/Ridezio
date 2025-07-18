@@ -2,6 +2,8 @@
 
 import axios from "axios";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { bricolage } from "~/app/utils/font";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -9,7 +11,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { cn } from "~/lib/utils";
 import Logo from "~/svg/logo";
 
-const SignInPage = () => {
+enum Mode {
+  Business = "business",
+  Personal = "personal",
+}
+
+const SignInWrapper = () => {
+  const redirect = useSearchParams().get("redirect") ?? "/";
+  const tab = useSearchParams().get("tab") ?? Mode["Personal"];
+  const ref = useSearchParams().get("ref");
+
+  function getValidMode(): Mode {
+    return Object.values(Mode).includes(tab as Mode)
+      ? (tab as Mode)
+      : Mode.Business;
+  }
+
+  const [activeTab, setActiveTab] = useState(getValidMode());
+
   return (
     <div
       className={cn(
@@ -89,13 +108,22 @@ const SignInPage = () => {
                 </p>
               </div>
 
-              <Tabs defaultValue="personal" className="space-y-6">
+              <Tabs
+                defaultValue={activeTab}
+                value={activeTab}
+                onValueChange={(e) => setActiveTab(e as Mode)}
+                className="space-y-6"
+              >
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="personal">Personal Account</TabsTrigger>
-                  <TabsTrigger value="business">Business Account</TabsTrigger>
+                  <TabsTrigger value={Mode.Personal}>
+                    Personal Account
+                  </TabsTrigger>
+                  <TabsTrigger value={Mode.Business}>
+                    Business Account
+                  </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="personal" className="space-y-4">
+                <TabsContent value={Mode.Personal} className="space-y-4">
                   <Button
                     variant="outline"
                     onClick={async () => {
@@ -103,8 +131,14 @@ const SignInPage = () => {
                         role: "USER",
                       });
 
+                      if (ref) {
+                        await axios.post("/api/set-ref", {
+                          ref,
+                        });
+                      }
+
                       await signIn("google", {
-                        callbackUrl: "/",
+                        callbackUrl: redirect,
                       });
                     }}
                     className="flex w-full items-center justify-start space-x-4 py-6 text-left hover:bg-slate-50"
@@ -131,15 +165,22 @@ const SignInPage = () => {
                   </Button>
                 </TabsContent>
 
-                <TabsContent value="business" className="space-y-4">
+                <TabsContent value={Mode.Business} className="space-y-4">
                   <Button
                     variant="outline"
                     onClick={async () => {
                       await axios.post("/api/set-role", {
                         role: "VENDOR",
                       });
+
+                      if (ref) {
+                        await axios.post("/api/set-ref", {
+                          ref,
+                        });
+                      }
                       await signIn("google", {
-                        callbackUrl: "/vendor/profile",
+                        callbackUrl:
+                          redirect === "/" ? "/vendor/profile" : redirect,
                       });
                     }}
                     className="flex w-full items-center justify-start space-x-4 py-6 text-left hover:bg-slate-50"
@@ -191,4 +232,4 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
+export default SignInWrapper;

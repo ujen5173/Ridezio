@@ -16,6 +16,7 @@ export async function middleware(request: NextRequest) {
     "/vendor/accessories/add",
     "/vendor/profile",
     "/dashboard",
+    "/settings",
   ];
 
   // Logic for vendor routes
@@ -26,7 +27,13 @@ export async function middleware(request: NextRequest) {
     });
 
     if (!token) {
-      return NextResponse.redirect(new URL("/auth/signin", request.url));
+      // Check for redirect param
+      const redirectParam = request.nextUrl.searchParams.get("redirect");
+      let signinUrl = new URL("/auth/signin", request.url);
+      if (redirectParam) {
+        signinUrl.searchParams.set("redirect", redirectParam);
+      }
+      return NextResponse.redirect(signinUrl);
     }
 
     if (pathname !== "/vendor/profile" && !token.vendor_setup_complete) {

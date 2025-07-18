@@ -153,7 +153,7 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
               </p>
               <h1
                 className={cn(
-                  "mb-2 text-3xl font-semibold text-slate-700",
+                  "mb-2 text-2xl font-semibold text-slate-700 md:text-3xl",
                   inter.className,
                 )}
               >
@@ -167,7 +167,7 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
             </p>
             <h1
               className={cn(
-                "mb-2 text-3xl font-semibold text-slate-700",
+                "mb-2 text-2xl font-semibold text-slate-700 md:text-3xl",
                 inter.className,
               )}
             >
@@ -199,7 +199,7 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
             </p>
             <h1
               className={cn(
-                "mb-2 text-3xl font-semibold text-slate-700",
+                "mb-2 text-2xl font-semibold text-slate-700 md:text-3xl",
                 inter.className,
               )}
             >
@@ -234,7 +234,7 @@ const Stats = ({ data }: { data: GetDashboardInfo }) => {
             </p>
             <h1
               className={cn(
-                "mb-2 text-3xl font-semibold text-slate-700",
+                "mb-2 text-2xl font-semibold text-slate-700 md:text-3xl",
                 inter.className,
               )}
             >

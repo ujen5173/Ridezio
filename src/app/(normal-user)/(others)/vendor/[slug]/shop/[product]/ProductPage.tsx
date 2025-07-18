@@ -189,9 +189,9 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
                 <span className="text-base">4.5 (400+ sold)</span>
               </div>
 
-              <div className="flex items-center gap-6">
+              <div className="flex flex-wrap items-center gap-6">
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold text-secondary">
+                  <h1 className="text-2xl font-bold text-secondary md:text-3xl">
                     {new Intl.NumberFormat("en-US", {
                       style: "currency",
                       currency: "NPR",
@@ -309,7 +309,7 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
                   </div>
                   <div className="flex-1 text-justify">
                     <p
-                      className="text-lg text-slate-600"
+                      className="text-md text-slate-600 sm:text-lg"
                       dangerouslySetInnerHTML={{
                         __html: data?.description ?? "N/A",
                       }}
@@ -323,7 +323,7 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
                     </p>
                   </div>
                   <div className="flex-1 text-justify">
-                    <p className="text-lg italic text-slate-600">
+                    <p className="text-md italic text-slate-600 sm:text-lg">
                       Please visit the store to purchase.
                     </p>
                   </div>
@@ -368,7 +368,7 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
                 </Avatar>
 
                 <Link href={`/vendor/${data?.business!.slug}`}>
-                  <h4 className="text-lg font-semibold text-slate-700 transition hover:text-secondary">
+                  <h4 className="text-md font-semibold text-slate-700 transition hover:text-secondary sm:text-lg">
                     {data?.business!.name}
                   </h4>
                 </Link>
@@ -429,7 +429,7 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
                     )}
                   >
                     <ExternalLink size={15} className="text-slate-700" />
-                    View Store in Maps
+                    View in Map
                   </Link>
                 </Button>
               </div>

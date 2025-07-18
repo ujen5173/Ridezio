@@ -1,3 +1,5 @@
+"use client";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,14 +13,14 @@ import {
 } from "~/components/ui/alert-dialog";
 import { buttonVariants } from "~/components/ui/button";
 
-const AccountSettings = async () => {
+const AccountSettings = () => {
   return (
     <div>
       <h2 className="mb-2 text-xl font-semibold">Dangar Zone</h2>
       <p className="mb-6 text-base text-slate-600">
         Delete you account or deactivate it.
       </p>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <AlertDialog>
           <AlertDialogTrigger
             className={buttonVariants({ variant: "outline" })}

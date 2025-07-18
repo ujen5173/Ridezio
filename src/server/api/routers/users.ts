@@ -231,3 +231,4 @@ export type UserRouter = typeof userRouter;
 export type GetUserOrdersType = inferRouterOutputs<UserRouter>["getUserOrders"];
 export type GetUserBusinessReviewType =
   inferRouterOutputs<UserRouter>["businessReviews"];
+export type GetCurrentType = inferRouterOutputs<UserRouter>["current"];

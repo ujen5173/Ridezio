@@ -36,7 +36,7 @@ export const generateMetadata = () =>
 const Faqs = () => {
   return (
     <section className="w-full bg-white">
-      <div className="mx-auto max-w-[1440px] px-4 py-16">
+      <div className="mx-auto max-w-[1440px] px-4 py-8 sm:py-16">
         <div className="mb-10">
           <h1
             className={cn(
@@ -55,10 +55,12 @@ const Faqs = () => {
           >
             {faqs.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left">
+                <AccordionTrigger className="py-2 text-left sm:py-4">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent>{faq.answer}</AccordionContent>
+                <AccordionContent className="text-md sm:text-lg">
+                  {faq.answer}
+                </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>

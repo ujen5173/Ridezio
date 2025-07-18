@@ -24,7 +24,7 @@ const VendorSetup = async () => {
   const [user, business] = await Promise.all([userDetails, businessDetails]);
 
   if (!business) {
-    redirect("/auth/signin");
+    redirect(`/auth/signin?tab=business`);
   }
 
   return (

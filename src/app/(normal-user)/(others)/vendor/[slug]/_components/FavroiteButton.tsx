@@ -60,7 +60,7 @@ const FavroiteButton = ({ id }: { id: string }) => {
           ) : (
             <HeartCrack size={16} className="mr-2" />
           )}
-          Remove from favourites
+          Remove favourite
         </>
       ) : (
         <>

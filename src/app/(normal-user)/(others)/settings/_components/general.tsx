@@ -140,7 +140,9 @@ const GeneralSettings = ({
                   className="inline-block h-8 px-3 leading-[2.5]"
                   htmlFor="image"
                 >
-                  {isUploading ? `Uploading ${progresses}%` : "Upload"}
+                  {isUploading
+                    ? `Uploading ${progresses.toFixed(2)}%`
+                    : "Upload"}
                 </label>
               </Button>
             </div>

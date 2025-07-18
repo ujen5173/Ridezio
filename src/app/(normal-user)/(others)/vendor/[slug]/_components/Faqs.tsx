@@ -39,7 +39,9 @@ const Faqs = () => {
                   <AccordionTrigger className="text-left">
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent>{faq.answer}</AccordionContent>
+                  <AccordionContent className="text-md sm:text-lg">
+                    {faq.answer}
+                  </AccordionContent>
                 </AccordionItem>
               ))
             ) : (

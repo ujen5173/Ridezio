@@ -43,7 +43,7 @@ const SimilarProducts = ({ product }: { product: string }) => {
         <div className="mb-5 flex items-center justify-between gap-4">
           <h1
             className={cn(
-              "mb-4 text-3xl font-semibold md:text-4xl",
+              "mb-4 text-2xl font-semibold text-slate-700 sm:text-3xl md:text-4xl",
               chakra_petch.className,
             )}
           >

@@ -113,7 +113,6 @@ const FileUploaderWrapper = ({
         ...img,
         order: index + 1,
       }));
- 
 
       setLocalImages(updatedImages);
       form.setValue("images", updatedImages, {
@@ -269,7 +268,7 @@ const FileUploaderWrapper = ({
               strategy={horizontalListSortingStrategy}
             >
               <ScrollArea className="w-full">
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                   <ScrollBar orientation="horizontal" />
 
                   {localImages.map((image, index) => (

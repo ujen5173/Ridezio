@@ -102,7 +102,9 @@ const GeneralInfo = () => {
               className="inline-block h-8 px-3 leading-[2.5]"
               htmlFor="logo"
             >
-              {isLogoUploading ? `Uploading ${logoProgresses}%` : "Upload"}
+              {isLogoUploading
+                ? `Uploading ${logoProgresses.toFixed(2)}%`
+                : "Upload"}
             </label>
           </button>
         </div>

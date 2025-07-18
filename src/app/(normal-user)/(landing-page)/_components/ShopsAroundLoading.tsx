@@ -4,7 +4,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 const ShopsAroundLoading = () => {
   return (
     <section className="w-full bg-white">
-      <div className="mx-auto max-w-[1440px] px-4 py-16">
+      <div className="mx-auto max-w-[1440px] px-4 py-8 sm:py-16">
         <Skeleton className="mb-5 h-10 w-40 rounded-sm" />
         <div className="flex gap-4">
           {Array.from({ length: 5 }).map((_, index) => (

@@ -143,7 +143,7 @@ const Footer = () => {
                 </Button>
               </FeedbackDialog>
             </div>
-            <div className="flex w-full flex-col gap-16 sm:flex-row md:w-auto">
+            <div className="flex w-full flex-col gap-10 sm:flex-row sm:gap-16 md:w-auto">
               <div>
                 <h2 className="text-lg text-slate-300">Discover</h2>
                 <ul className="mt-4 flex flex-col gap-2 text-slate-100">
@@ -214,7 +214,7 @@ const Footer = () => {
           </div>
 
           <div className="flex justify-center pt-20">
-            <Logo tw="text-3xl sm:text-6xl md:text-7xl lg:text-9xl text-pink-400" />
+            <Logo tw="text-5xl sm:text-6xl md:text-7xl lg:text-9xl text-pink-400" />
           </div>
         </div>
 

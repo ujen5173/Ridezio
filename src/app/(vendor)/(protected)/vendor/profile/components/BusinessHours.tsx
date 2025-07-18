@@ -93,7 +93,7 @@ const BusinessHours = ({ business }: { business: CurrentBusinessType }) => {
         <FormItem>
           <FormLabel>Working Days and time</FormLabel>
           <FormControl>
-            <div className="flex flex-wrap gap-6">
+            <div className="flex flex-wrap gap-2 sm:gap-4 md:gap-6">
               {WEEK_DAYS.map((day) => (
                 <div
                   key={day}

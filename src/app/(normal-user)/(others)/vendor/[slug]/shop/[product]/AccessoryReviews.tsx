@@ -33,7 +33,7 @@ const AccessoryReviews = ({
         <div className="mb-10">
           <h1
             className={cn(
-              "mb-4 text-3xl font-semibold text-slate-700 md:text-4xl",
+              "mb-4 text-2xl font-semibold text-slate-700 sm:text-3xl md:text-4xl",
               chakra_petch.className,
             )}
           >
@@ -43,7 +43,7 @@ const AccessoryReviews = ({
             Hear from our users and discover what they think of us!
           </p>
         </div>
-        <div className="mb-10 flex items-center text-xl font-medium text-slate-800">
+        <div className="text-md mb-10 flex items-center font-medium text-slate-800 sm:text-lg md:text-xl">
           <div className="flex items-center gap-2">
             <Star size={24} className="fill-yellow-500 stroke-yellow-500" />
             <span>{parseFloat(rating.toString()).toFixed(1)}</span>

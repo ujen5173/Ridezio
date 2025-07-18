@@ -281,7 +281,7 @@ const VehiclesTable = () => {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between space-y-2">
         <h1 className="text-2xl font-semibold text-slate-700">
           Manage your Vehicles
         </h1>

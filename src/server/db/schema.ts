@@ -473,6 +473,47 @@ export const sessions = pgTable(
   }),
 );
 
+export const referrals = pgTable(
+  "referral",
+  {
+    id: varchar("id", { length: 36 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    referrerUserId: varchar("referrer_user_id", { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    referredUserId: varchar("referred_user_id", { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    rewardType: varchar("reward_type", {
+      length: 20,
+      enum: ["free_rental", "points"],
+    }).notNull(),
+    rewardValue: integer("reward_value"), // e.g., number of points, or 1 for free rental
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    referrerIdx: index("referral_referrer_idx").on(table.referrerUserId),
+    referredIdx: index("referral_referred_idx").on(table.referredUserId),
+    uniqueReferral: uniqueIndex("unique_referral_idx").on(
+      table.referrerUserId,
+      table.referredUserId,
+    ),
+  }),
+);
+
+export const affiliateStats = pgTable("affiliate_stats", {
+  userId: varchar("user_id", { length: 36 })
+    .notNull()
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  totalReferrals: integer("total_referrals").notNull().default(0),
+  totalPoints: integer("total_points").notNull().default(0),
+  totalFreeRentals: integer("total_free_rentals").notNull().default(0),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many, one }) => ({
   accounts: many(accounts),
@@ -609,6 +650,21 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),
 }));
 
+export const referralsRelations = relations(referrals, ({ one }) => ({
+  referrer: one(users, {
+    fields: [referrals.referrerUserId],
+    references: [users.id],
+  }),
+  referred: one(users, {
+    fields: [referrals.referredUserId],
+    references: [users.id],
+  }),
+}));
+
+export const affiliateStatsRelations = relations(affiliateStats, ({ one }) => ({
+  user: one(users, { fields: [affiliateStats.userId], references: [users.id] }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type Business = typeof businesses.$inferSelect;
 export type Vehicle = typeof vehicles.$inferSelect;
@@ -622,6 +678,10 @@ export type Account = typeof accounts.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type VerificationToken = typeof verificationTokens.$inferSelect;
 export type Favourite = typeof favourite.$inferSelect;
+export type Referral = typeof referrals.$inferSelect;
+export type NewReferral = typeof referrals.$inferInsert;
+export type AffiliateStats = typeof affiliateStats.$inferSelect;
+export type NewAffiliateStats = typeof affiliateStats.$inferInsert;
 
 export type NewUser = typeof users.$inferInsert;
 export type NewBusiness = typeof businesses.$inferInsert;

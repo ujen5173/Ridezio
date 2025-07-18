@@ -43,7 +43,7 @@ const BecomePartner = () => {
             Grow your <span className="text-secondary underline">Business</span>{" "}
             with Ease
           </h1>
-          <p className="mb-6 w-full text-lg text-slate-600">
+          <p className="text-md mb-6 w-full text-slate-600 sm:text-lg">
             We offer simple and flexible tools for vehicle rental vendors. From{" "}
             <strong className="text-destructive underline">managing</strong> to{" "}
             <strong className="text-destructive underline">
@@ -71,7 +71,7 @@ const BecomePartner = () => {
               </li>
             ))}
           </ul>
-          <Link href="/auth/signin">
+          <Link href="/auth/signin?redirect=/dashboard">
             <Button variant="secondary" size="lg">
               Become a Partner
             </Button>

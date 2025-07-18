@@ -1,6 +1,7 @@
 import { businessRouter } from "~/server/api/routers/business";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { accessoriesRouter } from "./routers/accessories";
+import { affiliateRouter } from "./routers/affiliate";
 import { eventsRouter } from "./routers/events";
 import { feedbackRouter } from "./routers/feedback";
 import { paymentRouter } from "./routers/payment";
@@ -17,6 +18,7 @@ export const appRouter = createTRPCRouter({
   payment: paymentRouter,
   accessories: accessoriesRouter,
   feedback: feedbackRouter,
+  affiliate: affiliateRouter,
 });
 
 export type AppRouter = typeof appRouter;
