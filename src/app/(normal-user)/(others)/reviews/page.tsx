@@ -100,7 +100,7 @@ const Reviews = () => {
                     <div className="mb-2">
                       <h1 className="mb-2 line-clamp-1 flex-1 text-2xl font-semibold text-slate-600">
                         Reviewed to:{" "}
-                        <Link href={`/vendor/${review.business.slug}`}>
+                        <Link href={`/v/${review.business.slug}`}>
                           <span className="cursor-pointer font-bold text-secondary hover:underline">
                             {review.business.name}
                           </span>

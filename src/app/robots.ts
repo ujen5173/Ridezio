@@ -13,7 +13,7 @@ export default function robots(): MetadataRoute.Robots {
         "/vendor/accessories",
         "/vendor/accessories/add",
         "/vendor/vehicles/add",
-        "/vendor/profile",
+        "/vendor/settings",
       ],
     },
     sitemap: `${env.NEXT_PUBLIC_APP_URL}/sitemap.xml`,

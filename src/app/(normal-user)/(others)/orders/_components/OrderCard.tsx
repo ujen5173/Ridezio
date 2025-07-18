@@ -33,7 +33,7 @@ const OrderCard = ({
       </div>
       <div className="mt-4 flex items-center gap-1 font-medium text-slate-600">
         <Store size={20} className="text-slate-600" />
-        <Link href={`/vendor/${orderDetails.vendorSlug!}`}>
+        <Link href={`/v/${orderDetails.vendorSlug!}`}>
           <p className="text-lg font-medium text-slate-600 transition hover:text-secondary hover:underline">
             {orderDetails.vendorName}
           </p>
@@ -171,7 +171,7 @@ const OrderCard = ({
             </Tooltip>
           </TooltipProvider>
 
-          <Link href={`/vendor/${orderDetails.vendorSlug!}`}>
+          <Link href={`/v/${orderDetails.vendorSlug!}`}>
             <Button variant={"destructive"} size="sm">
               Order again
             </Button>

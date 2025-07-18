@@ -219,7 +219,7 @@ const Map: React.FC<MapProps> = ({ setData, location, places, isLoading }) => {
                     .sort((a, b) => a.order - b.order)
                     .map((image, index) => (
                       <CarouselItem key={index} className="relative p-0">
-                        <Link href={`/vendor/${place.slug}`}>
+                        <Link href={`/v/${place.slug}`}>
                           <OptimizedImage
                             alt={`${place.name}'s Images`}
                             className="m-auto aspect-[11/7] w-full rounded-none object-fill"

@@ -16,7 +16,7 @@ const Settings = async () => {
   const userDetails = await api.user.current();
 
   if (userDetails.role === "VENDOR") {
-    redirect("/vendor/profile");
+    redirect("/vendor/settings");
   }
 
   return <SettingsWrapper userDetails={userDetails} />;

@@ -56,7 +56,7 @@ export function AppSidebar({ slug }: { slug: string }) {
       },
       {
         title: "Accounts",
-        url: "/vendor/profile",
+        url: "/vendor/settings",
         icon: Settings,
         disabled: false,
       },
@@ -80,7 +80,7 @@ export function AppSidebar({ slug }: { slug: string }) {
   const sideBarExtraItems = [
     {
       title: "Visit your page",
-      url: `/vendor/${slug}`,
+      url: `/v/${slug}`,
       icon: ExternalLink,
     },
   ];

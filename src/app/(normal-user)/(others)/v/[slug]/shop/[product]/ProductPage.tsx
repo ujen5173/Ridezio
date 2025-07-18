@@ -367,7 +367,7 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
                   </AvatarFallback>
                 </Avatar>
 
-                <Link href={`/vendor/${data?.business!.slug}`}>
+                <Link href={`/v/${data?.business!.slug}`}>
                   <h4 className="text-md font-semibold text-slate-700 transition hover:text-secondary sm:text-lg">
                     {data?.business!.name}
                   </h4>
@@ -417,9 +417,7 @@ const ProductPage = ({ data }: { data: GetSingleAccessory }) => {
 
               <div className="flex items-center gap-2">
                 <Button asChild variant={"secondary"} className="flex-1 gap-2">
-                  <Link href={`/vendor/${data?.business!.slug}`}>
-                    View Vehicles
-                  </Link>
+                  <Link href={`/v/${data?.business!.slug}`}>View Vehicles</Link>
                 </Button>
                 <Button asChild variant={"outline"} className="flex-1 gap-2">
                   <Link

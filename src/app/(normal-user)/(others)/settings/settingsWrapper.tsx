@@ -42,7 +42,7 @@ const SettingsWrapper = ({ userDetails }: { userDetails: GetCurrentType }) => {
     <>
       <HeaderHeight />
 
-      <div className="w-full bg-slate-100 px-4 py-12">
+      <div className="min-h-[calc(100dvh-5.3rem)] w-full bg-slate-100 px-4 py-12">
         <Tabs
           value={selectedTab}
           onValueChange={handleTabChange}

@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 
@@ -10,7 +12,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
-const BusinessAccountSettings = async () => {
+const BusinessAccountSettings = () => {
   return (
     <section className="space-y-6">
       <div>

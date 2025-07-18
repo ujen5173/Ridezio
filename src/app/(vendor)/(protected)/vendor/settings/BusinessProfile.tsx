@@ -15,6 +15,7 @@ import { Button } from "~/components/ui/button";
 import { Form } from "~/components/ui/form";
 import { toast } from "~/hooks/use-toast";
 import { type AppRouter } from "~/server/api/root";
+import type { GetCurrentBusinessType } from "~/server/api/routers/business";
 import { vehicleTypeEnum } from "~/server/db/schema";
 import { api } from "~/trpc/react";
 import BusinessHours from "./components/BusinessHours";
@@ -31,10 +32,6 @@ const defaultHours = {
   open: "6:00 AM",
   close: "7:00 PM",
 };
-
-export type CurrentBusinessType = NonNullable<
-  RouterOutput["business"]["current"]
->;
 
 export const formSchema = z.object({
   id: z.string(),
@@ -109,8 +106,12 @@ export const imageSchema = z.object({
     .array(),
 });
 
-const BusinessProfile = ({ business }: { business: CurrentBusinessType }) => {
-  const { update, data } = useSession(); // to update the user in the session
+const BusinessProfile = ({
+  business,
+}: {
+  business: NonNullable<GetCurrentBusinessType>;
+}) => {
+  const { update, data } = useSession();
   const router = useRouter();
 
   const { mutateAsync, status } = api.business.update.useMutation();

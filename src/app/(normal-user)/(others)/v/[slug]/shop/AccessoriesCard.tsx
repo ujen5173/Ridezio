@@ -24,7 +24,7 @@ const AccessoriesCard = ({
   };
 }) => {
   return (
-    <Link href={`/vendor/${slug}/shop/${accessory.slug}`}>
+    <Link href={`/v/${slug}/shop/${accessory.slug}`}>
       <div className="bg-white">
         <div className="mb-4 flex aspect-square items-center justify-center rounded-lg border border-slate-100 bg-slate-50">
           <Image

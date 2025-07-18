@@ -29,7 +29,7 @@ const Dashboard = async () => {
       </main>
     );
   } catch (err) {
-    redirect("/vendor/profile");
+    redirect("/vendor/settings");
   }
 };
 

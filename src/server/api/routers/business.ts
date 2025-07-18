@@ -1199,3 +1199,5 @@ export type GetDashboardInfo =
   inferRouterOutputs<BusinessRouter>["getDashboardInfo"];
 export type GetVendorAroundLocation =
   inferRouterOutputs<BusinessRouter>["getVendorAroundLocation"];
+export type GetCurrentBusinessType =
+  inferRouterOutputs<BusinessRouter>["current"];

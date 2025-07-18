@@ -38,7 +38,7 @@ const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
               .sort((a, b) => a.order - b.order)
               .map((image, index) => (
                 <CarouselItem key={index} className="relative">
-                  <Link href={`/vendor/${shop.slug}`}>
+                  <Link href={`/v/${shop.slug}`}>
                     <OptimizedImage
                       alt={`${shop.name}'s Images`}
                       className="m-auto aspect-[11/7] w-full rounded-md object-fill"
@@ -51,7 +51,7 @@ const VendorCard = ({ separatorHeight, separatorColor, shop }: Props) => {
         </Carousel>
       </div>
 
-      <Link href={`/vendor/${shop.slug}`}>
+      <Link href={`/v/${shop.slug}`}>
         <div className="pt-4">
           <h1 className="mb-2 line-clamp-1 text-lg font-medium">{shop.name}</h1>
           <div className="select-none">

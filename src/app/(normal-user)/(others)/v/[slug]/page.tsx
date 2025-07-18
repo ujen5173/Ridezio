@@ -115,6 +115,8 @@ const VendorPage = async ({
 
   const data = await getVendorDetailsCached(slug);
 
+  if (!data) notFound();
+
   return (
     <>
       <HeaderHeight />

@@ -235,7 +235,7 @@ const Header = ({ pth = "/" }: { pth?: string }) => {
                         href={
                           data.user.role === "USER"
                             ? "/settings"
-                            : "/vendor/profile"
+                            : "/vendor/settings"
                         }
                       >
                         <DropdownMenuItem>Settings</DropdownMenuItem>

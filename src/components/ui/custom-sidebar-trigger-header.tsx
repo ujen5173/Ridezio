@@ -90,7 +90,7 @@ const CustomSidebarTriggerHeader = () => {
               <Link href="/dashboard">
                 <DropdownMenuItem>Dashboard</DropdownMenuItem>
               </Link>
-              <Link href="/vendor/profile">
+              <Link href="/vendor/settings">
                 <DropdownMenuItem>Account Settings</DropdownMenuItem>
               </Link>
               <DropdownMenuSeparator />

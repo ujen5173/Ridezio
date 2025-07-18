@@ -180,7 +180,7 @@ const SignInWrapper = () => {
                       }
                       await signIn("google", {
                         callbackUrl:
-                          redirect === "/" ? "/vendor/profile" : redirect,
+                          redirect === "/" ? "/vendor/settings" : redirect,
                       });
                     }}
                     className="flex w-full items-center justify-start space-x-4 py-6 text-left hover:bg-slate-50"

@@ -18,6 +18,7 @@ Welcome to **Ridezio**, a full-stack platform that seamlessly connects vendors a
 - **Seamless Booking Experience**: Enjoy a smooth and intuitive booking flow from start to finish.
 - **Payments**: Integrated e-sewa and khalti payment method.
 - **Ratings & Reviews**: Share feedback and read others’ experiences to make informed decisions.
+- **Affiliate Program**: Invite friends or vendors and win free rental for a day by utilizing the points earned.
 
 ## 🛠️ Tech Stack
 
@@ -32,6 +33,6 @@ We’ve used the latest technologies to build a robust, scalable platform:
 - **[NextAuth.js](https://next-auth.js.org/)** - Authentication for Next.js apps with support for various login providers.
 - **[Cloudianry](https://cloudinary.com/)** - Simple file uploads for your app.
 - **[Leaflet Maps API](https://developers.google.com/maps)** - Location-based services to enhance user experience.
-- **[Posthog](https://posthog.com/)** - Web analytics.
+- **[Posthog](https://posthog.com/) & [Vercel](https://vercel.com/docs/analytics)** - Web analytics.
 
 Really Enjoyed working on this project. Hope this idea would be successful in the future. 🚀

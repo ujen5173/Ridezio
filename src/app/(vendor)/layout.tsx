@@ -25,8 +25,8 @@ const OthersPageLayout = async ({
             <AppSidebar
               slug={
                 business?.status === "active"
-                  ? (business.slug ?? "/vendor/profile")
-                  : "/vendor/profile"
+                  ? (business.slug ?? "/vendor/settings")
+                  : "/vendor/settings"
               }
             />
           </div>

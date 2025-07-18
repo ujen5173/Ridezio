@@ -231,7 +231,7 @@ const VendorDetails = () => {
                         variant={"outline"}
                         className="flex size-20 flex-col items-center justify-between rounded-md p-2"
                       >
-                        <Link href={`/vendor/${vendor.slug}/shop`}>
+                        <Link href={`/v/${vendor.slug}/shop`}>
                           <div className="flex h-12 w-12 items-center justify-center">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"

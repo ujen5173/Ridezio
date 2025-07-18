@@ -11,7 +11,7 @@ const NormalUserLayout = async ({
   const session = await getServerAuthSession();
 
   if (session?.user.role === "VENDOR" && !session?.user.vendor_setup_complete)
-    redirect("/vendor/profile");
+    redirect("/vendor/settings");
 
   return (
     <main>
