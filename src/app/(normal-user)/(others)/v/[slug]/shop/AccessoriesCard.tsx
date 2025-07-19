@@ -49,8 +49,10 @@ const AccessoriesCard = ({
               <span className="text-base text-slate-600">(500+ sold)</span>
             </span>
           </div>
-          <p className="text-base font-medium uppercase">Starting at</p>
-          <h2 className="mb-4 text-2xl font-bold text-secondary">
+          <p className="text-sm font-medium uppercase sm:text-base">
+            Starting at
+          </p>
+          <h2 className="mb-2 text-xl font-bold text-secondary sm:mb-4 sm:text-2xl">
             {Intl.NumberFormat("en-NP", {
               style: "currency",
               currency: "NPR",

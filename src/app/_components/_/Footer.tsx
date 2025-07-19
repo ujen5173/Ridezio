@@ -45,9 +45,9 @@ const Footer = () => {
             </Balancer>
           </p>
 
-          <div className="flex w-full items-center gap-2 sm:w-min">
+          <div className="flex w-full flex-col items-center gap-2 sm:w-min sm:flex-row">
             <Input
-              className="w-full border-rose-500/20 bg-rose-500/20 text-slate-200 placeholder:text-slate-200 sm:w-96"
+              className="w-full min-w-32 border-rose-500/20 bg-rose-500/20 text-slate-200 placeholder:text-slate-200 sm:w-96"
               placeholder="Your email address"
               type="email"
               defaultValue={user?.user?.email ?? undefined}

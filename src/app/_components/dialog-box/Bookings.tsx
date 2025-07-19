@@ -248,7 +248,7 @@ const Bookings: React.FC<BookingsProps> = ({
       <DialogContent
         className={cn(
           inter.className,
-          "flex h-[90vh] max-h-[800px] w-full max-w-screen-2xl flex-col gap-4 px-4 sm:w-[90vw] sm:max-w-4xl sm:py-4 md:w-full md:max-w-3xl",
+          "flex h-[90vh] max-h-[800px] w-full max-w-screen-2xl flex-col gap-4 px-3 py-3 sm:w-[90vw] sm:max-w-4xl sm:px-4 sm:py-4 md:w-full md:max-w-3xl",
         )}
       >
         {!showBookingSummary ? (
@@ -262,12 +262,12 @@ const Bookings: React.FC<BookingsProps> = ({
             {user?.user.role === "VENDOR" && user?.user.id !== vendorUserId && (
               <Alert variant="default" className="border-red-300 bg-red-100">
                 <div className="flex flex-1 items-center gap-4">
-                  <TriangleAlert className="h-6 w-6 text-red-600" />
+                  <TriangleAlert className="hidden h-6 w-6 text-red-600 sm:block" />
                   <div className="flex-1">
                     <AlertTitle className="text-lg font-medium text-red-600">
-                      Vendor cannot book
+                      Vendor cannot Reserve
                     </AlertTitle>
-                    <AlertDescription className="text-red-600">
+                    <AlertDescription className="text-sm text-red-600 sm:text-base">
                       Please register as a user to continue booking a vehicle.
                     </AlertDescription>
                   </div>
@@ -282,7 +282,7 @@ const Bookings: React.FC<BookingsProps> = ({
                 {/* Vehicle Type Selection */}
                 <div className="mb-8 space-y-2 px-1">
                   <Label>Vehicle Type</Label>
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-5 px-1 sm:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-x-2 gap-y-5 px-1 xs:grid-cols-2 sm:grid-cols-3">
                     {Object.entries(bookingsDetails.vehicleTypes).map(
                       ([type, data]) => {
                         return (
@@ -385,7 +385,7 @@ const Bookings: React.FC<BookingsProps> = ({
 
             <div className="flex w-full flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
               <div className="flex flex-wrap gap-1 text-lg font-semibold">
-                <span className="text-nowrap">
+                <span className="text-nowrap text-slate-700">
                   Total:{" "}
                   {Intl.NumberFormat("en-NP", {
                     style: "currency",
@@ -400,12 +400,17 @@ const Bookings: React.FC<BookingsProps> = ({
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-4">
-                <Button onClick={() => setOpen(false)} variant="outline">
+              <div className="flex items-center gap-2 sm:gap-4">
+                <Button
+                  className="h-8 rounded-md px-3 text-xs sm:h-12 sm:px-6 sm:py-3 sm:text-base"
+                  onClick={() => setOpen(false)}
+                  variant="outline"
+                >
                   Cancel
                 </Button>
                 <Button
                   variant="primary"
+                  className="h-8 rounded-md px-3 text-xs sm:h-12 sm:px-6 sm:py-3 sm:text-base"
                   onClick={() => {
                     if (
                       user?.user.role === "VENDOR" &&

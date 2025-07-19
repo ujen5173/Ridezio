@@ -134,15 +134,15 @@ const Vehicles = () => {
                     </div>
                   </div>
                   <div className="">
-                    <h3 className="mb-4 line-clamp-1 text-xl font-semibold">
+                    <h3 className="mb-2 line-clamp-1 text-xl font-semibold sm:mb-4">
                       {vehicle.name}
                     </h3>
                     <div>
-                      <p className="text-base font-medium uppercase">
+                      <p className="text-sm font-medium uppercase sm:text-base">
                         Starting at
                       </p>
 
-                      <h2 className="mb-4 text-2xl font-bold text-secondary">
+                      <h2 className="mb-4 text-xl font-bold text-secondary sm:text-2xl">
                         {Intl.NumberFormat("en-NP", {
                           style: "currency",
                           currency: "NPR",

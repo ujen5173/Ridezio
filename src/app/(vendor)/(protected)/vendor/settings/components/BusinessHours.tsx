@@ -20,9 +20,10 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Switch } from "~/components/ui/switch";
-import { type CurrentBusinessType, type formSchema } from "../BusinessProfile";
+import type { GetCurrentBusinessType } from "~/server/api/routers/business";
+import { type formSchema } from "../BusinessProfile";
 
-const BusinessHours = ({ business }: { business: CurrentBusinessType }) => {
+const BusinessHours = ({ business }: { business: GetCurrentBusinessType }) => {
   const form = useFormContext<z.infer<typeof formSchema>>();
 
   const timeOptionsForAM = useMemo(() => {
@@ -45,7 +46,7 @@ const BusinessHours = ({ business }: { business: CurrentBusinessType }) => {
     Record<string, boolean>
   >(
     Object.fromEntries(
-      WEEK_DAYS.map((day) => [day, business.businessHours?.[day] !== null]),
+      WEEK_DAYS.map((day) => [day, business!.businessHours?.[day] !== null]),
     ),
   );
 

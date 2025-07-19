@@ -168,7 +168,7 @@ const VendorDetails = () => {
           </h1>
 
           <div className="flex flex-1 flex-col justify-between">
-            <div className="mb-4 flex items-center gap-1">
+            <div className="mb-4 flex flex-wrap items-center gap-1">
               <Link
                 href="#reviews"
                 className="flex items-center gap-1 hover:text-secondary hover:underline"
@@ -323,7 +323,7 @@ const VendorDetails = () => {
                   Reserve Now
                 </Button>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="grid grid-cols-1 gap-2 xs:grid-cols-2">
                 <FavroiteButton id={vendor.id} />
                 <Link
                   href={extractDirectionsFromIframe(vendor.location.map!)}
